@@ -11,6 +11,7 @@ import {
   Cell,
   Legend,
 } from "recharts";
+import { useInView } from "../utils/useInView";
 
 function ChartCard({ title, subtitle, children }) {
   return (
@@ -37,40 +38,44 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function ChartsSection({ kpis }) {
+  const [barRef, barInView] = useInView();
+  const [pieRef, pieInView] = useInView();
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-      <div className="lg:col-span-3">
+      <div className="lg:col-span-3" ref={barRef}>
         <ChartCard
           title="Sector-wise Budget Distribution"
           subtitle="Sanctioned outlay (₹ Cr) by infrastructure sector"
         >
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={kpis.sectorBudget} margin={{ left: -12 }}>
+            <BarChart data={kpis.sectorBudget} margin={{ left: -12, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
               <XAxis
                 dataKey="sector"
-                tick={{ fontSize: 11, fill: "#475569" }}
+                tick={{ fontSize: 10, fill: "#475569" }}
                 interval={0}
-                angle={-15}
-                textAnchor="end"
-                height={50}
+                angle={0}
+                textAnchor="middle"
+                height={32}
               />
               <YAxis tick={{ fontSize: 11, fill: "#475569" }} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: "#F1F5F9" }} />
-<Bar
-  dataKey="budget"
-  fill="#1E3A8A"
-  radius={[6, 6, 0, 0]}
-  maxBarSize={54}
-  isAnimationActive={true}
-  animationDuration={1100}
-  animationEasing="ease-out"
-/>            </BarChart>
+              <Bar
+                dataKey="budget"
+                fill="#1E3A8A"
+                radius={[6, 6, 0, 0]}
+                maxBarSize={54}
+                isAnimationActive={barInView}
+                animationDuration={1100}
+                animationEasing="ease-out"
+              />
+            </BarChart>
           </ResponsiveContainer>
         </ChartCard>
       </div>
 
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-2" ref={pieRef}>
         <ChartCard
           title="Delay-Risk Breakdown"
           subtitle="AI-classified overrun risk across all monitored projects"
@@ -84,7 +89,7 @@ export default function ChartsSection({ kpis }) {
                 innerRadius={58}
                 outerRadius={90}
                 paddingAngle={3}
-                isAnimationActive={true}
+                isAnimationActive={pieInView}
                 animationDuration={1100}
                 animationEasing="ease-out"
               >
