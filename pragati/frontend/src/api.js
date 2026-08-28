@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_BASE = "http://localhost:8000/api";
+export const API_BASE = "https://pragati-sih2026103.onrender.com/api";
 
 const client = axios.create({ baseURL: API_BASE, timeout: 8000 });
 
