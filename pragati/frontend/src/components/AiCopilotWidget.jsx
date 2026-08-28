@@ -53,6 +53,18 @@ export default function AiCopilotWidget() {
     return () => clearTimeout(timeoutId);
   }, []);
 
+  // Also blink whenever the user clicks anywhere on the page — a little
+  // reaction cue tied to real interaction, not just the idle timer.
+  useEffect(() => {
+    const handleClick = () => {
+      setIsBlinking(true);
+      setTimeout(() => setIsBlinking(false), 150);
+    };
+
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
+  }, []);
+
   return (
     <div className="fixed bottom-6 right-6 z-[1000]">
       <button
@@ -84,8 +96,12 @@ export default function AiCopilotWidget() {
             </>
           )}
 
-          {/* mouth */}
-          <rect x="38" y="60" width="24" height="6" rx="3" fill="#0A192F" />
+          {/* cheeks — soft blush for a friendlier look */}
+          <circle cx="27" cy="54" r="5" fill="#F59E0B" opacity="0.25" />
+          <circle cx="73" cy="54" r="5" fill="#F59E0B" opacity="0.25" />
+
+          {/* mouth — happy smile */}
+          <path d="M34 58 Q50 74 66 58" stroke="#0A192F" strokeWidth="4" fill="none" strokeLinecap="round" />
         </svg>
       </button>
 
