@@ -1,0 +1,5 @@
+name,ministry,sector,state,budget_cr,budget_utilized_cr,physical_progress_pct,schedule_progress_pct,delay_months,milestones_total,milestones_completed
+Chennai Peripheral Ring Road,Ministry of Road Transport & Highways,Roads,Tamil Nadu,780,410,52,50,0.2,8,4
+Kolkata Metro Line 6,Ministry of Urban Infrastructure,Railways,West Bengal,1900,1550,45,70,3.5,14,5
+Jal Jeevan Mission - Odisha Cluster,Ministry of Jal Shakti,Water Infrastructure,Odisha,610,300,49,48,0.1,9,4
+Green Energy Transmission Line,Ministry of Power,Power,Karnataka,970,880,58,80,2.8,11,5
