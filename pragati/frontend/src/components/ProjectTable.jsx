@@ -1,19 +1,33 @@
+import { useEffect, useState } from "react";
 import RiskBadge from "./RiskBadge";
 import { MapPin } from "lucide-react";
+import { useCountUp } from "../utils/useCountUp";
 
 function ProgressBar({ pct }) {
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setWidth(pct));
+    return () => cancelAnimationFrame(id);
+  }, [pct]);
+
   const color = pct >= 70 ? "#15803D" : pct >= 40 ? "#D97706" : "#DC2626";
   return (
     <div className="flex items-center gap-2 min-w-[110px]">
       <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
         <div
-          className="h-full rounded-full transition-all"
-          style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: color }}
+          className="h-full rounded-full transition-all duration-1000 ease-out"
+          style={{ width: `${Math.min(width, 100)}%`, backgroundColor: color }}
         />
       </div>
       <span className="text-xs font-mono text-slate-600 w-9 text-right">{pct}%</span>
     </div>
   );
+}
+
+function AnimatedBudget({ value }) {
+  const animated = useCountUp(value, 1000);
+  return <span className="tabular-nums">{Math.round(animated).toLocaleString("en-IN")}</span>;
 }
 
 export default function ProjectTable({ projects }) {
@@ -55,7 +69,7 @@ export default function ProjectTable({ projects }) {
                   </span>
                 </td>
                 <td className="px-5 py-3.5 font-mono text-navy-900">
-                  {Number(p.budget_cr).toLocaleString("en-IN")}
+                  <AnimatedBudget value={Number(p.budget_cr)} />
                 </td>
                 <td className="px-5 py-3.5">
                   <ProgressBar pct={Math.round(p.physical_progress_pct)} />
