@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "./components/Header";
+import CursorFollower from "./components/CursorFollower";
 import LandingPage from "./components/LandingPage";
 import UploadPage from "./components/UploadPage";
 import AdminDashboard from "./components/AdminDashboard";
@@ -37,7 +38,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-paper"><CursorFollower />
       <Header page={page} setPage={setPage} />
 
       {!backendOnline && (
