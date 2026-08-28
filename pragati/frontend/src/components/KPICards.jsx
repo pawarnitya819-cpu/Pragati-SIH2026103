@@ -1,11 +1,15 @@
 import { FolderKanban, IndianRupee, ShieldAlert, CheckSquare } from "lucide-react";
+import { useCountUp } from "../utils/useCountUp";
 
-function KPICard({ icon: Icon, label, value, sub, accent }) {
+function KPICard({ icon: Icon, label, value, format, sub, accent }) {
+  const animated = useCountUp(value);
   return (
     <div className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 p-5 flex items-start justify-between animate-fade-up">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-        <p className="mt-2 text-2xl sm:text-3xl font-display font-black text-navy-900">{value}</p>
+        <p className="mt-2 text-2xl sm:text-3xl font-display font-black text-navy-900 tabular-nums">
+          {format(animated)}
+        </p>
         {sub && <p className="mt-1 text-xs text-slate-500">{sub}</p>}
       </div>
       <div
@@ -29,13 +33,15 @@ export default function KPICards({ kpis }) {
         icon={FolderKanban}
         label="Total Projects Monitored"
         value={kpis.totalProjects}
+        format={(v) => Math.round(v)}
         sub="Across all sectors & states"
         accent="#1E3A8A"
       />
       <KPICard
         icon={IndianRupee}
         label="Budget Allocated"
-        value={`₹${kpis.totalBudget.toLocaleString("en-IN")} Cr`}
+        value={kpis.totalBudget}
+        format={(v) => `₹${Math.round(v).toLocaleString("en-IN")} Cr`}
         sub="Cumulative sanctioned outlay"
         accent="#D97706"
       />
@@ -43,13 +49,15 @@ export default function KPICards({ kpis }) {
         icon={ShieldAlert}
         label="High-Risk Projects"
         value={kpis.highRisk}
+        format={(v) => Math.round(v)}
         sub="Cost / schedule overruns flagged"
         accent="#DC2626"
       />
       <KPICard
         icon={CheckSquare}
         label="Completed Milestones"
-        value={`${kpis.milestonesCompleted} / ${kpis.milestonesTotal}`}
+        value={kpis.milestonesCompleted}
+        format={(v) => `${Math.round(v)} / ${kpis.milestonesTotal}`}
         sub={`${milestonePct}% overall delivery`}
         accent="#15803D"
       />

@@ -57,8 +57,15 @@ export default function ChartsSection({ kpis }) {
               />
               <YAxis tick={{ fontSize: 11, fill: "#475569" }} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: "#F1F5F9" }} />
-              <Bar dataKey="budget" fill="#1E3A8A" radius={[6, 6, 0, 0]} maxBarSize={54} />
-            </BarChart>
+<Bar
+  dataKey="budget"
+  fill="#1E3A8A"
+  radius={[6, 6, 0, 0]}
+  maxBarSize={54}
+  isAnimationActive={true}
+  animationDuration={1100}
+  animationEasing="ease-out"
+/>            </BarChart>
           </ResponsiveContainer>
         </ChartCard>
       </div>
@@ -77,6 +84,9 @@ export default function ChartsSection({ kpis }) {
                 innerRadius={58}
                 outerRadius={90}
                 paddingAngle={3}
+                isAnimationActive={true}
+                animationDuration={1100}
+                animationEasing="ease-out"
               >
                 {kpis.riskBreakdown.map((entry) => (
                   <Cell key={entry.name} fill={entry.color} stroke="white" strokeWidth={2} />
