@@ -48,30 +48,33 @@ export default function ChartsSection({ kpis }) {
           title="Sector-wise Budget Distribution"
           subtitle="Sanctioned outlay (₹ Cr) by infrastructure sector"
         >
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={kpis.sectorBudget} margin={{ left: -12, bottom: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-              <XAxis
-                dataKey="sector"
-                tick={{ fontSize: 10, fill: "#475569" }}
-                interval={0}
-                angle={0}
-                textAnchor="middle"
-                height={32}
-              />
-              <YAxis tick={{ fontSize: 11, fill: "#475569" }} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "#F1F5F9" }} />
-              <Bar
-                dataKey="budget"
-                fill="#1E3A8A"
-                radius={[6, 6, 0, 0]}
-                maxBarSize={54}
-                isAnimationActive={barInView}
-                animationDuration={1100}
-                animationEasing="ease-out"
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          {barInView ? (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={kpis.sectorBudget} margin={{ left: -12, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                <XAxis
+                  dataKey="sector"
+                  tick={{ fontSize: 10, fill: "#475569" }}
+                  interval={0}
+                  angle={0}
+                  textAnchor="middle"
+                  height={32}
+                />
+                <YAxis tick={{ fontSize: 11, fill: "#475569" }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "#F1F5F9" }} />
+                <Bar
+                  dataKey="budget"
+                  fill="#1E3A8A"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={54}
+                  animationDuration={1100}
+                  animationEasing="ease-out"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height: 280 }} />
+          )}
         </ChartCard>
       </div>
 
@@ -80,32 +83,35 @@ export default function ChartsSection({ kpis }) {
           title="Delay-Risk Breakdown"
           subtitle="AI-classified overrun risk across all monitored projects"
         >
-          <ResponsiveContainer width="100%" height={280}>
-            <PieChart>
-              <Pie
-                data={kpis.riskBreakdown}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={58}
-                outerRadius={90}
-                paddingAngle={3}
-                isAnimationActive={pieInView}
-                animationDuration={1100}
-                animationEasing="ease-out"
-              >
-                {kpis.riskBreakdown.map((entry) => (
-                  <Cell key={entry.name} fill={entry.color} stroke="white" strokeWidth={2} />
-                ))}
-              </Pie>
-              <Legend
-                verticalAlign="bottom"
-                iconType="circle"
-                iconSize={8}
-                wrapperStyle={{ fontSize: 12, color: "#475569" }}
-              />
-              <Tooltip formatter={(v, n) => [`${v} project(s)`, n]} />
-            </PieChart>
-          </ResponsiveContainer>
+          {pieInView ? (
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={kpis.riskBreakdown}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={58}
+                  outerRadius={90}
+                  paddingAngle={3}
+                  animationDuration={1100}
+                  animationEasing="ease-out"
+                >
+                  {kpis.riskBreakdown.map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} stroke="white" strokeWidth={2} />
+                  ))}
+                </Pie>
+                <Legend
+                  verticalAlign="bottom"
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{ fontSize: 12, color: "#475569" }}
+                />
+                <Tooltip formatter={(v, n) => [`${v} project(s)`, n]} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height: 280 }} />
+          )}
         </ChartCard>
       </div>
     </div>
