@@ -59,6 +59,19 @@ export default function LandingPage({ projects }) {
         </div>
       </section>
 
+            <section className="bg-white rounded-2xl p-6 ring-1 ring-slate-900/5 shadow-card">
+        <h2 className="font-display font-black text-lg text-navy-900 mb-2">
+          What is PRAGATI?
+        </h2>
+        <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+          <strong>PRAGATI</strong> (Pro-Active Governance and Timely Implementation) is a
+          dashboard that tracks big government infrastructure projects — like highways,
+          railways, and power plants — happening across India. It shows how much money has
+          been spent, how much work is actually done on the ground, and flags any project
+          that's falling behind schedule or going over budget.
+        </p>
+      </section>
+
       <KPICards kpis={kpis} />
 
       <SearchFilterBar

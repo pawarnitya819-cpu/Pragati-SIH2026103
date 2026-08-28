@@ -119,9 +119,14 @@ export default function AiCopilotWidget() {
           </div>
 
           <div className="p-4 bg-slate-50 max-h-[380px] overflow-y-auto">
-            <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed mb-3">
-              👋 Hi! I'm the PRAGATI AI Copilot — currently a preview build for this
-              evaluation. Full AI features are coming in the next version.
+                       <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed mb-3 space-y-2">
+              <p>👋 Hi! I'm the PRAGATI AI Copilot.</p>
+              <p>
+                <strong>PRAGATI</strong> (Pro-Active Governance and Timely Implementation)
+                tracks big government infrastructure projects — like highways, railways, and
+                power plants — across India, showing spending, real progress, and delay risks.
+              </p>
+              <p>This chatbot is a preview build for evaluation — full AI features are coming in the next version.</p>
             </div>
 
             {!showRoadmap ? (
