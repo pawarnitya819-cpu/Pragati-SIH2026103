@@ -141,7 +141,7 @@ export default function AiCopilotWidget() {
                 <p className="font-bold text-navy-900 mb-1">Planned for v2.0:</p>
                 <ul className="space-y-1.5">
                   <li>🗺️ <strong>Geospatial map</strong> — tap on your state or city to explore project data visually</li>
-                  <li>🤖 <strong>A user-friendly AI chatbot</strong> to help guide users through the platform</li>
+                  <li>🤖 <strong>A user-friendly AI chatbot</strong> — to help guide users through the platform</li>
                   <li>📊 <strong>Full AI-powered project analysis</strong></li>
                   <li>🌫️ <strong>Pollution & environmental impact analysis</strong></li>
                   <li>📅 <strong>Upcoming projects overview</strong> — track timelines and details of future developments</li>
