@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import RiskBadge from "./RiskBadge";
 import { MapPin } from "lucide-react";
 import { useCountUp } from "../utils/useCountUp";
+import { useInView } from "../utils/useInView";
 
-function ProgressBar({ pct }) {
+function ProgressBar({ pct, start }) {
   const [width, setWidth] = useState(0);
 
   useEffect(() => {
+    if (!start) return;
     const id = requestAnimationFrame(() => setWidth(pct));
     return () => cancelAnimationFrame(id);
-  }, [pct]);
+  }, [pct, start]);
 
   const color = pct >= 70 ? "#15803D" : pct >= 40 ? "#D97706" : "#DC2626";
   return (
@@ -25,14 +27,16 @@ function ProgressBar({ pct }) {
   );
 }
 
-function AnimatedBudget({ value }) {
-  const animated = useCountUp(value, 1000);
+function AnimatedBudget({ value, start }) {
+  const animated = useCountUp(start ? value : 0, 1000);
   return <span className="tabular-nums">{Math.round(animated).toLocaleString("en-IN")}</span>;
 }
 
 export default function ProjectTable({ projects }) {
+  const [tableRef, inView] = useInView({ threshold: 0.1 });
+
   return (
-    <div className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 overflow-hidden">
+    <div ref={tableRef} className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
         <div>
           <p className="font-display font-bold text-navy-900">Project Tracking Register</p>
@@ -69,10 +73,10 @@ export default function ProjectTable({ projects }) {
                   </span>
                 </td>
                 <td className="px-5 py-3.5 font-mono text-navy-900">
-                  <AnimatedBudget value={Number(p.budget_cr)} />
+                  <AnimatedBudget value={Number(p.budget_cr)} start={inView} />
                 </td>
                 <td className="px-5 py-3.5">
-                  <ProgressBar pct={Math.round(p.physical_progress_pct)} />
+                  <ProgressBar pct={Math.round(p.physical_progress_pct)} start={inView} />
                 </td>
                 <td className="px-5 py-3.5">
                   <RiskBadge status={p.risk_status} score={p.risk_score} />
