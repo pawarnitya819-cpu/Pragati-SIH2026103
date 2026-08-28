@@ -54,3 +54,13 @@ body {
 .animate-fade-up {
   animation: fade-up 0.35s ease-out both;
 }
+@keyframes cursor-burst-icon {
+  0% { transform: scale(1); opacity: 1; }
+  35% { transform: scale(1.5); opacity: 1; }
+  100% { transform: scale(0.2); opacity: 0; }
+}
+
+@keyframes cursor-burst-particle {
+  0% { transform: translate(-50%, -50%) translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
