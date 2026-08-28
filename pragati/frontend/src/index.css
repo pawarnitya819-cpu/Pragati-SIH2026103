@@ -72,3 +72,10 @@ body {
   0% { transform: translate(-50%, -50%) translate(0, 0) scale(1); opacity: 1; }
   100% { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
+@keyframes mascot-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.mascot-idle {
+  animation: mascot-idle 2.6s ease-in-out infinite;
+}
