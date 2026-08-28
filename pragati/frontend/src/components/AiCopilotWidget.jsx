@@ -144,6 +144,7 @@ export default function AiCopilotWidget() {
                   <li>🤖 <strong>A user-friendly AI chatbot</strong> to help guide users through the platform</li>
                   <li>📊 <strong>Full AI-powered project analysis</strong></li>
                   <li>🌫️ <strong>Pollution & environmental impact analysis</strong></li>
+                  <li>📅 <strong>Upcoming projects overview</strong> — track timelines and details of future developments</li>
                   <li>✨ ...and more coming soon</li>
                 </ul>
               </div>
