@@ -1,66 +1,170 @@
-import { useEffect, useState } from "react";
-import Header from "./components/Header";
-import CursorFollower from "./components/CursorFollower";
-import LandingPage from "./components/LandingPage";
-import UploadPage from "./components/UploadPage";
-import AdminDashboard from "./components/AdminDashboard";
-import { SEED_PROJECTS } from "./data/sampleProjects";
-import { scoreProjects } from "./utils/riskEngine";
-import { fetchProjects } from "./api";
-import { WifiOff } from "lucide-react";
+import React, { useState } from 'react';
 
 export default function App() {
-  const [page, setPage] = useState("landing");
-  const [projects, setProjects] = useState(() => scoreProjects(SEED_PROJECTS));
-  const [backendOnline, setBackendOnline] = useState(true);
-
-  // On load, try to sync with the FastAPI backend (which seeds the same 8
-  // sample rows plus computes risk server-side). If it's not running, the
-  // app keeps working off the hardcoded client-side seed data so the demo
-  // never looks broken.
-  useEffect(() => {
-    fetchProjects()
-      .then((data) => {
-        setProjects(scoreProjects(data));
-        setBackendOnline(true);
-      })
-      .catch(() => setBackendOnline(false));
-  }, []);
-
-  // Accepts either a full replacement array (from the backend response,
-  // which already includes seed + uploaded rows) or an updater function
-  // (used by the client-side fallback parser in UploadPage).
-  const handleDatasetSynced = (updater) => {
-    setProjects((prev) => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-      return scoreProjects(next);
-    });
-  };
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-paper"><CursorFollower />
-      <Header page={page} setPage={setPage} />
+    <div style={{ minHeight: '100vh', position: 'relative' }}>
+      {/* 
+        =================================================================
+        YOUR EXISTING PRAGATI DASHBOARD / SITE COMPONENTS GO HERE
+        Example: <Navbar />, <Sidebar />, <DashboardRouter />, etc.
+        =================================================================
+      */}
 
-      {!backendOnline && (
-        <div className="bg-saffron-100 border-b border-saffron-600/30 text-saffron-600 text-xs font-medium px-4 py-2 flex items-center justify-center gap-2">
-          <WifiOff className="h-3.5 w-3.5" />
-          FastAPI backend not detected at localhost:8000 — running on pre-loaded sample data
-          only. Uploads will use a client-side fallback parser.
-        </div>
-      )}
+      {/* --- SIH PRAGATI AI COPILOT ROADMAP WIDGET --- */}
+      <div style={{ position: 'fixed', bottom: '25px', right: '25px', zIndex: 1000 }}>
+        {/* Floating Chat Trigger Button */}
+        <button
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            backgroundColor: '#1e3a8a',
+            color: '#ffffff',
+            border: 'none',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+            cursor: 'pointer',
+            fontSize: '26px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'transform 0.2s ease-in-out',
+          }}
+          title="PRAGATI AI Copilot Preview"
+        >
+          🤖
+        </button>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {page === "landing" && <LandingPage projects={projects} />}
-        {page === "upload" && <UploadPage onDatasetSynced={handleDatasetSynced} />}
-        {page === "admin" && <AdminDashboard projects={projects} />}
-      </main>
+        {/* Chatbot Preview Window */}
+        {isChatOpen && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '75px',
+              right: '0',
+              width: '350px',
+              maxWidth: '90vw',
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
+              border: '1px solid #cbd5e1',
+              overflow: 'hidden',
+              fontFamily: 'Inter, sans-serif',
+            }}
+          >
+            {/* Header */}
+            <div
+              style={{
+                backgroundColor: '#0f172a',
+                color: '#ffffff',
+                padding: '12px 16px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div>
+                <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '700' }}>
+                  PRAGATI AI Copilot
+                </h4>
+                <span style={{ fontSize: '10px', color: '#94a3b8' }}>
+                  Infrastructure Intelligence Engine
+                </span>
+              </div>
+              <button
+                onClick={() => setIsChatOpen(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#ffffff',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                }}
+              >
+                ✕
+              </button>
+            </div>
 
-      <footer className="border-t border-slate-200 mt-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p>© Smart India Hackathon — PRAGATI Prototype (SIH26103) · Ministry of Statistics and Programme Implementation</p>
-          <p className="font-mono">Hackathon Prototype · Not an official Government of India platform</p>
-        </div>
-      </footer>
+            {/* Body */}
+            <div style={{ padding: '16px', backgroundColor: '#f8fafc', maxHeight: '380px', overflowY: 'auto' }}>
+              <div
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#fef3c7',
+                  color: '#92400e',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  padding: '3px 8px',
+                  borderRadius: '12px',
+                  marginBottom: '12px',
+                }}
+              >
+                ⚡ Planned v2.0 Roadmap
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  color: '#334155',
+                  lineHeight: '1.5',
+                  marginBottom: '12px',
+                }}
+              >
+                <strong>Automated Monitoring Assistant</strong>
+                <br />
+                Our RAG-driven AI model is designed to analyze project delays, auto-generate risk assessment reports, and query real-time GIS and infrastructure progress logs.
+              </div>
+
+              {/* Technical Architecture Box */}
+              <div
+                style={{
+                  backgroundColor: '#eff6ff',
+                  borderLeft: '4px solid #1e3a8a',
+                  padding: '10px',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  color: '#1e40af',
+                }}
+              >
+                <strong>Technical Specifications:</strong>
+                <ul style={{ margin: '6px 0 0 16px', padding: 0 }}>
+                  <li><strong>Core Engine:</strong> Llama 3 / Fine-tuned RAG</li>
+                  <li><strong>Data Pipeline:</strong> Vector search over project GIS & delay logs</li>
+                  <li><strong>Capabilities:</strong> Anomaly detection & multi-agency sync alerts</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Footer Input Placeholder */}
+            <div style={{ padding: '12px', backgroundColor: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
+              <input
+                type="text"
+                placeholder="AI Copilot offline during evaluation..."
+                disabled
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  backgroundColor: '#f1f5f9',
+                  fontSize: '12px',
+                  color: '#64748b',
+                  boxSizing: 'border-box',
+                  cursor: 'not-allowed',
+                }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+      {/* --- END OF SIH WIDGET --- */}
     </div>
   );
 }
