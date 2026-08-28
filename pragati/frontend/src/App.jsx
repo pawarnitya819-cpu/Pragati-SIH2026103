@@ -5,7 +5,6 @@ import UploadPage from "./components/UploadPage";
 import AdminDashboard from "./components/AdminDashboard";
 import CursorFollower from "./components/CursorFollower";
 import AiCopilotWidget from "./components/AiCopilotWidget";
-import MascotWidget from "./components/MascotWidget";
 import { SEED_PROJECTS } from "./data/sampleProjects";
 import { scoreProjects } from "./utils/riskEngine";
 import { fetchProjects } from "./api";
@@ -36,7 +35,6 @@ export default function App() {
     <div className="min-h-screen bg-paper">
       <CursorFollower />
       <AiCopilotWidget />
-      <MascotWidget />
       <Header page={page} setPage={setPage} />
 
       {!backendOnline && (

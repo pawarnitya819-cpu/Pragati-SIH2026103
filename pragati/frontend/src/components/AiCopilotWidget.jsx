@@ -1,16 +1,92 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const EYE_MOVE_RADIUS = 2.5;
 
 export default function AiCopilotWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const faceRef = useRef(null);
+  const [leftPupil, setLeftPupil] = useState({ x: 0, y: 0 });
+  const [rightPupil, setRightPupil] = useState({ x: 0, y: 0 });
+  const [isBlinking, setIsBlinking] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "ontouchstart" in window) return;
+
+    const pupilOffset = (eyeX, eyeY, mouseX, mouseY) => {
+      const dx = mouseX - eyeX;
+      const dy = mouseY - eyeY;
+      const angle = Math.atan2(dy, dx);
+      const distance = Math.min(EYE_MOVE_RADIUS, Math.hypot(dx, dy) / 20);
+      return { x: Math.cos(angle) * distance, y: Math.sin(angle) * distance };
+    };
+
+    const handleMove = (e) => {
+      const el = faceRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const leftEye = { x: rect.left + rect.width * 0.36, y: rect.top + rect.height * 0.42 };
+      const rightEye = { x: rect.left + rect.width * 0.64, y: rect.top + rect.height * 0.42 };
+
+      setLeftPupil(pupilOffset(leftEye.x, leftEye.y, e.clientX, e.clientY));
+      setRightPupil(pupilOffset(rightEye.x, rightEye.y, e.clientX, e.clientY));
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, []);
+
+  // Occasional blink — fires on a randomized interval (roughly every 3-6s)
+  // so it reads as a natural, subtle "alive" cue rather than a looping tic.
+  useEffect(() => {
+    let timeoutId;
+
+    const scheduleBlink = () => {
+      const delay = 3000 + Math.random() * 3000;
+      timeoutId = setTimeout(() => {
+        setIsBlinking(true);
+        setTimeout(() => setIsBlinking(false), 150);
+        scheduleBlink();
+      }, delay);
+    };
+
+    scheduleBlink();
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   return (
     <div className="fixed bottom-6 right-6 z-[1000]">
       <button
+        ref={faceRef}
         onClick={() => setIsOpen((o) => !o)}
         title="PRAGATI AI Copilot Preview"
-        className="h-14 w-14 rounded-full bg-navy-900 text-white text-2xl shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
+        className="h-14 w-14 rounded-full bg-navy-900 text-white shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
       >
-        🤖
+        <svg viewBox="0 0 100 100" width="40" height="40" aria-hidden="true">
+          {/* antenna */}
+          <line x1="50" y1="10" x2="50" y2="20" stroke="#94A3B8" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="50" cy="8" r="5" fill="#F59E0B" />
+
+          {/* head */}
+          <rect x="18" y="20" width="64" height="56" rx="16" fill="#E2E8F0" stroke="#0A192F" strokeWidth="2" />
+
+          {/* eyes — closed lids while blinking, open + pupil tracking otherwise */}
+          {isBlinking ? (
+            <>
+              <line x1="27" y1="42" x2="45" y2="42" stroke="#0A192F" strokeWidth="3" strokeLinecap="round" />
+              <line x1="55" y1="42" x2="73" y2="42" stroke="#0A192F" strokeWidth="3" strokeLinecap="round" />
+            </>
+          ) : (
+            <>
+              <circle cx="36" cy="42" r="11" fill="white" stroke="#0A192F" strokeWidth="2" />
+              <circle cx="64" cy="42" r="11" fill="white" stroke="#0A192F" strokeWidth="2" />
+              <circle cx={36 + leftPupil.x * 4} cy={42 + leftPupil.y * 4} r="5" fill="#0A192F" />
+              <circle cx={64 + rightPupil.x * 4} cy={42 + rightPupil.y * 4} r="5" fill="#0A192F" />
+            </>
+          )}
+
+          {/* mouth */}
+          <rect x="38" y="60" width="24" height="6" rx="3" fill="#0A192F" />
+        </svg>
       </button>
 
       {isOpen && (
