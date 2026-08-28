@@ -4,6 +4,7 @@ const EYE_MOVE_RADIUS = 2.5;
 
 export default function AiCopilotWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showRoadmap, setShowRoadmap] = useState(false);
   const faceRef = useRef(null);
   const [leftPupil, setLeftPupil] = useState({ x: 0, y: 0 });
   const [rightPupil, setRightPupil] = useState({ x: 0, y: 0 });
@@ -118,25 +119,30 @@ export default function AiCopilotWidget() {
           </div>
 
           <div className="p-4 bg-slate-50 max-h-[380px] overflow-y-auto">
-            <span className="inline-block bg-saffron-100 text-saffron-600 text-[11px] font-bold px-2 py-1 rounded-full mb-3">
-              ⚡ Planned v2.0 Roadmap
-            </span>
-
             <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed mb-3">
-              <strong className="text-navy-900">Automated Monitoring Assistant</strong>
-              <br />
-              A planned RAG-driven model to analyze project delays, auto-generate risk
-              assessment reports, and query real-time GIS and infrastructure progress logs.
+              👋 Hi! I'm the PRAGATI AI Copilot — currently a preview build for this
+              evaluation. Full AI features are coming in the next version.
             </div>
 
-            <div className="bg-blue-50 border-l-4 border-navy-700 rounded p-2.5 text-[11px] text-navy-700">
-              <strong>Technical Specifications:</strong>
-              <ul className="mt-1.5 ml-4 list-disc space-y-0.5">
-                <li><strong>Core Engine:</strong> Fine-tuned RAG pipeline</li>
-                <li><strong>Data Pipeline:</strong> Vector search over project GIS & delay logs</li>
-                <li><strong>Capabilities:</strong> Anomaly detection & multi-agency sync alerts</li>
-              </ul>
-            </div>
+            {!showRoadmap ? (
+              <button
+                onClick={() => setShowRoadmap(true)}
+                className="w-full text-left bg-saffron-100 hover:bg-saffron-100/70 border border-saffron-600/30 text-saffron-600 text-xs font-bold px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+              >
+                ⚡ Want to know what's coming in v2.0?
+              </button>
+            ) : (
+              <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed space-y-2">
+                <p className="font-bold text-navy-900 mb-1">Planned for v2.0:</p>
+                <ul className="space-y-1.5">
+                  <li>🗺️ <strong>Geospatial map</strong> — tap on your state or city to explore project data visually</li>
+                  <li>🤖 <strong>A user-friendly AI chatbot</strong> to help guide users through the platform</li>
+                  <li>📊 <strong>Full AI-powered project analysis</strong></li>
+                  <li>🌫️ <strong>Pollution & environmental impact analysis</strong></li>
+                  <li>✨ ...and more coming soon</li>
+                </ul>
+              </div>
+            )}
           </div>
 
           <div className="p-3 bg-white border-t border-slate-200">
