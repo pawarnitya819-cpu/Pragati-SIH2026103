@@ -12,6 +12,7 @@ import {
   Legend,
 } from "recharts";
 import { useInView } from "../utils/useInView";
+import { useIsMobile } from "../utils/useIsMobile";
 
 function ChartCard({ title, subtitle, children }) {
   return (
@@ -40,6 +41,7 @@ function CustomTooltip({ active, payload, label }) {
 export default function ChartsSection({ kpis }) {
   const [barRef, barInView] = useInView();
   const [pieRef, pieInView] = useInView();
+    const isMobile = useIsMobile();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
@@ -54,11 +56,11 @@ export default function ChartsSection({ kpis }) {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                 <XAxis
                   dataKey="sector"
-                  tick={{ fontSize: 10, fill: "#475569" }}
+                  tick={{ fontSize: isMobile ? 9 : 10, fill: "#475569" }}
                   interval={0}
-                  angle={0}
-                  textAnchor="middle"
-                  height={32}
+                  angle={isMobile ? -40 : 0}
+                  textAnchor={isMobile ? "end" : "middle"}
+                  height={isMobile ? 62 : 32}
                 />
                 <YAxis tick={{ fontSize: 11, fill: "#475569" }} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: "#F1F5F9" }} />

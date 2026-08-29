@@ -67,13 +67,12 @@ export default function AiCopilotWidget() {
   }, []);
 
   return (
-    <div className="fixed bottom-6 right-6 z-[1000]">
-      <button
-        ref={faceRef}
+       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[1000]">
+        <button
         onClick={() => setIsOpen((o) => !o)}
         title="PRAGATI AI Copilot Preview"
-        className="h-14 w-14 rounded-full bg-navy-900 text-white shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
-      >
+        className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-navy-900 text-white text-xl sm:text-2xl shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
+        >
         <svg viewBox="0 0 100 100" width="40" height="40" aria-hidden="true">
           {/* antenna */}
           <line x1="50" y1="10" x2="50" y2="20" stroke="#94A3B8" strokeWidth="4" strokeLinecap="round" />
