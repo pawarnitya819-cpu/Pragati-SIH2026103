@@ -1,16 +1,91 @@
 import { useCallback, useRef, useState } from "react";
-import { UploadCloud, FileSpreadsheet, CheckCircle2, XCircle, Loader2, Download } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, CheckCircle2, XCircle, Loader2, Download, Lock } from "lucide-react";
 import { uploadDataset, parseCsvClientSide } from "../api";
 import { scoreProjects } from "../utils/riskEngine";
 
 const ACCEPTED_EXT = [".csv", ".xlsx", ".xls"];
+const TEMP_UPLOAD_PASSWORD = "SIH@2026";
 
 export default function UploadPage({ onDatasetSynced }) {
+  const [authorized, setAuthorized] = useState(false);
+  const [projectId, setProjectId] = useState("");
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("idle"); // idle | processing | success | error
   const [message, setMessage] = useState("");
   const inputRef = useRef(null);
+
+  const handleAuthSubmit = (e) => {
+    e.preventDefault();
+    if (!projectId.trim()) {
+      setAuthError("Please enter a Project ID.");
+      return;
+    }
+    if (password !== TEMP_UPLOAD_PASSWORD) {
+      setAuthError("Incorrect password. Please try again.");
+      return;
+    }
+    setAuthError("");
+    setAuthorized(true);
+  };
+
+  if (!authorized) {
+    return (
+      <div className="max-w-sm mx-auto mt-10">
+        <form
+          onSubmit={handleAuthSubmit}
+          className="bg-white rounded-2xl shadow-card ring-1 ring-slate-900/5 p-6 space-y-4"
+        >
+          <div className="flex flex-col items-center gap-2 mb-2">
+            <div className="h-12 w-12 rounded-full bg-navy-900/5 flex items-center justify-center">
+              <Lock className="h-6 w-6 text-navy-700" strokeWidth={2} />
+            </div>
+            <h2 className="font-display font-black text-lg text-navy-900">Verify Access</h2>
+            <p className="text-xs text-slate-500 text-center">
+              Data uploads are restricted during evaluation. Enter your Project ID and access
+              password to continue.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">Project ID</label>
+            <input
+              type="text"
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              placeholder="e.g. SIH26103"
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700/30"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter access password"
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700/30"
+            />
+          </div>
+
+          {authError && (
+            <p className="text-xs text-alert-600 font-medium">{authError}</p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-navy-900 hover:bg-navy-800 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+          >
+            Unlock Upload
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   const isValidFile = (f) =>
     f && ACCEPTED_EXT.some((ext) => f.name.toLowerCase().endsWith(ext));
@@ -159,7 +234,7 @@ export default function UploadPage({ onDatasetSynced }) {
           physical_progress_pct, schedule_progress_pct, delay_months,{"\n"}
           milestones_total, milestones_completed
         </code>
-        <a
+          <a
           href="/sample_upload.csv"
           download
           className="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-navy-700 hover:text-navy-900"
