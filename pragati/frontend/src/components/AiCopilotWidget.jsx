@@ -1,120 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Sphere, RoundedBox } from "@react-three/drei";
 
-// =========================================================
-// 3D ROBOT HEAD SCENE (Pure Three.js Lighting - No Preset Errors)
-// =========================================================
-function RobotHead({ mousePos, isBlinking }) {
-  const headGroupRef = useRef();
-  const leftPupilRef = useRef();
-  const rightPupilRef = useRef();
-
-  useFrame(() => {
-    if (headGroupRef.current) {
-      headGroupRef.current.rotation.y += (mousePos.current.x * 0.4 - headGroupRef.current.rotation.y) * 0.1;
-      headGroupRef.current.rotation.x += (-mousePos.current.y * 0.3 - headGroupRef.current.rotation.x) * 0.1;
-    }
-
-    if (leftPupilRef.current && rightPupilRef.current) {
-      const targetX = mousePos.current.x * 0.12;
-      const targetY = mousePos.current.y * 0.12;
-
-      leftPupilRef.current.position.x += (targetX - leftPupilRef.current.position.x) * 0.2;
-      leftPupilRef.current.position.y += (targetY - leftPupilRef.current.position.y) * 0.2;
-
-      rightPupilRef.current.position.x += (targetX - rightPupilRef.current.position.x) * 0.2;
-      rightPupilRef.current.position.y += (targetY - rightPupilRef.current.position.y) * 0.2;
-    }
-  });
-
-  return (
-    <group ref={headGroupRef}>
-      {/* Head Outer Shell */}
-      <RoundedBox args={[2.2, 1.9, 1.6]} radius={0.4} smoothness={8}>
-        <meshStandardMaterial color="#f8fafc" roughness={0.2} metalness={0.1} />
-      </RoundedBox>
-
-      {/* Antenna Pole */}
-      <mesh position={[0, 1.15, 0]}>
-        <cylinderGeometry args={[0.04, 0.04, 0.5, 16]} />
-        <meshStandardMaterial color="#94a3b8" metalness={0.8} roughness={0.2} />
-      </mesh>
-
-      {/* Glowing Antenna Tip */}
-      <Sphere args={[0.16, 16, 16]} position={[0, 1.45, 0]}>
-        <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={2} />
-      </Sphere>
-
-      {/* Visor Screen Frame */}
-      <RoundedBox args={[1.7, 1.2, 0.1]} radius={0.25} smoothness={6} position={[0, 0, 0.8]}>
-        <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
-      </RoundedBox>
-
-      {/* Eyes Container */}
-      {!isBlinking ? (
-        <group position={[0, 0.1, 0.86]}>
-          <Sphere args={[0.3, 32, 32]} position={[-0.45, 0, 0]}>
-            <meshStandardMaterial color="#ffffff" roughness={0.1} />
-          </Sphere>
-          <group position={[-0.45, 0, 0.22]} ref={leftPupilRef}>
-            <Sphere args={[0.13, 16, 16]}>
-              <meshStandardMaterial color="#0284c7" emissive="#0369a1" emissiveIntensity={0.5} />
-            </Sphere>
-          </group>
-
-          <Sphere args={[0.3, 32, 32]} position={[0.45, 0, 0]}>
-            <meshStandardMaterial color="#ffffff" roughness={0.1} />
-          </Sphere>
-          <group position={[0.45, 0, 0.22]} ref={rightPupilRef}>
-            <Sphere args={[0.13, 16, 16]}>
-              <meshStandardMaterial color="#0284c7" emissive="#0369a1" emissiveIntensity={0.5} />
-            </Sphere>
-          </group>
-        </group>
-      ) : (
-        <group position={[0, 0.1, 0.86]}>
-          <RoundedBox args={[0.5, 0.05, 0.05]} radius={0.02} position={[-0.45, 0, 0]}>
-            <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={1} />
-          </RoundedBox>
-          <RoundedBox args={[0.5, 0.05, 0.05]} radius={0.02} position={[0.45, 0, 0]}>
-            <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={1} />
-          </RoundedBox>
-        </group>
-      )}
-
-      {/* Cheeks */}
-      <Sphere args={[0.12, 16, 16]} position={[-0.65, -0.3, 0.82]}>
-        <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.6} transparent opacity={0.5} />
-      </Sphere>
-      <Sphere args={[0.12, 16, 16]} position={[0.65, -0.3, 0.82]}>
-        <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.6} transparent opacity={0.5} />
-      </Sphere>
-    </group>
-  );
-}
-
-// =========================================================
-// MAIN AI COPILOT WIDGET
-// =========================================================
 export default function AiCopilotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [isBlinking, setIsBlinking] = useState(false);
+  const [pupilPos, setPupilPos] = useState({ x: 0, y: 0 });
+  const [headTilt, setHeadTilt] = useState({ x: 0, y: 0 });
 
-  const mousePos = useRef({ x: 0, y: 0 });
   const idleTimer = useRef(null);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      mousePos.current = {
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: -(e.clientY / window.innerHeight) * 2 + 1,
-      };
+      // Calculate cursor offsets from screen center (-1 to 1)
+      const nx = (e.clientX / window.innerWidth - 0.5) * 2;
+      const ny = (e.clientY / window.innerHeight - 0.5) * 2;
+
+      setPupilPos({ x: nx * 3.5, y: ny * 3.5 });
+      setHeadTilt({ x: nx * 5, y: ny * 5 });
 
       if (idleTimer.current) clearTimeout(idleTimer.current);
       idleTimer.current = setTimeout(() => {
-        mousePos.current = { x: 0, y: 0 };
+        setPupilPos({ x: 0, y: 0 });
+        setHeadTilt({ x: 0, y: 0 });
       }, 700);
     };
 
@@ -125,6 +32,7 @@ export default function AiCopilotWidget() {
     };
   }, []);
 
+  // Natural Blinking Cycle
   useEffect(() => {
     let timeoutId, blinkTimeoutId;
     const scheduleBlink = () => {
@@ -207,20 +115,99 @@ export default function AiCopilotWidget() {
         </div>
       )}
 
-      {/* 3D BOT BUTTON CONTAINER */}
+      {/* 3D-EFFECT INTERACTIVE BOT BUTTON */}
       <button
         onClick={() => setIsOpen((o) => !o)}
         title="PRAGATI AI Copilot Preview"
         aria-label="PRAGATI AI Copilot"
-        className="relative h-14 w-14 rounded-full bg-[#071a33] shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border border-slate-700 block"
+        className="relative h-14 w-14 rounded-full bg-[#071a33] shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border border-slate-700 flex items-center justify-center"
       >
-        <Canvas camera={{ position: [0, 0, 3.8], fov: 45 }}>
-          <ambientLight intensity={1.5} />
-          <directionalLight position={[5, 5, 5]} intensity={2.0} />
-          <directionalLight position={[-5, -5, -2]} intensity={0.8} color="#0284c7" />
+        <svg
+          viewBox="0 0 100 100"
+          className="w-full h-full p-1"
+          style={{
+            transform: `translate(${headTilt.x * 0.4}px, ${headTilt.y * 0.4}px)`,
+            transition: "transform 0.1s ease-out",
+          }}
+        >
+          <defs>
+            {/* Metallic Head Gradients */}
+            <radialGradient id="headShade" cx="40%" cy="30%" r="70%">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="50%" stopColor="#cbd5e1" />
+              <stop offset="100%" stopColor="#64748b" />
+            </radialGradient>
+            
+            {/* 3D Visor Gradient */}
+            <linearGradient id="visorShade" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#0f172a" />
+              <stop offset="100%" stopColor="#1e293b" />
+            </linearGradient>
 
-          <RobotHead mousePos={mousePos} isBlinking={isBlinking} />
-        </Canvas>
+            {/* Glowing Antenna Tip */}
+            <radialGradient id="glowTip" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#fbbf24" />
+              <stop offset="100%" stopColor="#d97706" />
+            </radialGradient>
+
+            {/* Glowing Eye Glass */}
+            <radialGradient id="eyeLens" cx="35%" cy="35%" r="60%">
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="70%" stopColor="#0284c7" />
+              <stop offset="100%" stopColor="#0369a1" />
+            </radialGradient>
+          </defs>
+
+          {/* Antenna Pole & Tip */}
+          <rect x="47.5" y="8" width="5" height="15" rx="2" fill="#94a3b8" />
+          <circle cx="50" cy="8" r="6" fill="url(#glowTip)" />
+
+          {/* 3D Outer Head Base */}
+          <rect x="18" y="22" width="64" height="56" rx="16" fill="url(#headShade)" filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.4))" />
+
+          {/* Inner Visor Frame */}
+          <rect x="25" y="30" width="50" height="36" rx="10" fill="url(#visorShade)" />
+
+          {/* Dynamic Interactive Eyes */}
+          {!isBlinking ? (
+            <g>
+              {/* Left Eye Base */}
+              <circle cx="38" cy="48" r="9" fill="#ffffff" />
+              {/* Left Pupil (Tracked) */}
+              <circle
+                cx={38 + pupilPos.x}
+                cy={48 + pupilPos.y}
+                r="4.5"
+                fill="url(#eyeLens)"
+              />
+              <circle cx={36 + pupilPos.x} cy={46 + pupilPos.y} r="1.5" fill="#ffffff" />
+
+              {/* Right Eye Base */}
+              <circle cx="62" cy="48" r="9" fill="#ffffff" />
+              {/* Right Pupil (Tracked) */}
+              <circle
+                cx={62 + pupilPos.x}
+                cy={48 + pupilPos.y}
+                r="4.5"
+                fill="url(#eyeLens)"
+              />
+              <circle cx={60 + pupilPos.x} cy={46 + pupilPos.y} r="1.5" fill="#ffffff" />
+            </g>
+          ) : (
+            /* Blinking Line State */
+            <g stroke="#38bdf8" strokeWidth="3" strokeLinecap="round">
+              <line x1="30" y1="48" x2="44" y2="48" />
+              <line x1="56" y1="48" x2="70" y2="48" />
+            </g>
+          )}
+
+          {/* Cheeks Glow */}
+          <circle cx="28" cy="58" r="3.5" fill="#f59e0b" opacity="0.6" />
+          <circle cx="72" cy="58" r="3.5" fill="#f59e0b" opacity="0.6" />
+
+          {/* Mouth */}
+          <rect x="43" y="60" width="14" height="2.5" rx="1.2" fill="#64748b" />
+        </svg>
       </button>
     </div>
   );
