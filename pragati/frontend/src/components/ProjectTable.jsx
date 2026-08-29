@@ -3,6 +3,7 @@ import RiskBadge from "./RiskBadge";
 import { MapPin } from "lucide-react";
 import { useCountUp } from "../utils/useCountUp";
 import { useInView } from "../utils/useInView";
+import ProjectLocationMap from "./ProjectLocationMap";
 
 function ProgressBar({ pct, start }) {
   const [width, setWidth] = useState(0);
@@ -34,6 +35,7 @@ function AnimatedBudget({ value, start }) {
 
 export default function ProjectTable({ projects }) {
   const [tableRef, inView] = useInView({ threshold: 0.1 });
+  const [selectedProject, setSelectedProject] = useState(null);
 
   return (
     <div ref={tableRef} className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 overflow-hidden">
@@ -67,10 +69,14 @@ export default function ProjectTable({ projects }) {
                   <p className="text-xs text-navy-700 font-medium mt-0.5">{p.sector}</p>
                 </td>
                 <td className="px-5 py-3.5 text-slate-600">
-                  <span className="inline-flex items-center gap-1">
+                  <button
+                    onClick={() => setSelectedProject(p)}
+                    title="View on map"
+                    className="inline-flex items-center gap-1 hover:text-navy-900 hover:underline decoration-dotted underline-offset-2 transition-colors"
+                  >
                     <MapPin className="h-3.5 w-3.5 text-slate-400" />
                     {p.state}
-                  </span>
+                  </button>
                 </td>
                 <td className="px-5 py-3.5 font-mono text-navy-900">
                   <AnimatedBudget value={Number(p.budget_cr)} start={inView} />
@@ -93,6 +99,8 @@ export default function ProjectTable({ projects }) {
           </tbody>
         </table>
       </div>
+
+      <ProjectLocationMap project={selectedProject} onClose={() => setSelectedProject(null)} />
     </div>
   );
 }
