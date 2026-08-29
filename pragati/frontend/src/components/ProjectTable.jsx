@@ -64,9 +64,11 @@ export default function ProjectTable({ projects }) {
                 <td className="px-5 py-3.5 font-semibold text-navy-900 max-w-[220px]">
                   {p.name}
                 </td>
-                <td className="px-5 py-3.5 text-slate-600">
-                  <p>{p.ministry}</p>
-                  <p className="text-xs text-navy-700 font-medium mt-0.5">{p.sector}</p>
+                                <td className="px-5 py-3.5 text-slate-600">
+                  <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                    <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    {p.state}
+                  </span>
                 </td>
                 <td className="px-5 py-3.5 text-slate-600">
                   <button
