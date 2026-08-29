@@ -1,50 +1,146 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Sphere, RoundedBox, Environment } from "@react-three/drei";
+import { MessageSquare, X, Zap, MapPin, Bot, BarChart3, CloudRain, Calendar } from "lucide-react";
 
-const EYE_MOVE_RADIUS = 2.5;
-const CURSOR_IDLE_MS = 650;
+// =========================================================
+// 3D ROBOT HEAD SCENE
+// =========================================================
+function RobotHead({ mousePos, isBlinking }) {
+  const headGroupRef = useRef();
+  const leftPupilRef = useRef();
+  const rightPupilRef = useRef();
 
+  useFrame(() => {
+    if (headGroupRef.current) {
+      // Smoothly tilt head towards cursor position
+      headGroupRef.current.rotation.y += (mousePos.current.x * 0.4 - headGroupRef.current.rotation.y) * 0.1;
+      headGroupRef.current.rotation.x += (-mousePos.current.y * 0.3 - headGroupRef.current.rotation.x) * 0.1;
+    }
+
+    if (leftPupilRef.current && rightPupilRef.current) {
+      // Move pupils relative to head orientation
+      const targetX = mousePos.current.x * 0.12;
+      const targetY = mousePos.current.y * 0.12;
+
+      leftPupilRef.current.position.x += (targetX - leftPupilRef.current.position.x) * 0.2;
+      leftPupilRef.current.position.y += (targetY - leftPupilRef.current.position.y) * 0.2;
+
+      rightPupilRef.current.position.x += (targetX - rightPupilRef.current.position.x) * 0.2;
+      rightPupilRef.current.position.y += (targetY - rightPupilRef.current.position.y) * 0.2;
+    }
+  });
+
+  return (
+    <group ref={headGroupRef}>
+      {/* Head Outer Shell */}
+      <RoundedBox args={[2.2, 1.9, 1.6]} radius={0.4} smoothness={8}>
+        <meshPhysicalMaterial
+          color="#f8fafc"
+          roughness={0.15}
+          metalness={0.1}
+          clearcoat={1}
+          clearcoatRoughness={0.1}
+        />
+      </RoundedBox>
+
+      {/* Antenna Pole */}
+      <mesh position={[0, 1.15, 0]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.5, 16]} />
+        <meshStandardMaterial color="#94a3b8" metalness={0.8} roughness={0.2} />
+      </mesh>
+
+      {/* Glowing Antenna Tip */}
+      <Sphere args={[0.16, 16, 16]} position={[0, 1.45, 0]}>
+        <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={2} />
+      </Sphere>
+
+      {/* Face Glass Visor Inner Frame */}
+      <RoundedBox args={[1.7, 1.2, 0.1]} radius={0.25} smoothness={6} position={[0, 0, 0.8]}>
+        <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
+      </RoundedBox>
+
+      {/* Eyes Container */}
+      {!isBlinking ? (
+        <group position={[0, 0.1, 0.86]}>
+          {/* Left Eye Base */}
+          <Sphere args={[0.3, 32, 32]} position={[-0.45, 0, 0]}>
+            <meshStandardMaterial color="#ffffff" roughness={0.1} />
+          </Sphere>
+          {/* Left Pupil */}
+          <group position={[-0.45, 0, 0.22]} ref={leftPupilRef}>
+            <Sphere args={[0.13, 16, 16]}>
+              <meshStandardMaterial color="#0284c7" emissive="#0369a1" emissiveIntensity={0.5} />
+            </Sphere>
+          </group>
+
+          {/* Right Eye Base */}
+          <Sphere args={[0.3, 32, 32]} position={[0.45, 0, 0]}>
+            <meshStandardMaterial color="#ffffff" roughness={0.1} />
+          </Sphere>
+          {/* Right Pupil */}
+          <group position={[0.45, 0, 0.22]} ref={rightPupilRef}>
+            <Sphere args={[0.13, 16, 16]}>
+              <meshStandardMaterial color="#0284c7" emissive="#0369a1" emissiveIntensity={0.5} />
+            </Sphere>
+          </group>
+        </group>
+      ) : (
+        /* Blinking Eye Lines */
+        <group position={[0, 0.1, 0.86]}>
+          <RoundedBox args={[0.5, 0.05, 0.05]} radius={0.02} position={[-0.45, 0, 0]}>
+            <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={1} />
+          </RoundedBox>
+          <RoundedBox args={[0.5, 0.05, 0.05]} radius={0.02} position={[0.45, 0, 0]}>
+            <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={1} />
+          </RoundedBox>
+        </group>
+      )}
+
+      {/* Glowing Cheeks */}
+      <Sphere args={[0.12, 16, 16]} position={[-0.65, -0.3, 0.82]}>
+        <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.6} transparent opacity={0.5} />
+      </Sphere>
+      <Sphere args={[0.12, 16, 16]} position={[0.65, -0.3, 0.82]}>
+        <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.6} transparent opacity={0.5} />
+      </Sphere>
+    </group>
+  );
+}
+
+// =========================================================
+// MAIN AI WIDGET COMPONENT
+// =========================================================
 export default function AiCopilotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [showRoadmap, setShowRoadmap] = useState(false);
-  const [leftPupil, setLeftPupil] = useState({ x: 0, y: 0 });
-  const [rightPupil, setRightPupil] = useState({ x: 0, y: 0 });
   const [isBlinking, setIsBlinking] = useState(false);
-
-  const faceRef = useRef(null);
+  
+  const mousePos = useRef({ x: 0, y: 0 });
   const idleTimer = useRef(null);
 
-  // Eye tracking logic
   useEffect(() => {
-    const pupilOffset = (eyeX, eyeY, mouseX, mouseY) => {
-      const dx = mouseX - eyeX;
-      const dy = mouseY - eyeY;
-      const angle = Math.atan2(dy, dx);
-      const distance = Math.min(EYE_MOVE_RADIUS, Math.hypot(dx, dy) / 20);
-      return { x: Math.cos(angle) * distance, y: Math.sin(angle) * distance };
-    };
-
-    const handleMove = (e) => {
-      if (!faceRef.current) return;
-      const rect = faceRef.current.getBoundingClientRect();
-
-      setLeftPupil(pupilOffset(rect.left + rect.width * 0.36, rect.top + rect.height * 0.42, e.clientX, e.clientY));
-      setRightPupil(pupilOffset(rect.left + rect.width * 0.64, rect.top + rect.height * 0.42, e.clientX, e.clientY));
+    const handleMouseMove = (e) => {
+      // Normalize cursor positions from -1 to 1
+      mousePos.current = {
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1,
+      };
 
       if (idleTimer.current) clearTimeout(idleTimer.current);
       idleTimer.current = setTimeout(() => {
-        setLeftPupil({ x: 0, y: 0 });
-        setRightPupil({ x: 0, y: 0 });
-      }, CURSOR_IDLE_MS);
+        mousePos.current = { x: 0, y: 0 };
+      }, 700);
     };
 
-    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mousemove", handleMouseMove);
     return () => {
-      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mousemove", handleMouseMove);
       if (idleTimer.current) clearTimeout(idleTimer.current);
     };
   }, []);
 
-  // Natural & click blinking logic
+  // Blinking loops
   useEffect(() => {
     let timeoutId, blinkTimeoutId;
     const scheduleBlink = () => {
@@ -73,13 +169,15 @@ export default function AiCopilotWidget() {
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[1000]">
       {/* CHAT WINDOW */}
       {isOpen && (
-        <div className="absolute bottom-[75px] right-0 w-[330px] max-w-[90vw] bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
-          <div className="bg-navy-900 text-white px-4 py-3 flex justify-between items-center">
+        <div className="absolute bottom-[75px] right-0 w-[330px] max-w-[90vw] bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden transition-all duration-200">
+          <div className="bg-slate-900 text-white px-4 py-3 flex justify-between items-center">
             <div>
               <p className="text-sm font-bold">PRAGATI AI Copilot</p>
               <p className="text-[10px] text-slate-400">Infrastructure Intelligence Engine</p>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-white text-lg font-bold">×</button>
+            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition-colors">
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           <div className="p-4 bg-slate-50 max-h-[380px] overflow-y-auto">
@@ -87,7 +185,7 @@ export default function AiCopilotWidget() {
               <p>👋 Hi! I'm the PRAGATI AI Copilot.</p>
               <p>
                 <strong>PRAGATI</strong> (Pro-Active Governance and Timely Implementation) tracks big government
-                infrastructure projects — like highways, railways, and power plants — across India, showing spending, real progress, and delay risks.
+                infrastructure projects — like highways, railways, and power plants — across India.
               </p>
               <p>This chatbot is a preview build for evaluation — full AI features are coming in the next version.</p>
             </div>
@@ -95,20 +193,20 @@ export default function AiCopilotWidget() {
             {!showRoadmap ? (
               <button
                 onClick={() => setShowRoadmap(true)}
-                className="w-full text-left bg-saffron-100 hover:bg-saffron-100/70 border border-saffron-600/30 text-saffron-600 text-xs font-bold px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+                className="w-full text-left bg-amber-50 hover:bg-amber-100 border border-amber-500/30 text-amber-700 text-xs font-bold px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
               >
-                ⚡ Want to know what's coming in v2.0?
+                <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
+                Want to know what's coming in v2.0?
               </button>
             ) : (
               <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed space-y-2">
-                <p className="font-bold text-navy-900 mb-1">Planned for v2.0:</p>
-                <ul className="space-y-1.5">
-                  <li>🗺️ <strong>Geospatial map</strong> — tap on your state or city to explore project data visually</li>
-                  <li>🤖 <strong>A user-friendly AI chatbot</strong> — to help guide users through the platform</li>
-                  <li>📊 <strong>Full AI-powered project analysis</strong></li>
-                  <li>🌫️ <strong>Pollution & environmental impact analysis</strong></li>
-                  <li>📅 <strong>Upcoming projects overview</strong> — track timelines and details of future developments</li>
-                  <li>✨ ...and more coming soon</li>
+                <p className="font-bold text-slate-900 mb-1">Planned for v2.0:</p>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-slate-500" /> <strong>Geospatial map</strong> visually explore projects</li>
+                  <li className="flex items-center gap-2"><Bot className="w-3.5 h-3.5 text-slate-500" /> <strong>A user-friendly AI chatbot</strong></li>
+                  <li className="flex items-center gap-2"><BarChart3 className="w-3.5 h-3.5 text-slate-500" /> <strong>Full AI-powered project analysis</strong></li>
+                  <li className="flex items-center gap-2"><CloudRain className="w-3.5 h-3.5 text-slate-500" /> <strong>Environmental impact analysis</strong></li>
+                  <li className="flex items-center gap-2"><Calendar className="w-3.5 h-3.5 text-slate-500" /> <strong>Upcoming projects overview</strong></li>
                 </ul>
               </div>
             )}
@@ -127,74 +225,19 @@ export default function AiCopilotWidget() {
 
       {/* 3D BOT BUTTON */}
       <button
-        ref={faceRef}
         onClick={() => setIsOpen((o) => !o)}
         title="PRAGATI AI Copilot Preview"
         aria-label="PRAGATI AI Copilot"
-        className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-full flex items-center justify-center bg-[#071A33] shadow-[0_8px_20px_rgba(7,26,51,0.30)] hover:scale-105 active:scale-95 transition-transform duration-200 group"
+        className="relative h-14 w-14 rounded-full bg-slate-900 shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border border-slate-700"
       >
-        {/* OUTER 3D ORB */}
-        <div className="absolute inset-0 rounded-full overflow-hidden bg-[#071A33] shadow-[inset_4px_4px_10px_rgba(255,255,255,0.12),inset_-5px_-7px_12px_rgba(0,0,0,0.45)]">
-          <div className="absolute left-[7px] top-[5px] w-[25px] h-[13px] rounded-full bg-white/10 blur-[3px] rotate-[-25deg]" />
-          <div className="absolute right-[5px] bottom-[5px] w-[17px] h-[17px] rounded-full bg-blue-400/10 blur-[5px]" />
-        </div>
-
-        {/* 3D ROBOT FACE */}
-        <svg viewBox="0 0 100 100" width="42" height="42" aria-hidden="true" className="relative z-10 overflow-visible">
-          {/* ANTENNA */}
-          <line x1="50" y1="10" x2="50" y2="20" stroke="#B8C4D2" strokeWidth="3" strokeLinecap="round" />
-          <circle cx="50" cy="8" r="6" fill="#F59E0B" opacity="0.18" />
-          <circle cx="50" cy="8" r="4" fill="#F59E0B" />
-          <circle cx="48.5" cy="6.5" r="1.3" fill="#FFE9AE" />
-
-          {/* FACE SHADOW */}
-          <rect x="18" y="22" width="64" height="56" rx="17" fill="#020B18" opacity="0.45" transform="translate(2 3)" />
-
-          {/* MAIN FACE */}
-          <defs>
-            <linearGradient id="botFaceGradient" x1="0" y1="0" x2="0.9" y2="1">
-              <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="45%" stopColor="#F1F5F9" />
-              <stop offset="100%" stopColor="#CBD5E1" />
-            </linearGradient>
-
-            <linearGradient id="glassesGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="100%" stopColor="#E8EDF3" />
-            </linearGradient>
-
-            <filter id="faceShadow" x="-30%" y="-30%" width="160%" height="170%">
-              <feDropShadow dx="0" dy="2" stdDeviation="1.5" floodColor="#06172B" floodOpacity="0.35" />
-            </filter>
-          </defs>
-
-          <rect x="18" y="20" width="64" height="56" rx="17" fill="url(#botFaceGradient)" stroke="#0A192F" strokeWidth="2" filter="url(#faceShadow)" />
-          <path d="M27 29 Q34 23 46 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" opacity="0.85" />
-
-          {/* EYES */}
-          {isBlinking ? (
-            <>
-              <path d="M28 42 Q36 46 44 42" fill="none" stroke="#0A192F" strokeWidth="3" strokeLinecap="round" />
-              <path d="M56 42 Q64 46 72 42" fill="none" stroke="#0A192F" strokeWidth="3" strokeLinecap="round" />
-            </>
-          ) : (
-            <>
-              <circle cx="36" cy="42" r="11" fill="url(#glassesGradient)" stroke="#0A192F" strokeWidth="2" />
-              <circle cx="64" cy="42" r="11" fill="url(#glassesGradient)" stroke="#0A192F" strokeWidth="2" />
-              <circle cx={36 + leftPupil.x * 4} cy={42 + leftPupil.y * 4} r="5" fill="#071A33" style={{ transition: "cx 0.18s cubic-bezier(.2,.8,.2,1), cy 0.18s cubic-bezier(.2,.8,.2,1)" }} />
-              <circle cx={64 + rightPupil.x * 4} cy={42 + rightPupil.y * 4} r="5" fill="#071A33" style={{ transition: "cx 0.18s cubic-bezier(.2,.8,.2,1), cy 0.18s cubic-bezier(.2,.8,.2,1)" }} />
-              <circle cx={34.5 + leftPupil.x * 4} cy={40.5 + leftPupil.y * 4} r="1.5" fill="white" opacity="0.9" />
-              <circle cx={62.5 + rightPupil.x * 4} cy={40.5 + rightPupil.y * 4} r="1.5" fill="white" opacity="0.9" />
-            </>
-          )}
-
-          {/* CHEEKS */}
-          <circle cx="27" cy="55" r="5" fill="#F59E0B" opacity="0.18" />
-          <circle cx="73" cy="55" r="5" fill="#F59E0B" opacity="0.18" />
-
-          {/* SMILE */}
-          <path d="M34 58 Q50 73 66 58" stroke="#0A192F" strokeWidth="4" fill="none" strokeLinecap="round" />
-        </svg>
+        <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }}>
+          <ambientLight intensity={0.7} />
+          <directionalLight position={[5, 5, 5]} intensity={1.2} />
+          <directionalLight position={[-5, -5, -2]} intensity={0.4} color="#0284c7" />
+          <Environment preset="city" />
+          
+          <RobotHead mousePos={mousePos} isBlinking={isBlinking} />
+        </Canvas>
       </button>
     </div>
   );
