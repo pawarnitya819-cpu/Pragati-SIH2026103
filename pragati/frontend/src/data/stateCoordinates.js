@@ -1,51 +1,50 @@
-// Approximate position of each Indian state/UT on the stylized map used by
-// ProjectLocationMap.jsx. Values are percentages (0-100) within the map's
-// viewBox, hand-calibrated to roughly match real relative geography.
-// This is intentionally illustrative, not a precise cartographic dataset —
-// projects only carry a state name, not exact coordinates.
+// Real approximate latitude/longitude for each Indian state/UT (capital
+// city coordinates), used to place a marker on an actual map (OpenStreetMap
+// via Leaflet). Projects only carry a state name, not an exact site address,
+// so this gives an accurate state-level location rather than a precise pin.
 
-export const STATE_POSITIONS = {
-  "Jammu and Kashmir": { x: 38, y: 4 },
-  "Jammu & Kashmir": { x: 38, y: 4 },
-  "Ladakh": { x: 48, y: 2 },
-  "Himachal Pradesh": { x: 40, y: 12 },
-  "Punjab": { x: 33, y: 14 },
-  "Chandigarh": { x: 36, y: 14 },
-  "Uttarakhand": { x: 45, y: 15 },
-  "Haryana": { x: 37, y: 18 },
-  "Delhi": { x: 39, y: 19 },
-  "Rajasthan": { x: 25, y: 28 },
-  "Uttar Pradesh": { x: 48, y: 26 },
-  "Bihar": { x: 60, y: 28 },
-  "Sikkim": { x: 68, y: 22 },
-  "Assam": { x: 78, y: 24 },
-  "Arunachal Pradesh": { x: 82, y: 16 },
-  "Nagaland": { x: 85, y: 26 },
-  "Manipur": { x: 84, y: 30 },
-  "Mizoram": { x: 80, y: 34 },
-  "Tripura": { x: 76, y: 32 },
-  "Meghalaya": { x: 76, y: 26 },
-  "West Bengal": { x: 65, y: 36 },
-  "Jharkhand": { x: 58, y: 38 },
-  "Chhattisgarh": { x: 52, y: 45 },
-  "Madhya Pradesh": { x: 42, y: 40 },
-  "Gujarat": { x: 18, y: 42 },
-  "Maharashtra": { x: 32, y: 54 },
-  "Odisha": { x: 60, y: 50 },
-  "Telangana": { x: 45, y: 60 },
-  "Andhra Pradesh": { x: 48, y: 68 },
-  "Karnataka": { x: 35, y: 68 },
-  "Goa": { x: 27, y: 64 },
-  "Kerala": { x: 32, y: 85 },
-  "Tamil Nadu": { x: 42, y: 85 },
-  "Puducherry": { x: 44, y: 82 },
+export const STATE_COORDS = {
+  "Andhra Pradesh": { lat: 16.5062, lng: 80.6480 },
+  "Arunachal Pradesh": { lat: 27.0844, lng: 93.6053 },
+  "Assam": { lat: 26.1445, lng: 91.7362 },
+  "Bihar": { lat: 25.5941, lng: 85.1376 },
+  "Chhattisgarh": { lat: 21.2514, lng: 81.6296 },
+  "Goa": { lat: 15.4909, lng: 73.8278 },
+  "Gujarat": { lat: 23.2156, lng: 72.6369 },
+  "Haryana": { lat: 30.7333, lng: 76.7794 },
+  "Himachal Pradesh": { lat: 31.1048, lng: 77.1734 },
+  "Jharkhand": { lat: 23.3441, lng: 85.3096 },
+  "Karnataka": { lat: 12.9716, lng: 77.5946 },
+  "Kerala": { lat: 8.5241, lng: 76.9366 },
+  "Madhya Pradesh": { lat: 23.2599, lng: 77.4126 },
+  "Maharashtra": { lat: 19.0760, lng: 72.8777 },
+  "Manipur": { lat: 24.8170, lng: 93.9368 },
+  "Meghalaya": { lat: 25.5788, lng: 91.8933 },
+  "Mizoram": { lat: 23.7271, lng: 92.7176 },
+  "Nagaland": { lat: 25.6751, lng: 94.1086 },
+  "Odisha": { lat: 20.2961, lng: 85.8245 },
+  "Punjab": { lat: 31.6340, lng: 74.8723 },
+  "Rajasthan": { lat: 26.9124, lng: 75.7873 },
+  "Sikkim": { lat: 27.3389, lng: 88.6065 },
+  "Tamil Nadu": { lat: 13.0827, lng: 80.2707 },
+  "Telangana": { lat: 17.3850, lng: 78.4867 },
+  "Tripura": { lat: 23.8315, lng: 91.2868 },
+  "Uttar Pradesh": { lat: 26.8467, lng: 80.9462 },
+  "Uttarakhand": { lat: 30.3165, lng: 78.0322 },
+  "West Bengal": { lat: 22.5726, lng: 88.3639 },
+  "Delhi": { lat: 28.6139, lng: 77.2090 },
+  "Jammu and Kashmir": { lat: 34.0837, lng: 74.7973 },
+  "Jammu & Kashmir": { lat: 34.0837, lng: 74.7973 },
+  "Ladakh": { lat: 34.1526, lng: 77.5771 },
+  "Puducherry": { lat: 11.9416, lng: 79.8083 },
+  "Chandigarh": { lat: 30.7333, lng: 76.7794 },
 };
 
-// Fallback used when a project's state isn't in the table above
-// (e.g. a typo in uploaded data), so the map never silently breaks.
-export const DEFAULT_POSITION = { x: 45, y: 45 };
+// Geographic center of India — used when a project's state isn't in the
+// table above (e.g. a typo in uploaded data), so the map never breaks.
+export const DEFAULT_COORDS = { lat: 22.9734, lng: 78.6569 };
 
-export function getStatePosition(stateName) {
-  if (!stateName) return DEFAULT_POSITION;
-  return STATE_POSITIONS[stateName.trim()] || DEFAULT_POSITION;
+export function getStateLatLng(stateName) {
+  if (!stateName) return DEFAULT_COORDS;
+  return STATE_COORDS[stateName.trim()] || DEFAULT_COORDS;
 }
