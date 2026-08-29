@@ -18,6 +18,28 @@ export default function UploadPage({ onDatasetSynced }) {
   const [message, setMessage] = useState("");
   const inputRef = useRef(null);
 
+  const isValidFile = (f) =>
+    f && ACCEPTED_EXT.some((ext) => f.name.toLowerCase().endsWith(ext));
+
+  const handleFile = (f) => {
+    if (!isValidFile(f)) {
+      setStatus("error");
+      setMessage("Unsupported file type. Please upload a .csv, .xlsx, or .xls file.");
+      return;
+    }
+    setFile(f);
+    setStatus("idle");
+    setMessage("");
+  };
+
+  // IMPORTANT: all hooks (useCallback included) must be called before any
+  // early return, so this is placed here rather than further down the file.
+  const onDrop = useCallback((e) => {
+    e.preventDefault();
+    setDragActive(false);
+    handleFile(e.dataTransfer.files?.[0]);
+  }, []);
+
   const handleAuthSubmit = (e) => {
     e.preventDefault();
     if (!projectId.trim()) {
@@ -86,26 +108,6 @@ export default function UploadPage({ onDatasetSynced }) {
       </div>
     );
   }
-
-  const isValidFile = (f) =>
-    f && ACCEPTED_EXT.some((ext) => f.name.toLowerCase().endsWith(ext));
-
-  const handleFile = (f) => {
-    if (!isValidFile(f)) {
-      setStatus("error");
-      setMessage("Unsupported file type. Please upload a .csv, .xlsx, or .xls file.");
-      return;
-    }
-    setFile(f);
-    setStatus("idle");
-    setMessage("");
-  };
-
-  const onDrop = useCallback((e) => {
-    e.preventDefault();
-    setDragActive(false);
-    handleFile(e.dataTransfer.files?.[0]);
-  }, []);
 
   const processAndSync = async () => {
     if (!file) return;
@@ -234,7 +236,7 @@ export default function UploadPage({ onDatasetSynced }) {
           physical_progress_pct, schedule_progress_pct, delay_months,{"\n"}
           milestones_total, milestones_completed
         </code>
-          <a
+        <a
           href="/sample_upload.csv"
           download
           className="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-navy-700 hover:text-navy-900"
