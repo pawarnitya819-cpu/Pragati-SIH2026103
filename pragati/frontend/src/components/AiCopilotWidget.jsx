@@ -15,8 +15,8 @@ export default function AiCopilotWidget() {
       const nx = (e.clientX / window.innerWidth - 0.5) * 2;
       const ny = (e.clientY / window.innerHeight - 0.5) * 2;
 
-      setPupilPos({ x: nx * 3.5, y: ny * 3.5 });
-      setHeadTilt({ x: nx * 5, y: ny * 5 });
+      setPupilPos({ x: nx * 3, y: ny * 3 });
+      setHeadTilt({ x: nx * 4, y: ny * 4 });
 
       if (idleTimer.current) clearTimeout(idleTimer.current);
       idleTimer.current = setTimeout(() => {
@@ -115,16 +115,16 @@ export default function AiCopilotWidget() {
         </div>
       )}
 
-      {/* 3D-EFFECT INTERACTIVE BOT BUTTON */}
+      {/* HAPPY BOT CIRCLE BUTTON */}
       <button
         onClick={() => setIsOpen((o) => !o)}
         title="PRAGATI AI Copilot Preview"
         aria-label="PRAGATI AI Copilot"
-        className="relative h-14 w-14 rounded-full bg-[#071a33] shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border border-slate-700 flex items-center justify-center"
+        className="relative h-16 w-16 rounded-full bg-[#071a33] shadow-xl hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border-2 border-slate-700 flex items-center justify-center p-0"
       >
         <svg
           viewBox="0 0 100 100"
-          className="w-full h-full p-1"
+          className="w-full h-full"
           style={{
             transform: `translate(${headTilt.x * 0.4}px, ${headTilt.y * 0.4}px)`,
             transition: "transform 0.1s ease-out",
@@ -159,54 +159,48 @@ export default function AiCopilotWidget() {
           </defs>
 
           {/* Antenna Pole & Tip */}
-          <rect x="47.5" y="8" width="5" height="15" rx="2" fill="#94a3b8" />
-          <circle cx="50" cy="8" r="6" fill="url(#glowTip)" />
+          <rect x="47.5" y="6" width="5" height="14" rx="2" fill="#94a3b8" />
+          <circle cx="50" cy="6" r="5.5" fill="url(#glowTip)" />
 
-          {/* 3D Outer Head Base */}
-          <rect x="18" y="22" width="64" height="56" rx="16" fill="url(#headShade)" filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.4))" />
+          {/* Centered Head Base */}
+          <rect x="18" y="20" width="64" height="58" rx="16" fill="url(#headShade)" filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.4))" />
 
           {/* Inner Visor Frame */}
-          <rect x="25" y="30" width="50" height="36" rx="10" fill="url(#visorShade)" />
+          <rect x="24" y="27" width="52" height="42" rx="12" fill="url(#visorShade)" />
 
-          {/* Dynamic Interactive Eyes */}
+          {/* Dynamic Interactive Happy Eyes */}
           {!isBlinking ? (
             <g>
+              {/* Joyful Eyebrows */}
+              <path d="M 31 37 Q 38 33 45 37" stroke="#38bdf8" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <path d="M 55 37 Q 62 33 69 37" stroke="#38bdf8" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+
               {/* Left Eye Base */}
-              <circle cx="38" cy="48" r="9" fill="#ffffff" />
+              <circle cx="38" cy="46" r="8" fill="#ffffff" />
               {/* Left Pupil (Tracked) */}
-              <circle
-                cx={38 + pupilPos.x}
-                cy={48 + pupilPos.y}
-                r="4.5"
-                fill="url(#eyeLens)"
-              />
-              <circle cx={36 + pupilPos.x} cy={46 + pupilPos.y} r="1.5" fill="#ffffff" />
+              <circle cx={38 + pupilPos.x} cy={46 + pupilPos.y} r="4" fill="url(#eyeLens)" />
+              <circle cx={36 + pupilPos.x} cy={44 + pupilPos.y} r="1.5" fill="#ffffff" />
 
               {/* Right Eye Base */}
-              <circle cx="62" cy="48" r="9" fill="#ffffff" />
+              <circle cx="62" cy="46" r="8" fill="#ffffff" />
               {/* Right Pupil (Tracked) */}
-              <circle
-                cx={62 + pupilPos.x}
-                cy={48 + pupilPos.y}
-                r="4.5"
-                fill="url(#eyeLens)"
-              />
-              <circle cx={60 + pupilPos.x} cy={46 + pupilPos.y} r="1.5" fill="#ffffff" />
+              <circle cx={62 + pupilPos.x} cy={46 + pupilPos.y} r="4" fill="url(#eyeLens)" />
+              <circle cx={60 + pupilPos.x} cy={44 + pupilPos.y} r="1.5" fill="#ffffff" />
             </g>
           ) : (
-            /* Blinking Line State */
-            <g stroke="#38bdf8" strokeWidth="3" strokeLinecap="round">
-              <line x1="30" y1="48" x2="44" y2="48" />
-              <line x1="56" y1="48" x2="70" y2="48" />
+            /* Happy Blinking Arc Eyes */
+            <g stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" fill="none">
+              <path d="M 31 46 Q 38 40 45 46" />
+              <path d="M 55 46 Q 62 40 69 46" />
             </g>
           )}
 
-          {/* Cheeks Glow */}
-          <circle cx="28" cy="58" r="3.5" fill="#f59e0b" opacity="0.6" />
-          <circle cx="72" cy="58" r="3.5" fill="#f59e0b" opacity="0.6" />
+          {/* Happy Blush Cheeks */}
+          <circle cx="28" cy="54" r="4" fill="#f43f5e" opacity="0.6" />
+          <circle cx="72" cy="54" r="4" fill="#f43f5e" opacity="0.6" />
 
-          {/* Mouth */}
-          <rect x="43" y="60" width="14" height="2.5" rx="1.2" fill="#64748b" />
+          {/* Big Happy Smile */}
+          <path d="M 40 54 Q 50 65 60 54" stroke="#38bdf8" strokeWidth="3" fill="none" strokeLinecap="round" />
         </svg>
       </button>
     </div>
