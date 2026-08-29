@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Sphere, RoundedBox, Environment } from "@react-three/drei";
-import { MessageSquare, X, Zap, MapPin, Bot, BarChart3, CloudRain, Calendar } from "lucide-react";
+import { Sphere, RoundedBox } from "@react-three/drei";
 
 // =========================================================
-// 3D ROBOT HEAD SCENE
+// 3D ROBOT HEAD SCENE (Pure Three.js Lighting - No Preset Errors)
 // =========================================================
 function RobotHead({ mousePos, isBlinking }) {
   const headGroupRef = useRef();
@@ -13,13 +12,11 @@ function RobotHead({ mousePos, isBlinking }) {
 
   useFrame(() => {
     if (headGroupRef.current) {
-      // Smoothly tilt head towards cursor position
       headGroupRef.current.rotation.y += (mousePos.current.x * 0.4 - headGroupRef.current.rotation.y) * 0.1;
       headGroupRef.current.rotation.x += (-mousePos.current.y * 0.3 - headGroupRef.current.rotation.x) * 0.1;
     }
 
     if (leftPupilRef.current && rightPupilRef.current) {
-      // Move pupils relative to head orientation
       const targetX = mousePos.current.x * 0.12;
       const targetY = mousePos.current.y * 0.12;
 
@@ -35,13 +32,7 @@ function RobotHead({ mousePos, isBlinking }) {
     <group ref={headGroupRef}>
       {/* Head Outer Shell */}
       <RoundedBox args={[2.2, 1.9, 1.6]} radius={0.4} smoothness={8}>
-        <meshPhysicalMaterial
-          color="#f8fafc"
-          roughness={0.15}
-          metalness={0.1}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
-        />
+        <meshStandardMaterial color="#f8fafc" roughness={0.2} metalness={0.1} />
       </RoundedBox>
 
       {/* Antenna Pole */}
@@ -55,7 +46,7 @@ function RobotHead({ mousePos, isBlinking }) {
         <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={2} />
       </Sphere>
 
-      {/* Face Glass Visor Inner Frame */}
+      {/* Visor Screen Frame */}
       <RoundedBox args={[1.7, 1.2, 0.1]} radius={0.25} smoothness={6} position={[0, 0, 0.8]}>
         <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
       </RoundedBox>
@@ -63,22 +54,18 @@ function RobotHead({ mousePos, isBlinking }) {
       {/* Eyes Container */}
       {!isBlinking ? (
         <group position={[0, 0.1, 0.86]}>
-          {/* Left Eye Base */}
           <Sphere args={[0.3, 32, 32]} position={[-0.45, 0, 0]}>
             <meshStandardMaterial color="#ffffff" roughness={0.1} />
           </Sphere>
-          {/* Left Pupil */}
           <group position={[-0.45, 0, 0.22]} ref={leftPupilRef}>
             <Sphere args={[0.13, 16, 16]}>
               <meshStandardMaterial color="#0284c7" emissive="#0369a1" emissiveIntensity={0.5} />
             </Sphere>
           </group>
 
-          {/* Right Eye Base */}
           <Sphere args={[0.3, 32, 32]} position={[0.45, 0, 0]}>
             <meshStandardMaterial color="#ffffff" roughness={0.1} />
           </Sphere>
-          {/* Right Pupil */}
           <group position={[0.45, 0, 0.22]} ref={rightPupilRef}>
             <Sphere args={[0.13, 16, 16]}>
               <meshStandardMaterial color="#0284c7" emissive="#0369a1" emissiveIntensity={0.5} />
@@ -86,7 +73,6 @@ function RobotHead({ mousePos, isBlinking }) {
           </group>
         </group>
       ) : (
-        /* Blinking Eye Lines */
         <group position={[0, 0.1, 0.86]}>
           <RoundedBox args={[0.5, 0.05, 0.05]} radius={0.02} position={[-0.45, 0, 0]}>
             <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={1} />
@@ -97,7 +83,7 @@ function RobotHead({ mousePos, isBlinking }) {
         </group>
       )}
 
-      {/* Glowing Cheeks */}
+      {/* Cheeks */}
       <Sphere args={[0.12, 16, 16]} position={[-0.65, -0.3, 0.82]}>
         <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.6} transparent opacity={0.5} />
       </Sphere>
@@ -109,19 +95,18 @@ function RobotHead({ mousePos, isBlinking }) {
 }
 
 // =========================================================
-// MAIN AI WIDGET COMPONENT
+// MAIN AI COPILOT WIDGET
 // =========================================================
 export default function AiCopilotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [isBlinking, setIsBlinking] = useState(false);
-  
+
   const mousePos = useRef({ x: 0, y: 0 });
   const idleTimer = useRef(null);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      // Normalize cursor positions from -1 to 1
       mousePos.current = {
         x: (e.clientX / window.innerWidth) * 2 - 1,
         y: -(e.clientY / window.innerHeight) * 2 + 1,
@@ -140,7 +125,6 @@ export default function AiCopilotWidget() {
     };
   }, []);
 
-  // Blinking loops
   useEffect(() => {
     let timeoutId, blinkTimeoutId;
     const scheduleBlink = () => {
@@ -169,14 +153,14 @@ export default function AiCopilotWidget() {
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[1000]">
       {/* CHAT WINDOW */}
       {isOpen && (
-        <div className="absolute bottom-[75px] right-0 w-[330px] max-w-[90vw] bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden transition-all duration-200">
+        <div className="absolute bottom-[75px] right-0 w-[330px] max-w-[90vw] bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
           <div className="bg-slate-900 text-white px-4 py-3 flex justify-between items-center">
             <div>
               <p className="text-sm font-bold">PRAGATI AI Copilot</p>
               <p className="text-[10px] text-slate-400">Infrastructure Intelligence Engine</p>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition-colors">
-              <X className="w-5 h-5" />
+            <button onClick={() => setIsOpen(false)} className="text-white text-lg font-bold">
+              ×
             </button>
           </div>
 
@@ -193,20 +177,20 @@ export default function AiCopilotWidget() {
             {!showRoadmap ? (
               <button
                 onClick={() => setShowRoadmap(true)}
-                className="w-full text-left bg-amber-50 hover:bg-amber-100 border border-amber-500/30 text-amber-700 text-xs font-bold px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+                className="w-full text-left bg-amber-100 hover:bg-amber-200/70 border border-amber-500/30 text-amber-700 text-xs font-bold px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
               >
-                <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
-                Want to know what's coming in v2.0?
+                ⚡ Want to know what's coming in v2.0?
               </button>
             ) : (
               <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed space-y-2">
                 <p className="font-bold text-slate-900 mb-1">Planned for v2.0:</p>
-                <ul className="space-y-2">
-                  <li className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-slate-500" /> <strong>Geospatial map</strong> visually explore projects</li>
-                  <li className="flex items-center gap-2"><Bot className="w-3.5 h-3.5 text-slate-500" /> <strong>A user-friendly AI chatbot</strong></li>
-                  <li className="flex items-center gap-2"><BarChart3 className="w-3.5 h-3.5 text-slate-500" /> <strong>Full AI-powered project analysis</strong></li>
-                  <li className="flex items-center gap-2"><CloudRain className="w-3.5 h-3.5 text-slate-500" /> <strong>Environmental impact analysis</strong></li>
-                  <li className="flex items-center gap-2"><Calendar className="w-3.5 h-3.5 text-slate-500" /> <strong>Upcoming projects overview</strong></li>
+                <ul className="space-y-1.5">
+                  <li>🗺️ <strong>Geospatial map</strong> — tap on your state or city to explore project data visually</li>
+                  <li>🤖 <strong>A user-friendly AI chatbot</strong> — to help guide users through the platform</li>
+                  <li>📊 <strong>Full AI-powered project analysis</strong></li>
+                  <li>🌫️ <strong>Pollution & environmental impact analysis</strong></li>
+                  <li>📅 <strong>Upcoming projects overview</strong> — track timelines and details of future developments</li>
+                  <li>✨ ...and more coming soon</li>
                 </ul>
               </div>
             )}
@@ -223,19 +207,18 @@ export default function AiCopilotWidget() {
         </div>
       )}
 
-      {/* 3D BOT BUTTON */}
+      {/* 3D BOT BUTTON CONTAINER */}
       <button
         onClick={() => setIsOpen((o) => !o)}
         title="PRAGATI AI Copilot Preview"
         aria-label="PRAGATI AI Copilot"
-        className="relative h-14 w-14 rounded-full bg-slate-900 shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border border-slate-700"
+        className="relative h-14 w-14 rounded-full bg-[#071a33] shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border border-slate-700 block"
       >
-        <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }}>
-          <ambientLight intensity={0.7} />
-          <directionalLight position={[5, 5, 5]} intensity={1.2} />
-          <directionalLight position={[-5, -5, -2]} intensity={0.4} color="#0284c7" />
-          <Environment preset="city" />
-          
+        <Canvas camera={{ position: [0, 0, 3.8], fov: 45 }}>
+          <ambientLight intensity={1.5} />
+          <directionalLight position={[5, 5, 5]} intensity={2.0} />
+          <directionalLight position={[-5, -5, -2]} intensity={0.8} color="#0284c7" />
+
           <RobotHead mousePos={mousePos} isBlinking={isBlinking} />
         </Canvas>
       </button>
