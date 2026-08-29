@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
-const EYE_MOVE_RADIUS = 2.5;
+const EYE_MOVE_RADIUS = 2.4;
+const IDLE_RECENTER_MS = 600;
 
 export default function AiCopilotWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [showRoadmap, setShowRoadmap] = useState(false);
-  const faceRef = useRef(null);
+  const buttonRef = useRef(null);
+  const idleTimer = useRef(null);
   const [leftPupil, setLeftPupil] = useState({ x: 0, y: 0 });
   const [rightPupil, setRightPupil] = useState({ x: 0, y: 0 });
-  const [isBlinking, setIsBlinking] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined" && "ontouchstart" in window) return;
+
     const pupilOffset = (eyeX, eyeY, mouseX, mouseY) => {
       const dx = mouseX - eyeX;
       const dy = mouseY - eyeY;
@@ -19,88 +21,67 @@ export default function AiCopilotWidget() {
       return { x: Math.cos(angle) * distance, y: Math.sin(angle) * distance };
     };
 
+    const recenter = () => {
+      setLeftPupil({ x: 0, y: 0 });
+      setRightPupil({ x: 0, y: 0 });
+    };
+
     const handleMove = (e) => {
-      const el = faceRef.current;
+      const el = buttonRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      const leftEye = { x: rect.left + rect.width * 0.36, y: rect.top + rect.height * 0.42 };
-      const rightEye = { x: rect.left + rect.width * 0.64, y: rect.top + rect.height * 0.42 };
+      const scaleX = rect.width / 48;
+      const scaleY = rect.height / 48;
+      const leftEye = { x: rect.left + 18 * scaleX, y: rect.top + 24 * scaleY };
+      const rightEye = { x: rect.left + 30 * scaleX, y: rect.top + 24 * scaleY };
 
       setLeftPupil(pupilOffset(leftEye.x, leftEye.y, e.clientX, e.clientY));
       setRightPupil(pupilOffset(rightEye.x, rightEye.y, e.clientX, e.clientY));
+
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+      idleTimer.current = setTimeout(recenter, IDLE_RECENTER_MS);
     };
 
     window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, []);
-
-  // Occasional blink — fires on a randomized interval (roughly every 3-6s)
-  // so it reads as a natural, subtle "alive" cue rather than a looping tic.
-  useEffect(() => {
-    let timeoutId;
-
-    const scheduleBlink = () => {
-      const delay = 3000 + Math.random() * 3000;
-      timeoutId = setTimeout(() => {
-        setIsBlinking(true);
-        setTimeout(() => setIsBlinking(false), 150);
-        scheduleBlink();
-      }, delay);
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      if (idleTimer.current) clearTimeout(idleTimer.current);
     };
-
-    scheduleBlink();
-    return () => clearTimeout(timeoutId);
-  }, []);
-
-  // Also blink whenever the user clicks anywhere on the page — a little
-  // reaction cue tied to real interaction, not just the idle timer.
-  useEffect(() => {
-    const handleClick = () => {
-      setIsBlinking(true);
-      setTimeout(() => setIsBlinking(false), 150);
-    };
-
-    window.addEventListener("click", handleClick);
-    return () => window.removeEventListener("click", handleClick);
   }, []);
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[1000]">
       <button
-        ref={faceRef}
+        ref={buttonRef}
         onClick={() => setIsOpen((o) => !o)}
         title="PRAGATI AI Copilot Preview"
-        className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-navy-900 text-white text-xl sm:text-2xl shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
+        className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-navy-900 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
       >
-        <svg viewBox="0 0 100 100" width="40" height="40" aria-hidden="true">
-          {/* antenna */}
-          <line x1="50" y1="10" x2="50" y2="20" stroke="#94A3B8" strokeWidth="4" strokeLinecap="round" />
-          <circle cx="50" cy="8" r="5" fill="#F59E0B" />
+        <svg viewBox="0 0 48 48" width="70%" height="70%">
+          <line x1="24" y1="6" x2="24" y2="12" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" />
+          <circle cx="24" cy="5" r="2.5" fill="#D97706" />
 
-          {/* head */}
-          <rect x="18" y="20" width="64" height="56" rx="16" fill="#E2E8F0" stroke="#0A192F" strokeWidth="2" />
+          <rect x="8" y="12" width="32" height="26" rx="9" fill="#F1F5F9" />
 
-          {/* eyes — closed lids while blinking, open + pupil tracking otherwise */}
-          {isBlinking ? (
-            <>
-              <line x1="27" y1="42" x2="45" y2="42" stroke="#0A192F" strokeWidth="3" strokeLinecap="round" />
-              <line x1="55" y1="42" x2="73" y2="42" stroke="#0A192F" strokeWidth="3" strokeLinecap="round" />
-            </>
-          ) : (
-            <>
-              <circle cx="36" cy="42" r="11" fill="white" stroke="#0A192F" strokeWidth="2" />
-              <circle cx="64" cy="42" r="11" fill="white" stroke="#0A192F" strokeWidth="2" />
-              <circle cx={36 + leftPupil.x * 4} cy={42 + leftPupil.y * 4} r="5" fill="#0A192F" />
-              <circle cx={64 + rightPupil.x * 4} cy={42 + rightPupil.y * 4} r="5" fill="#0A192F" />
-            </>
-          )}
+          <circle cx="18" cy="24" r="6" fill="white" />
+          <circle cx="30" cy="24" r="6" fill="white" />
 
-          {/* cheeks — soft blush for a friendlier look */}
-          <circle cx="27" cy="54" r="5" fill="#F59E0B" opacity="0.25" />
-          <circle cx="73" cy="54" r="5" fill="#F59E0B" opacity="0.25" />
+          <circle
+            cx={18 + leftPupil.x}
+            cy={24 + leftPupil.y}
+            r="3"
+            fill="#0A192F"
+            style={{ transition: "cx 0.35s ease-out, cy 0.35s ease-out" }}
+          />
+          <circle
+            cx={30 + rightPupil.x}
+            cy={24 + rightPupil.y}
+            r="3"
+            fill="#0A192F"
+            style={{ transition: "cx 0.35s ease-out, cy 0.35s ease-out" }}
+          />
 
-          {/* mouth — happy smile */}
-          <path d="M34 58 Q50 74 66 58" stroke="#0A192F" strokeWidth="4" fill="none" strokeLinecap="round" />
+          <rect x="18" y="32" width="12" height="3" rx="1.5" fill="#94A3B8" />
         </svg>
       </button>
 
@@ -117,36 +98,25 @@ export default function AiCopilotWidget() {
           </div>
 
           <div className="p-4 bg-slate-50 max-h-[380px] overflow-y-auto">
-            <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed mb-3 space-y-2">
-              <p>👋 Hi! I'm the PRAGATI AI Copilot.</p>
-              <p>
-                <strong>PRAGATI</strong> (Pro-Active Governance and Timely Implementation)
-                tracks big government infrastructure projects — like highways, railways, and
-                power plants — across India, showing spending, real progress, and delay risks.
-              </p>
-              <p>This chatbot is a preview build for evaluation — full AI features are coming in the next version.</p>
+            <span className="inline-block bg-saffron-100 text-saffron-600 text-[11px] font-bold px-2 py-1 rounded-full mb-3">
+              ⚡ Planned v2.0 Roadmap
+            </span>
+
+            <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed mb-3">
+              <strong className="text-navy-900">Automated Monitoring Assistant</strong>
+              <br />
+              A planned RAG-driven model to analyze project delays, auto-generate risk
+              assessment reports, and query real-time GIS and infrastructure progress logs.
             </div>
 
-            {!showRoadmap ? (
-              <button
-                onClick={() => setShowRoadmap(true)}
-                className="w-full text-left bg-saffron-100 hover:bg-saffron-100/70 border border-saffron-600/30 text-saffron-600 text-xs font-bold px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
-              >
-                ⚡ Want to know what's coming in v2.0?
-              </button>
-            ) : (
-              <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed space-y-2">
-                <p className="font-bold text-navy-900 mb-1">Planned for v2.0:</p>
-                <ul className="space-y-1.5">
-                  <li>🗺️ <strong>Geospatial map</strong> — tap on your state or city to explore project data visually</li>
-                  <li>🤖 <strong>A user-friendly AI chatbot</strong> — to help guide users through the platform</li>
-                  <li>📊 <strong>Full AI-powered project analysis</strong></li>
-                  <li>🌫️ <strong>Pollution & environmental impact analysis</strong></li>
-                  <li>📅 <strong>Upcoming projects overview</strong> — track timelines and details of future developments</li>
-                  <li>✨ ...and more coming soon</li>
-                </ul>
-              </div>
-            )}
+            <div className="bg-blue-50 border-l-4 border-navy-700 rounded p-2.5 text-[11px] text-navy-700">
+              <strong>Technical Specifications:</strong>
+              <ul className="mt-1.5 ml-4 list-disc space-y-0.5">
+                <li><strong>Core Engine:</strong> Fine-tuned RAG pipeline</li>
+                <li><strong>Data Pipeline:</strong> Vector search over project GIS & delay logs</li>
+                <li><strong>Capabilities:</strong> Anomaly detection & multi-agency sync alerts</li>
+              </ul>
+            </div>
           </div>
 
           <div className="p-3 bg-white border-t border-slate-200">
