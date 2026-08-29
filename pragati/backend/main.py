@@ -75,13 +75,8 @@ def compute_risk(
 ) -> (float, str):
     budget_utilized_pct = (budget_utilized_cr / budget_cr * 100) if budget_cr else 0
 
-    # Cost Performance signal: spending more money than physical work justifies
     cost_variance = budget_utilized_pct - physical_progress_pct
-
-    # Schedule Performance signal: behind the planned schedule curve
     schedule_variance = schedule_progress_pct - physical_progress_pct
-
-    # Delay penalty: each month of reported delay adds risk
     delay_penalty = min(delay_months * 6, 40)
 
     raw_score = (
@@ -103,7 +98,7 @@ def compute_risk(
 
 
 # --------------------------------------------------------------------------
-# Seed data — 8 realistic central infrastructure projects
+# Seed data — 20 realistic central infrastructure projects
 # --------------------------------------------------------------------------
 
 def _build_seed() -> List[Project]:
@@ -140,6 +135,54 @@ def _build_seed() -> List[Project]:
              sector="Power", state="Gujarat", budget_cr=1600, budget_utilized_cr=980,
              physical_progress_pct=63, schedule_progress_pct=68, delay_months=1,
              milestones_total=9, milestones_completed=6),
+        dict(name="Ahmedabad Metro Phase 2", ministry="Ministry of Urban Infrastructure",
+             sector="Railways", state="Gujarat", budget_cr=3200, budget_utilized_cr=1500,
+             physical_progress_pct=40, schedule_progress_pct=42, delay_months=0.4,
+             milestones_total=16, milestones_completed=6),
+        dict(name="Kandla Port Expansion", ministry="Ministry of Ports, Shipping & Waterways",
+             sector="Waterways", state="Gujarat", budget_cr=1100, budget_utilized_cr=900,
+             physical_progress_pct=55, schedule_progress_pct=78, delay_months=3.2,
+             milestones_total=10, milestones_completed=5),
+        dict(name="Gujarat Rural Roads Package", ministry="Ministry of Road Transport & Highways",
+             sector="Roads", state="Gujarat", budget_cr=560, budget_utilized_cr=300,
+             physical_progress_pct=53, schedule_progress_pct=51, delay_months=0.2,
+             milestones_total=8, milestones_completed=4),
+        dict(name="Surat Smart City Sewage Network", ministry="Ministry of Housing & Urban Affairs",
+             sector="Urban Infrastructure", state="Gujarat", budget_cr=380, budget_utilized_cr=290,
+             physical_progress_pct=44, schedule_progress_pct=62, delay_months=2.1,
+             milestones_total=7, milestones_completed=3),
+        dict(name="Statue of Unity Connectivity Corridor", ministry="Ministry of Road Transport & Highways",
+             sector="Roads", state="Gujarat", budget_cr=720, budget_utilized_cr=400,
+             physical_progress_pct=60, schedule_progress_pct=58, delay_months=0.3,
+             milestones_total=9, milestones_completed=6),
+        dict(name="Delhi-Mumbai Expressway Package 7", ministry="Ministry of Road Transport & Highways",
+             sector="Roads", state="Haryana", budget_cr=2200, budget_utilized_cr=1900,
+             physical_progress_pct=50, schedule_progress_pct=82, delay_months=5,
+             milestones_total=14, milestones_completed=6),
+        dict(name="Chennai Desalination Plant", ministry="Ministry of Jal Shakti",
+             sector="Water Infrastructure", state="Tamil Nadu", budget_cr=480, budget_utilized_cr=260,
+             physical_progress_pct=56, schedule_progress_pct=54, delay_months=0.2,
+             milestones_total=7, milestones_completed=4),
+        dict(name="Assam Gas Cracker Pipeline", ministry="Ministry of Petroleum & Natural Gas",
+             sector="Power", state="Assam", budget_cr=900, budget_utilized_cr=700,
+             physical_progress_pct=50, schedule_progress_pct=68, delay_months=2.5,
+             milestones_total=10, milestones_completed=4),
+        dict(name="Kerala Coastal Highway", ministry="Ministry of Road Transport & Highways",
+             sector="Roads", state="Kerala", budget_cr=640, budget_utilized_cr=350,
+             physical_progress_pct=55, schedule_progress_pct=53, delay_months=0.1,
+             milestones_total=8, milestones_completed=5),
+        dict(name="Andhra Pradesh Capital Region Metro", ministry="Ministry of Urban Infrastructure",
+             sector="Railways", state="Andhra Pradesh", budget_cr=1450, budget_utilized_cr=1100,
+             physical_progress_pct=48, schedule_progress_pct=70, delay_months=2.8,
+             milestones_total=12, milestones_completed=5),
+        dict(name="Himachal Hydropower Project", ministry="Ministry of Power",
+             sector="Power", state="Himachal Pradesh", budget_cr=780, budget_utilized_cr=520,
+             physical_progress_pct=58, schedule_progress_pct=60, delay_months=0.8,
+             milestones_total=9, milestones_completed=5),
+        dict(name="Northeast Gas Grid", ministry="Ministry of Petroleum & Natural Gas",
+             sector="Power", state="Tripura", budget_cr=500, budget_utilized_cr=260,
+             physical_progress_pct=52, schedule_progress_pct=50, delay_months=0.2,
+             milestones_total=7, milestones_completed=4),
     ]
 
     projects = []
@@ -190,7 +233,7 @@ def _dataframe_to_projects(df: pd.DataFrame) -> List[Project]:
             milestones_total = int(row["milestones_total"])
             milestones_completed = int(row["milestones_completed"])
         except (ValueError, TypeError):
-            continue  # skip malformed row rather than failing the whole batch
+            continue
 
         score, status = compute_risk(
             budget_cr, budget_utilized_cr, physical_progress_pct,
