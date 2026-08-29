@@ -11,8 +11,6 @@ export default function AiCopilotWidget() {
   const [isBlinking, setIsBlinking] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && "ontouchstart" in window) return;
-
     const pupilOffset = (eyeX, eyeY, mouseX, mouseY) => {
       const dx = mouseX - eyeX;
       const dy = mouseY - eyeY;
@@ -67,12 +65,13 @@ export default function AiCopilotWidget() {
   }, []);
 
   return (
-       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[1000]">
-        <button
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[1000]">
+      <button
+        ref={faceRef}
         onClick={() => setIsOpen((o) => !o)}
         title="PRAGATI AI Copilot Preview"
         className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-navy-900 text-white text-xl sm:text-2xl shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
-        >
+      >
         <svg viewBox="0 0 100 100" width="40" height="40" aria-hidden="true">
           {/* antenna */}
           <line x1="50" y1="10" x2="50" y2="20" stroke="#94A3B8" strokeWidth="4" strokeLinecap="round" />
@@ -118,7 +117,7 @@ export default function AiCopilotWidget() {
           </div>
 
           <div className="p-4 bg-slate-50 max-h-[380px] overflow-y-auto">
-                       <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed mb-3 space-y-2">
+            <div className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed mb-3 space-y-2">
               <p>👋 Hi! I'm the PRAGATI AI Copilot.</p>
               <p>
                 <strong>PRAGATI</strong> (Pro-Active Governance and Timely Implementation)
