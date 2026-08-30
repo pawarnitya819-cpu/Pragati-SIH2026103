@@ -16,9 +16,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-# --------------------------------------------------------------------------
-# App setup
-# --------------------------------------------------------------------------
+from database import USE_DATABASE, engine
 
 app = FastAPI(
     title="PRAGATI API",
@@ -28,16 +26,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # relax for hackathon demo; restrict in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-# --------------------------------------------------------------------------
-# Schema
-# --------------------------------------------------------------------------
 
 class Project(BaseModel):
     id: str
@@ -51,20 +45,10 @@ class Project(BaseModel):
     schedule_progress_pct: float
     delay_months: float
     risk_score: float
-    risk_status: str  # "On Track" | "Moderate Risk" | "Critical Risk"
+    risk_status: str
     milestones_total: int
     milestones_completed: int
 
-
-# --------------------------------------------------------------------------
-# Risk engine
-# --------------------------------------------------------------------------
-# Lightweight heuristic model: combines a "cost variance" signal
-# (budget utilized vs physical progress achieved) with a "schedule variance"
-# signal (schedule progress vs physical progress, plus reported delay in
-# months) into a single 0-100 risk score, then buckets it into a status tag.
-# This mirrors a simplified Earned Value Management (EVM) approach commonly
-# used for infrastructure project audits.
 
 def compute_risk(
     budget_cr: float,
@@ -74,7 +58,6 @@ def compute_risk(
     delay_months: float,
 ) -> (float, str):
     budget_utilized_pct = (budget_utilized_cr / budget_cr * 100) if budget_cr else 0
-
     cost_variance = budget_utilized_pct - physical_progress_pct
     schedule_variance = schedule_progress_pct - physical_progress_pct
     delay_penalty = min(delay_months * 6, 40)
@@ -97,9 +80,12 @@ def compute_risk(
     return risk_score, status
 
 
-# --------------------------------------------------------------------------
-# Seed data — 20 realistic central infrastructure projects
-# --------------------------------------------------------------------------
+REQUIRED_COLUMNS = {
+    "name", "ministry", "sector", "state", "budget_cr", "budget_utilized_cr",
+    "physical_progress_pct", "schedule_progress_pct", "delay_months",
+    "milestones_total", "milestones_completed",
+}
+
 
 def _build_seed() -> List[Project]:
     raw = [
@@ -200,18 +186,57 @@ def _build_seed() -> List[Project]:
     return projects
 
 
-DB: List[Project] = _build_seed()
+DB_TABLE = "projects"
 
 
-# --------------------------------------------------------------------------
-# Helpers
-# --------------------------------------------------------------------------
+def _row_to_project(row: dict) -> Project:
+    score, status = compute_risk(
+        float(row["budget_cr"]), float(row["budget_utilized_cr"]),
+        float(row["physical_progress_pct"]), float(row["schedule_progress_pct"]),
+        float(row["delay_months"]),
+    )
+    return Project(
+        id=str(row.get("id") or uuid.uuid4()),
+        name=str(row["name"]),
+        ministry=str(row["ministry"]),
+        sector=str(row["sector"]),
+        state=str(row["state"]),
+        budget_cr=float(row["budget_cr"]),
+        budget_utilized_cr=float(row["budget_utilized_cr"]),
+        physical_progress_pct=float(row["physical_progress_pct"]),
+        schedule_progress_pct=float(row["schedule_progress_pct"]),
+        delay_months=float(row["delay_months"]),
+        risk_score=score,
+        risk_status=status,
+        milestones_total=int(row["milestones_total"]),
+        milestones_completed=int(row["milestones_completed"]),
+    )
 
-REQUIRED_COLUMNS = {
-    "name", "ministry", "sector", "state", "budget_cr", "budget_utilized_cr",
-    "physical_progress_pct", "schedule_progress_pct", "delay_months",
-    "milestones_total", "milestones_completed",
-}
+
+def _load_projects_from_db() -> List[Project]:
+    df = pd.read_sql_table(DB_TABLE, engine)
+    return [_row_to_project(row) for row in df.to_dict(orient="records")]
+
+
+def _save_new_rows_to_db(df: pd.DataFrame) -> None:
+    keep_cols = [c for c in REQUIRED_COLUMNS if c in df.columns]
+    df[keep_cols].to_sql(DB_TABLE, engine, if_exists="append", index=False)
+
+
+def _init_db() -> List[Project]:
+    if USE_DATABASE:
+        try:
+            return _load_projects_from_db()
+        except Exception:
+            seed_projects = _build_seed()
+            seed_df = pd.DataFrame([p.model_dump() for p in seed_projects])
+            seed_df = seed_df.drop(columns=["id", "risk_score", "risk_status"])
+            seed_df.to_sql(DB_TABLE, engine, if_exists="replace", index=False)
+            return seed_projects
+    return _build_seed()
+
+
+DB: List[Project] = _init_db()
 
 
 def _dataframe_to_projects(df: pd.DataFrame) -> List[Project]:
@@ -288,10 +313,6 @@ def _compute_kpis(projects: List[Project]) -> dict:
     }
 
 
-# --------------------------------------------------------------------------
-# Routes
-# --------------------------------------------------------------------------
-
 @app.get("/api/health")
 def health():
     return {"status": "ok", "service": "PRAGATI API"}
@@ -333,7 +354,12 @@ async def upload_dataset(file: UploadFile = File(...)):
     if not new_projects:
         raise HTTPException(status_code=400, detail="No valid project rows found in the uploaded file.")
 
-    DB.extend(new_projects)
+    if USE_DATABASE:
+        _save_new_rows_to_db(df)
+        global DB
+        DB = _load_projects_from_db()
+    else:
+        DB.extend(new_projects)
 
     return {
         "message": f"Processed and synced {len(new_projects)} project record(s).",
@@ -345,7 +371,14 @@ async def upload_dataset(file: UploadFile = File(...)):
 
 @app.delete("/api/reset")
 def reset_dataset():
-    """Reset the in-memory store back to the original seed dataset (demo convenience)."""
+    """Reset the store back to the original seed dataset (demo convenience)."""
     global DB
-    DB = _build_seed()
+    if USE_DATABASE:
+        seed_projects = _build_seed()
+        seed_df = pd.DataFrame([p.model_dump() for p in seed_projects])
+        seed_df = seed_df.drop(columns=["id", "risk_score", "risk_status"])
+        seed_df.to_sql(DB_TABLE, engine, if_exists="replace", index=False)
+        DB = _load_projects_from_db()
+    else:
+        DB = _build_seed()
     return {"message": "Dataset reset to seed data.", "projects": DB, "kpis": _compute_kpis(DB)}
