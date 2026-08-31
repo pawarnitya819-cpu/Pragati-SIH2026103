@@ -15,6 +15,12 @@ export default function App() {
   const [projects, setProjects] = useState(() => scoreProjects(SEED_PROJECTS));
   const [backendOnline, setBackendOnline] = useState(true);
 
+  // Site photos / inspection media live at the same level as the project
+  // register rather than inside UploadPage, so attachments survive a tab
+  // switch and can be read by any view that needs evidence alongside a
+  // project's sector and budget figures.
+  const [siteMedia, setSiteMedia] = useState([]);
+
   useEffect(() => {
     fetchProjects()
       .then((data) => {
@@ -47,7 +53,13 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {page === "landing" && <LandingPage projects={projects} />}
-        {page === "upload" && <UploadPage onDatasetSynced={handleDatasetSynced} />}
+        {page === "upload" && (
+          <UploadPage
+            onDatasetSynced={handleDatasetSynced}
+            siteMedia={siteMedia}
+            onSiteMediaChange={setSiteMedia}
+          />
+        )}
         {page === "admin" && <AdminDashboard projects={projects} />}
       </main>
 

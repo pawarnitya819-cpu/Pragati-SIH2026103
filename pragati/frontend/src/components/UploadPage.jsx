@@ -2,11 +2,12 @@ import { useCallback, useRef, useState } from "react";
 import { UploadCloud, FileSpreadsheet, CheckCircle2, XCircle, Loader2, Download, Lock } from "lucide-react";
 import { uploadDataset, parseCsvClientSide } from "../api";
 import { scoreProjects } from "../utils/riskEngine";
+import SiteMediaUpload from "./SiteMediaUpload";
 
 const ACCEPTED_EXT = [".csv", ".xlsx", ".xls"];
 const TEMP_UPLOAD_PASSWORD = "SIH@2026";
 
-export default function UploadPage({ onDatasetSynced }) {
+export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMediaChange }) {
   const [authorized, setAuthorized] = useState(false);
   const [projectId, setProjectId] = useState("");
   const [password, setPassword] = useState("");
@@ -244,6 +245,14 @@ export default function UploadPage({ onDatasetSynced }) {
           <Download className="h-3.5 w-3.5" />
           Download sample_upload.csv
         </a>
+      </div>
+
+      <div className="pt-2 border-t border-slate-200">
+        <SiteMediaUpload
+          projectId={projectId.trim()}
+          items={siteMedia}
+          onChange={onSiteMediaChange}
+        />
       </div>
     </div>
   );

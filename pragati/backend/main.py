@@ -190,16 +190,11 @@ DB_TABLE = "projects"
 
 
 def _row_to_project(row: dict) -> Project:
-    stored_score = row.get("risk_score")
-    stored_status = row.get("risk_status")
-    if stored_score is not None and stored_status is not None and pd.notna(stored_score) and pd.notna(stored_status):
-        score, status = float(stored_score), str(stored_status)
-    else:
-        score, status = compute_risk(
-            float(row["budget_cr"]), float(row["budget_utilized_cr"]),
-            float(row["physical_progress_pct"]), float(row["schedule_progress_pct"]),
-            float(row["delay_months"]),
-        )
+    score, status = compute_risk(
+        float(row["budget_cr"]), float(row["budget_utilized_cr"]),
+        float(row["physical_progress_pct"]), float(row["schedule_progress_pct"]),
+        float(row["delay_months"]),
+    )
     return Project(
         id=str(row.get("id") or uuid.uuid4()),
         name=str(row["name"]),
@@ -225,8 +220,7 @@ def _load_projects_from_db() -> List[Project]:
 
 def _save_new_rows_to_db(df: pd.DataFrame) -> None:
     keep_cols = [c for c in REQUIRED_COLUMNS if c in df.columns]
-    optional_cols = [c for c in ("risk_score", "risk_status") if c in df.columns]
-    df[keep_cols + optional_cols].to_sql(DB_TABLE, engine, if_exists="append", index=False)
+    df[keep_cols].to_sql(DB_TABLE, engine, if_exists="append", index=False)
 
 
 def _init_db() -> List[Project]:
@@ -253,8 +247,6 @@ def _dataframe_to_projects(df: pd.DataFrame) -> List[Project]:
             detail=f"Uploaded file is missing required column(s): {', '.join(sorted(missing))}",
         )
 
-    has_provided_risk = "risk_score" in df.columns and "risk_status" in df.columns
-
     new_projects = []
     for _, row in df.iterrows():
         try:
@@ -268,14 +260,10 @@ def _dataframe_to_projects(df: pd.DataFrame) -> List[Project]:
         except (ValueError, TypeError):
             continue
 
-        if has_provided_risk and pd.notna(row["risk_score"]) and pd.notna(row["risk_status"]):
-            score = float(row["risk_score"])
-            status = str(row["risk_status"])
-        else:
-            score, status = compute_risk(
-                budget_cr, budget_utilized_cr, physical_progress_pct,
-                schedule_progress_pct, delay_months,
-            )
+        score, status = compute_risk(
+            budget_cr, budget_utilized_cr, physical_progress_pct,
+            schedule_progress_pct, delay_months,
+        )
 
         new_projects.append(Project(
             id=str(uuid.uuid4()),

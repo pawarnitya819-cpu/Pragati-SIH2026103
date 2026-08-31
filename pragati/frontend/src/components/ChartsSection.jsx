@@ -31,17 +31,54 @@ function CustomTooltip({ active, payload, label }) {
       <p className="font-semibold mb-0.5">{label}</p>
       {payload.map((p) => (
         <p key={p.dataKey} style={{ color: p.color }}>
-          ₹{p.value.toLocaleString("en-IN")} Cr
+          ₹{Number(p.value || 0).toLocaleString("en-IN")} Cr
         </p>
       ))}
     </div>
   );
 }
 
+// Sector names run long ("Urban Infrastructure", "Water Infrastructure"), and
+// horizontal ticks at interval={0} collide and get clipped once there are more
+// than four or five sectors. Rotating each label -45deg and anchoring it at
+// its end keeps every sector readable no matter how many the filtered dataset
+// produces; anything still too long for the reserved gutter is truncated with
+// an ellipsis and the full name stays available as a native SVG tooltip.
+function SectorTick({ x, y, payload, fontSize, maxChars }) {
+  const full = String(payload?.value ?? "");
+  const label = full.length > maxChars ? `${full.slice(0, maxChars - 1)}…` : full;
+
+  return (
+    <g transform={`translate(${x},${y + 6})`}>
+      <text
+        transform="rotate(-45)"
+        x={0}
+        y={0}
+        dy={4}
+        textAnchor="end"
+        fill="#475569"
+        fontSize={fontSize}
+        fontWeight={500}
+      >
+        <title>{full}</title>
+        {label}
+      </text>
+    </g>
+  );
+}
+
 export default function ChartsSection({ kpis }) {
   const [barRef, barInView] = useInView();
   const [pieRef, pieInView] = useInView();
-    const isMobile = useIsMobile();
+  const isMobile = useIsMobile();
+
+  // Rotated labels need vertical room. Reserving it on the axis (`height`)
+  // plus the chart's bottom margin is what stops the longest sector names
+  // from being cut off at the base of the card.
+  const axisHeight = isMobile ? 78 : 104;
+  const chartHeight = isMobile ? 300 : 340;
+  const tickFontSize = isMobile ? 9 : 11;
+  const tickMaxChars = isMobile ? 14 : 22;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
@@ -51,18 +88,21 @@ export default function ChartsSection({ kpis }) {
           subtitle="Sanctioned outlay (₹ Cr) by infrastructure sector"
         >
           {barInView ? (
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={kpis.sectorBudget} margin={{ left: -12, bottom: 8 }}>
+            <ResponsiveContainer width="100%" height={chartHeight}>
+              <BarChart
+                data={kpis.sectorBudget}
+                margin={{ top: 8, right: 12, left: -8, bottom: 16 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                 <XAxis
                   dataKey="sector"
-                  tick={{ fontSize: isMobile ? 9 : 10, fill: "#475569" }}
                   interval={0}
-                  angle={isMobile ? -40 : 0}
-                  textAnchor={isMobile ? "end" : "middle"}
-                  height={isMobile ? 62 : 32}
+                  height={axisHeight}
+                  tickMargin={4}
+                  tickLine={false}
+                  tick={<SectorTick fontSize={tickFontSize} maxChars={tickMaxChars} />}
                 />
-                <YAxis tick={{ fontSize: 11, fill: "#475569" }} />
+                <YAxis tick={{ fontSize: 11, fill: "#475569" }} width={64} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: "#F1F5F9" }} />
                 <Bar
                   dataKey="budget"
@@ -75,7 +115,7 @@ export default function ChartsSection({ kpis }) {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div style={{ height: 280 }} />
+            <div style={{ height: chartHeight }} />
           )}
         </ChartCard>
       </div>
@@ -86,7 +126,7 @@ export default function ChartsSection({ kpis }) {
           subtitle="AI-classified overrun risk across all monitored projects"
         >
           {pieInView ? (
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={chartHeight}>
               <PieChart>
                 <Pie
                   data={kpis.riskBreakdown}
@@ -112,7 +152,7 @@ export default function ChartsSection({ kpis }) {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div style={{ height: 280 }} />
+            <div style={{ height: chartHeight }} />
           )}
         </ChartCard>
       </div>

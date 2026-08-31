@@ -2,21 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* `overflow-x: hidden` on html/#root turns them into scroll containers, which
+   clips IntersectionObserver's view of anything below the fold (scroll-linked
+   animations then never fire) and breaks position:sticky. `overflow-x: clip`
+   suppresses the horizontal scrollbar without creating a scroll port; the
+   `hidden` line above it is the fallback for browsers that don't know `clip`. */
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
   font-family: "Inter", system-ui, sans-serif;
   color: #0a192f;
-  overflow-x: hidden;
   width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 #root {
+  max-width: 100%;
   overflow-x: hidden;
-
+  overflow-x: clip;
 }
 
 ::selection {
@@ -78,4 +86,46 @@ body {
 }
 .mascot-idle {
   animation: mascot-idle 2.6s ease-in-out infinite;
+}
+
+/* Physical-progress bars: the fill animates from 0 to its real width on
+   mount. The easing is a soft "settle" curve so long bars don't shoot past
+   and snap back. Width itself is set inline per row from the data. */
+.progress-fill {
+  transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: width;
+}
+
+/* A light sweep that travels across the bar while it fills, then stops —
+   reads as "loading" without becoming a permanently animating distraction. */
+@keyframes progress-sheen {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+.progress-sheen {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: progress-sheen 1.4s ease-out 1 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .progress-fill {
+    transition: none;
+  }
+  .progress-sheen,
+  .animate-fade-up,
+  .mascot-idle {
+    animation: none;
+  }
 }

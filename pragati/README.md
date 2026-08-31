@@ -86,6 +86,7 @@ pragati/
             ├── Header.jsx
             ├── LandingPage.jsx       # public overview: KPIs, filters, charts
             ├── UploadPage.jsx        # drag-and-drop data ingestion
+            ├── SiteMediaUpload.jsx   # site photos / inspection media attachments
             ├── AdminDashboard.jsx    # gov dashboard: table + insights
             ├── ProjectTable.jsx
             ├── ChartsSection.jsx
@@ -94,6 +95,27 @@ pragati/
             ├── InsightsPanel.jsx
             └── RiskBadge.jsx
 ```
+
+---
+
+## 3. Deploying the frontend to Vercel
+
+In the Vercel project settings set **Root Directory → `frontend`**. Everything
+else is declared in `frontend/vercel.json` (framework, install/build commands,
+output directory) and `frontend/.nvmrc` (Node 20).
+
+Two things to keep in mind when adding packages:
+
+- `frontend/.npmrc` — npm only reads `.npmrc` from the directory it installs
+  in. It must sit next to `package.json`; a copy inside `public/` does nothing
+  for installs and gets published as a static file on the live site.
+- The 3D stack is pinned to the **React 18** line: `@react-three/fiber@8.x`,
+  `@react-three/drei@9.x`, `three@0.169.x`. Fiber 9 / drei 10 require React 19
+  and fail `npm install` with `ERESOLVE`. `react-leaflet` is pinned to `4.x`
+  for the same reason — v5 is React 19 only.
+
+After changing any dependency, regenerate `package-lock.json` and commit it —
+Vercel's `npm ci` fails hard if the lockfile and `package.json` disagree.
 
 ---
 
