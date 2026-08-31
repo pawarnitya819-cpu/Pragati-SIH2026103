@@ -13,11 +13,6 @@ export default function Header({ page, setPage }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[68px]">
           <div className="flex items-center gap-3">
-            <img
-              src="/assets/national-emblem.svg"
-              alt="State Emblem of India"
-              className="h-10 w-10 sm:h-11 sm:w-11 shrink-0 object-contain"
-            />
             <div className="flex items-center justify-center h-10 w-10 rounded-md bg-saffron-600/90">
               <LandmarkIcon className="h-5 w-5 text-white" strokeWidth={2.25} />
             </div>

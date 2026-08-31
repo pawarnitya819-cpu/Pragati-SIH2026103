@@ -20,13 +20,7 @@ L.Icon.Default.mergeOptions({
 export default function ProjectLocationMap({ project, onClose }) {
   if (!project) return null;
 
-  // Prefer the project's own site coordinates (exact location) — only fall
-  // back to the state's approximate center when a project genuinely has no
-  // lat/lng of its own (e.g. rows uploaded without site-level detail).
-  const hasExactSite = Number.isFinite(project.lat) && Number.isFinite(project.lng);
-  const { lat, lng } = hasExactSite ? { lat: project.lat, lng: project.lng } : getStateLatLng(project.state);
-  const zoom = hasExactSite ? 12 : 7;
-  const placeLabel = project.city ? `${project.city}, ${project.state}` : project.state;
+  const { lat, lng } = getStateLatLng(project.state);
 
   return (
     <div
@@ -49,9 +43,8 @@ export default function ProjectLocationMap({ project, onClose }) {
 
         <div className="h-[380px] w-full">
           <MapContainer
-            key={`${lat}-${lng}`}
             center={[lat, lng]}
-            zoom={zoom}
+            zoom={7}
             scrollWheelZoom={true}
             style={{ height: "100%", width: "100%" }}
           >
@@ -63,7 +56,7 @@ export default function ProjectLocationMap({ project, onClose }) {
               <Popup>
                 <strong>{project.name}</strong>
                 <br />
-                {placeLabel}
+                {project.state}
               </Popup>
             </Marker>
           </MapContainer>
@@ -71,18 +64,11 @@ export default function ProjectLocationMap({ project, onClose }) {
 
         <div className="p-4 text-xs text-slate-500 flex items-start gap-2 border-t border-slate-100">
           <MapPin className="h-3.5 w-3.5 text-navy-700 mt-0.5 shrink-0" />
-          {hasExactSite ? (
-            <p>
-              <span className="font-semibold text-navy-900">{placeLabel}</span> — exact project
-              site location on real map data (OpenStreetMap).
-            </p>
-          ) : (
-            <p>
-              <span className="font-semibold text-navy-900">{project.state}</span> — showing
-              approximate state-level location on real map data (OpenStreetMap). Precise site
-              coordinates aren't part of this project's data yet.
-            </p>
-          )}
+          <p>
+            <span className="font-semibold text-navy-900">{project.state}</span> — showing
+            approximate state-level location on real map data (OpenStreetMap). Precise site
+            coordinates aren't part of the uploaded dataset yet.
+          </p>
         </div>
       </div>
     </div>
