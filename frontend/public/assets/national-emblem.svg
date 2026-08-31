@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Government of India — Satyamev Jayate">
+  <defs>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#12294f" />
+      <stop offset="100%" stop-color="#0A192F" />
+    </linearGradient>
+    <path id="topArc" d="M 26 100 A 74 74 0 0 1 174 100" />
+    <path id="bottomArc" d="M 34 138 A 68 68 0 0 0 166 138" />
+  </defs>
+
+  <circle cx="100" cy="100" r="96" fill="url(#ring)" stroke="#D97706" stroke-width="2.5" />
+  <circle cx="100" cy="100" r="86" fill="none" stroke="#F5C99B" stroke-width="1" opacity="0.5" />
+
+  <!-- Ashoka Chakra, 24 spokes, precise angles -->
+  <g transform="translate(100,100)">
+    <circle r="34" fill="none" stroke="#F5C99B" stroke-width="2.4" />
+    <circle r="5" fill="#F5C99B" />
+    <g stroke="#F5C99B" stroke-width="1.6">
+      <line x1="19.98" y1="0.00" x2="34.42" y2="0.00" />
+      <line x1="19.29" y1="5.17" x2="33.24" y2="8.90" />
+      <line x1="17.31" y1="9.99" x2="29.79" y2="17.21" />
+      <line x1="14.14" y1="14.14" x2="24.34" y2="24.34" />
+      <line x1="9.99" y1="17.31" x2="17.21" y2="29.79" />
+      <line x1="5.17" y1="19.29" x2="8.90" y2="33.24" />
+      <line x1="0.00" y1="19.98" x2="0.00" y2="34.42" />
+      <line x1="-5.17" y1="19.29" x2="-8.90" y2="33.24" />
+      <line x1="-9.99" y1="17.31" x2="-17.21" y2="29.79" />
+      <line x1="-14.14" y1="14.14" x2="-24.34" y2="24.34" />
+      <line x1="-17.31" y1="9.99" x2="-29.79" y2="17.21" />
+      <line x1="-19.29" y1="5.17" x2="-33.24" y2="8.90" />
+      <line x1="-19.98" y1="0.00" x2="-34.42" y2="0.00" />
+      <line x1="-19.29" y1="-5.17" x2="-33.24" y2="-8.90" />
+      <line x1="-17.31" y1="-9.99" x2="-29.79" y2="-17.21" />
+      <line x1="-14.14" y1="-14.14" x2="-24.34" y2="-24.34" />
+      <line x1="-9.99" y1="-17.31" x2="-17.21" y2="-29.79" />
+      <line x1="-5.17" y1="-19.29" x2="-8.90" y2="-33.24" />
+      <line x1="0.00" y1="-19.98" x2="0.00" y2="-34.42" />
+      <line x1="5.17" y1="-19.29" x2="8.90" y2="-33.24" />
+      <line x1="9.99" y1="-17.31" x2="17.21" y2="-29.79" />
+      <line x1="14.14" y1="-14.14" x2="24.34" y2="-24.34" />
+      <line x1="17.31" y1="-9.99" x2="29.79" y2="-17.21" />
+      <line x1="19.29" y1="-5.17" x2="33.24" y2="-8.90" />
+    </g>
+  </g>
+
+  <!-- Arced wordmark -->
+  <text font-family="Georgia, serif" font-size="10.5" font-weight="700" fill="#F5C99B" letter-spacing="2.2">
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">GOVERNMENT OF INDIA</textPath>
+  </text>
+  <text font-family="'Lohit Devanagari','Noto Sans Devanagari',serif" font-size="15" font-weight="700" fill="#F5C99B">
+    <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">सत्यमेव जयते</textPath>
+  </text>
+</svg>
