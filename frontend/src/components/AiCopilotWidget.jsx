@@ -11,7 +11,6 @@ export default function AiCopilotWidget() {
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      // Calculate cursor offsets from screen center (-1 to 1)
       const nx = (e.clientX / window.innerWidth - 0.5) * 2;
       const ny = (e.clientY / window.innerHeight - 0.5) * 2;
 
@@ -32,7 +31,6 @@ export default function AiCopilotWidget() {
     };
   }, []);
 
-  // Natural Blinking Cycle
   useEffect(() => {
     let timeoutId, blinkTimeoutId;
     const scheduleBlink = () => {
@@ -59,7 +57,6 @@ export default function AiCopilotWidget() {
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[1000]">
-      {/* CHAT WINDOW */}
       {isOpen && (
         <div className="absolute bottom-[75px] right-0 w-[330px] max-w-[90vw] bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
           <div className="bg-slate-900 text-white px-4 py-3 flex justify-between items-center">
@@ -115,12 +112,11 @@ export default function AiCopilotWidget() {
         </div>
       )}
 
-      {/* HAPPY BOT CIRCLE BUTTON */}
       <button
         onClick={() => setIsOpen((o) => !o)}
         title="PRAGATI AI Copilot Preview"
         aria-label="PRAGATI AI Copilot"
-        className="relative h-16 w-16 rounded-full bg-[#071a33] shadow-xl hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border-2 border-slate-700 flex items-center justify-center p-0"
+        className="relative h-16 w-16 rounded-full bg-transparent shadow-xl hover:scale-105 active:scale-95 transition-transform duration-200 overflow-visible flex items-center justify-center p-0"
       >
         <svg
           viewBox="0 0 100 100"
@@ -128,79 +124,49 @@ export default function AiCopilotWidget() {
           style={{
             transform: `translate(${headTilt.x * 0.4}px, ${headTilt.y * 0.4}px)`,
             transition: "transform 0.1s ease-out",
+            overflow: "visible",
           }}
         >
           <defs>
-            {/* Metallic Head Gradients */}
-            <radialGradient id="headShade" cx="40%" cy="30%" r="70%">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="50%" stopColor="#cbd5e1" />
-              <stop offset="100%" stopColor="#64748b" />
-            </radialGradient>
-            
-            {/* 3D Visor Gradient */}
-            <linearGradient id="visorShade" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#0f172a" />
-              <stop offset="100%" stopColor="#1e293b" />
+            <linearGradient id="headShade" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#2DD4BF" />
+              <stop offset="100%" stopColor="#4ADE80" />
             </linearGradient>
 
-            {/* Glowing Antenna Tip */}
-            <radialGradient id="glowTip" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#fbbf24" />
-              <stop offset="100%" stopColor="#d97706" />
-            </radialGradient>
+            <linearGradient id="visorShade" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#0F2027" />
+              <stop offset="100%" stopColor="#16302F" />
+            </linearGradient>
 
-            {/* Glowing Eye Glass */}
-            <radialGradient id="eyeLens" cx="35%" cy="35%" r="60%">
-              <stop offset="0%" stopColor="#38bdf8" />
-              <stop offset="70%" stopColor="#0284c7" />
-              <stop offset="100%" stopColor="#0369a1" />
+            <radialGradient id="glowTip" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#0F766E" />
+              <stop offset="100%" stopColor="#134E4A" />
             </radialGradient>
           </defs>
 
-          {/* Antenna Pole & Tip */}
-          <rect x="47.5" y="6" width="5" height="14" rx="2" fill="#94a3b8" />
+          <ellipse cx="12" cy="62" rx="8" ry="12" fill="url(#headShade)" transform="rotate(-25 12 62)" />
+
+          <rect x="47.5" y="6" width="5" height="14" rx="2" fill="#0F766E" />
           <circle cx="50" cy="6" r="5.5" fill="url(#glowTip)" />
 
-          {/* Centered Head Base */}
-          <rect x="18" y="20" width="64" height="58" rx="16" fill="url(#headShade)" filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.4))" />
+          <circle cx="50" cy="50" r="40" fill="url(#headShade)" filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.25))" />
 
-          {/* Inner Visor Frame */}
-          <rect x="24" y="27" width="52" height="42" rx="12" fill="url(#visorShade)" />
+          <rect x="24" y="34" width="52" height="34" rx="16" fill="url(#visorShade)" />
 
-          {/* Dynamic Interactive Happy Eyes */}
           {!isBlinking ? (
             <g>
-              {/* Joyful Eyebrows */}
-              <path d="M 31 37 Q 38 33 45 37" stroke="#38bdf8" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-              <path d="M 55 37 Q 62 33 69 37" stroke="#38bdf8" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <circle cx="38" cy="50" r="8.5" fill="#ffffff" />
+              <circle cx={38 + pupilPos.x} cy={50 + pupilPos.y} r="4" fill="#0F2027" />
 
-              {/* Left Eye Base */}
-              <circle cx="38" cy="46" r="8" fill="#ffffff" />
-              {/* Left Pupil (Tracked) */}
-              <circle cx={38 + pupilPos.x} cy={46 + pupilPos.y} r="4" fill="url(#eyeLens)" />
-              <circle cx={36 + pupilPos.x} cy={44 + pupilPos.y} r="1.5" fill="#ffffff" />
-
-              {/* Right Eye Base */}
-              <circle cx="62" cy="46" r="8" fill="#ffffff" />
-              {/* Right Pupil (Tracked) */}
-              <circle cx={62 + pupilPos.x} cy={46 + pupilPos.y} r="4" fill="url(#eyeLens)" />
-              <circle cx={60 + pupilPos.x} cy={44 + pupilPos.y} r="1.5" fill="#ffffff" />
+              <circle cx="62" cy="50" r="8.5" fill="#ffffff" />
+              <circle cx={62 + pupilPos.x} cy={50 + pupilPos.y} r="4" fill="#0F2027" />
             </g>
           ) : (
-            /* Happy Blinking Arc Eyes */
-            <g stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" fill="none">
-              <path d="M 31 46 Q 38 40 45 46" />
-              <path d="M 55 46 Q 62 40 69 46" />
+            <g stroke="#ffffff" strokeWidth="3" strokeLinecap="round" fill="none">
+              <path d="M 31 50 Q 38 45 45 50" />
+              <path d="M 55 50 Q 62 45 69 50" />
             </g>
           )}
-
-          {/* Happy Blush Cheeks */}
-          <circle cx="28" cy="54" r="4" fill="#f43f5e" opacity="0.6" />
-          <circle cx="72" cy="54" r="4" fill="#f43f5e" opacity="0.6" />
-
-          {/* Big Happy Smile */}
-          <path d="M 40 54 Q 50 65 60 54" stroke="#38bdf8" strokeWidth="3" fill="none" strokeLinecap="round" />
         </svg>
       </button>
     </div>
