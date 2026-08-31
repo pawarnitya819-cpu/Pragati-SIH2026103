@@ -1,13 +1,45 @@
 import React, { useState, useEffect, useRef } from "react";
 
+// Short, rotating status lines so the bot visibly communicates what it's
+// "doing" in the background, instead of sitting there as a static icon.
+const STATUS_MESSAGES = [
+  "Tracking project budgets…",
+  "Watching for delay risk…",
+  "Syncing latest milestones…",
+  "Scanning sector data…",
+];
+
 export default function AiCopilotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [isBlinking, setIsBlinking] = useState(false);
   const [pupilPos, setPupilPos] = useState({ x: 0, y: 0 });
   const [headTilt, setHeadTilt] = useState({ x: 0, y: 0 });
+  const [statusIndex, setStatusIndex] = useState(0);
+  const [showStatus, setShowStatus] = useState(false);
 
   const idleTimer = useRef(null);
+
+  // Cycle a small "what I'm doing" bubble above the bot every few seconds,
+  // pausing while the chat panel itself is open.
+  useEffect(() => {
+    if (isOpen) {
+      setShowStatus(false);
+      return;
+    }
+    let visibleTimeout;
+    const cycle = setInterval(() => {
+      setStatusIndex((i) => (i + 1) % STATUS_MESSAGES.length);
+      setShowStatus(true);
+      visibleTimeout = setTimeout(() => setShowStatus(false), 2600);
+    }, 4200);
+    setShowStatus(true);
+    visibleTimeout = setTimeout(() => setShowStatus(false), 2600);
+    return () => {
+      clearInterval(cycle);
+      clearTimeout(visibleTimeout);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -115,12 +147,23 @@ export default function AiCopilotWidget() {
         </div>
       )}
 
-      {/* HAPPY BOT CIRCLE BUTTON */}
+      {/* "What I'm doing" status bubble */}
+      {!isOpen && (
+        <div
+          className={`absolute bottom-[72px] right-1 max-w-[190px] bg-navy-900 text-white text-[11px] font-medium px-3 py-2 rounded-lg rounded-br-sm shadow-lg transition-all duration-300 ${
+            showStatus ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
+          }`}
+        >
+          {STATUS_MESSAGES[statusIndex]}
+        </div>
+      )}
+
+      {/* SIMPLE HAPPY BOT BUTTON */}
       <button
         onClick={() => setIsOpen((o) => !o)}
         title="PRAGATI AI Copilot Preview"
         aria-label="PRAGATI AI Copilot"
-        className="relative h-16 w-16 rounded-full bg-[#071a33] shadow-xl hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border-2 border-slate-700 flex items-center justify-center p-0"
+        className="relative h-16 w-16 rounded-full bg-navy-900 shadow-xl hover:scale-105 active:scale-95 transition-transform duration-200 flex items-center justify-center p-0 mascot-idle"
       >
         <svg
           viewBox="0 0 100 100"
@@ -130,78 +173,38 @@ export default function AiCopilotWidget() {
             transition: "transform 0.1s ease-out",
           }}
         >
-          <defs>
-            {/* Metallic Head Gradients */}
-            <radialGradient id="headShade" cx="40%" cy="30%" r="70%">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="50%" stopColor="#cbd5e1" />
-              <stop offset="100%" stopColor="#64748b" />
-            </radialGradient>
-            
-            {/* 3D Visor Gradient */}
-            <linearGradient id="visorShade" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#0f172a" />
-              <stop offset="100%" stopColor="#1e293b" />
-            </linearGradient>
+          {/* Antenna */}
+          <line x1="50" y1="12" x2="50" y2="22" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="50" cy="10" r="4.5" fill="#D97706" />
 
-            {/* Glowing Antenna Tip */}
-            <radialGradient id="glowTip" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#fbbf24" />
-              <stop offset="100%" stopColor="#d97706" />
-            </radialGradient>
+          {/* Flat, friendly rounded head */}
+          <rect x="20" y="22" width="60" height="52" rx="18" fill="#F5C99B" stroke="#0A192F" strokeWidth="2" />
 
-            {/* Glowing Eye Glass */}
-            <radialGradient id="eyeLens" cx="35%" cy="35%" r="60%">
-              <stop offset="0%" stopColor="#38bdf8" />
-              <stop offset="70%" stopColor="#0284c7" />
-              <stop offset="100%" stopColor="#0369a1" />
-            </radialGradient>
-          </defs>
-
-          {/* Antenna Pole & Tip */}
-          <rect x="47.5" y="6" width="5" height="14" rx="2" fill="#94a3b8" />
-          <circle cx="50" cy="6" r="5.5" fill="url(#glowTip)" />
-
-          {/* Centered Head Base */}
-          <rect x="18" y="20" width="64" height="58" rx="16" fill="url(#headShade)" filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.4))" />
-
-          {/* Inner Visor Frame */}
-          <rect x="24" y="27" width="52" height="42" rx="12" fill="url(#visorShade)" />
-
-          {/* Dynamic Interactive Happy Eyes */}
+          {/* Simple round eyes */}
           {!isBlinking ? (
             <g>
-              {/* Joyful Eyebrows */}
-              <path d="M 31 37 Q 38 33 45 37" stroke="#38bdf8" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-              <path d="M 55 37 Q 62 33 69 37" stroke="#38bdf8" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-
-              {/* Left Eye Base */}
-              <circle cx="38" cy="46" r="8" fill="#ffffff" />
-              {/* Left Pupil (Tracked) */}
-              <circle cx={38 + pupilPos.x} cy={46 + pupilPos.y} r="4" fill="url(#eyeLens)" />
-              <circle cx={36 + pupilPos.x} cy={44 + pupilPos.y} r="1.5" fill="#ffffff" />
-
-              {/* Right Eye Base */}
-              <circle cx="62" cy="46" r="8" fill="#ffffff" />
-              {/* Right Pupil (Tracked) */}
-              <circle cx={62 + pupilPos.x} cy={46 + pupilPos.y} r="4" fill="url(#eyeLens)" />
-              <circle cx={60 + pupilPos.x} cy={44 + pupilPos.y} r="1.5" fill="#ffffff" />
+              <circle cx="39" cy="44" r="6.5" fill="#0A192F" />
+              <circle cx={39 + pupilPos.x * 0.4} cy={44 + pupilPos.y * 0.4} r="2" fill="#ffffff" />
+              <circle cx="61" cy="44" r="6.5" fill="#0A192F" />
+              <circle cx={61 + pupilPos.x * 0.4} cy={44 + pupilPos.y * 0.4} r="2" fill="#ffffff" />
             </g>
           ) : (
-            /* Happy Blinking Arc Eyes */
-            <g stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" fill="none">
-              <path d="M 31 46 Q 38 40 45 46" />
-              <path d="M 55 46 Q 62 40 69 46" />
+            <g stroke="#0A192F" strokeWidth="3" strokeLinecap="round">
+              <line x1="33" y1="44" x2="45" y2="44" />
+              <line x1="55" y1="44" x2="67" y2="44" />
             </g>
           )}
 
-          {/* Happy Blush Cheeks */}
-          <circle cx="28" cy="54" r="4" fill="#f43f5e" opacity="0.6" />
-          <circle cx="72" cy="54" r="4" fill="#f43f5e" opacity="0.6" />
+          {/* Simple happy smile */}
+          <path d="M37 58 Q50 70 63 58" stroke="#0A192F" strokeWidth="3.5" fill="none" strokeLinecap="round" />
 
-          {/* Big Happy Smile */}
-          <path d="M 40 54 Q 50 65 60 54" stroke="#38bdf8" strokeWidth="3" fill="none" strokeLinecap="round" />
+          {/* Rosy cheeks */}
+          <circle cx="30" cy="56" r="3.5" fill="#D97706" opacity="0.35" />
+          <circle cx="70" cy="56" r="3.5" fill="#D97706" opacity="0.35" />
         </svg>
+
+        {/* Small pulsing "active" dot so it reads as live/working, not static */}
+        <span className="absolute top-1 right-1.5 h-2.5 w-2.5 rounded-full bg-green-400 border border-navy-900 animate-pulse" />
       </button>
     </div>
   );

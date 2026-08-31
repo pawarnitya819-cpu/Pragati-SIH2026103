@@ -72,6 +72,27 @@ export default function ChartsSection({ kpis }) {
   const [pieRef, pieInView] = useInView();
   const isMobile = useIsMobile();
 
+  return (
+    <div>
+      <ChartsRow
+        kpis={kpis}
+        isMobile={isMobile}
+        barRef={barRef}
+        barInView={barInView}
+        pieRef={pieRef}
+        pieInView={pieInView}
+      />
+      {isMobile && (
+        <p className="text-center text-[11px] text-slate-400 mt-1.5 font-medium">
+          ← Swipe to see both charts →
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ChartsRow({ kpis, isMobile, barRef, barInView, pieRef, pieInView }) {
+
   // Rotated labels need vertical room. Reserving it on the axis (`height`)
   // plus the chart's bottom margin is what stops the longest sector names
   // from being cut off at the base of the card.
@@ -81,8 +102,10 @@ export default function ChartsSection({ kpis }) {
   const tickMaxChars = isMobile ? 14 : 22;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-      <div className="lg:col-span-3" ref={barRef}>
+    <div
+      className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-2 -mx-4 px-4 scrollbar-thin lg:mx-0 lg:px-0 lg:grid lg:grid-cols-5 lg:overflow-visible"
+    >
+      <div className="shrink-0 w-[92%] snap-center lg:w-auto lg:col-span-3" ref={barRef}>
         <ChartCard
           title="Sector-wise Budget Distribution"
           subtitle="Sanctioned outlay (₹ Cr) by infrastructure sector"
@@ -120,7 +143,7 @@ export default function ChartsSection({ kpis }) {
         </ChartCard>
       </div>
 
-      <div className="lg:col-span-2" ref={pieRef}>
+      <div className="shrink-0 w-[92%] snap-center lg:w-auto lg:col-span-2" ref={pieRef}>
         <ChartCard
           title="Delay-Risk Breakdown"
           subtitle="AI-classified overrun risk across all monitored projects"

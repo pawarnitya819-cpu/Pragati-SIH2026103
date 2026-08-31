@@ -6,6 +6,9 @@
 export const SEED_PROJECTS = [
   {
     id: "seed-1",
+    city: "Jalandhar",
+    lat: 31.326,
+    lng: 75.5762,
     name: "National Highway Expansion (NH-44)",
     ministry: "Ministry of Road Transport & Highways",
     sector: "Roads",
@@ -20,6 +23,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-2",
+    city: "Kanpur",
+    lat: 26.4499,
+    lng: 80.3319,
     name: "Eastern Dedicated Freight Corridor",
     ministry: "Ministry of Railways",
     sector: "Railways",
@@ -34,6 +40,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-3",
+    city: "Muzaffarpur",
+    lat: 26.1209,
+    lng: 85.3647,
     name: "Rural Electrification Phase IV",
     ministry: "Ministry of Power",
     sector: "Power",
@@ -48,6 +57,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-4",
+    city: "Indore",
+    lat: 22.7196,
+    lng: 75.8577,
     name: "Smart City Water Grid",
     ministry: "Ministry of Housing & Urban Affairs",
     sector: "Urban Infrastructure",
@@ -62,6 +74,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-5",
+    city: "Pune",
+    lat: 18.5204,
+    lng: 73.8567,
     name: "Metro Rail Line Extension",
     ministry: "Ministry of Urban Infrastructure",
     sector: "Railways",
@@ -76,6 +91,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-6",
+    city: "Jodhpur",
+    lat: 26.2389,
+    lng: 73.0243,
     name: "Bharatmala Pariyojana — Package 12",
     ministry: "Ministry of Road Transport & Highways",
     sector: "Roads",
@@ -90,6 +108,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-7",
+    city: "Varanasi",
+    lat: 25.3176,
+    lng: 82.9739,
     name: "Inland Waterway Terminal — Varanasi",
     ministry: "Ministry of Ports, Shipping & Waterways",
     sector: "Waterways",
@@ -104,6 +125,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-8",
+    city: "Khavda, Kutch",
+    lat: 23.7337,
+    lng: 69.8597,
     name: "Ultra Mega Solar Power Park",
     ministry: "Ministry of New & Renewable Energy",
     sector: "Power",
@@ -118,6 +142,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-9",
+    city: "Ahmedabad",
+    lat: 23.0225,
+    lng: 72.5714,
     name: "Ahmedabad Metro Rail — Phase 2",
     ministry: "Ministry of Housing & Urban Affairs",
     sector: "Urban Infrastructure",
@@ -132,6 +159,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-10",
+    city: "Dholera",
+    lat: 22.2422,
+    lng: 72.1938,
     name: "Dholera Special Investment Region — Trunk Infrastructure",
     ministry: "Ministry of Commerce & Industry",
     sector: "Urban Infrastructure",
@@ -146,6 +176,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-11",
+    city: "Kandla",
+    lat: 23.0333,
+    lng: 70.2167,
     name: "Deendayal Port (Kandla) Modernization",
     ministry: "Ministry of Ports, Shipping & Waterways",
     sector: "Waterways",
@@ -160,6 +193,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-12",
+    city: "Rajkot",
+    lat: 22.3039,
+    lng: 70.8022,
     name: "SAUNI Yojana — Saurashtra Narmada Avataran Irrigation",
     ministry: "Ministry of Jal Shakti",
     sector: "Irrigation",
@@ -174,6 +210,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-13",
+    city: "Mumbai (BKC Terminus)",
+    lat: 19.0596,
+    lng: 72.8656,
     name: "Mumbai–Ahmedabad High Speed Rail (Bullet Train)",
     ministry: "Ministry of Railways",
     sector: "Railways",
@@ -188,6 +227,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-14",
+    city: "Polavaram",
+    lat: 17.25,
+    lng: 81.55,
     name: "Polavaram Irrigation Project",
     ministry: "Ministry of Jal Shakti",
     sector: "Irrigation",
@@ -202,6 +244,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-15",
+    city: "Kolkata",
+    lat: 22.5726,
+    lng: 88.3639,
     name: "Kolkata Metro — Purple Line Extension",
     ministry: "Ministry of Housing & Urban Affairs",
     sector: "Urban Infrastructure",
@@ -216,6 +261,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-16",
+    city: "Zojila Pass",
+    lat: 34.24,
+    lng: 75.47,
     name: "Zojila Tunnel Project",
     ministry: "Ministry of Road Transport & Highways",
     sector: "Roads",
@@ -230,6 +278,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-17",
+    city: "Bengaluru",
+    lat: 12.9716,
+    lng: 77.5946,
     name: "Bengaluru Suburban Rail Project (Namma Rail)",
     ministry: "Ministry of Railways",
     sector: "Railways",
@@ -244,6 +295,9 @@ export const SEED_PROJECTS = [
   },
   {
     id: "seed-18",
+    city: "Porbandar",
+    lat: 21.6417,
+    lng: 69.6293,
     name: "Bharatmala Pariyojana — Gujarat Coastal Corridor (NH-51)",
     ministry: "Ministry of Road Transport & Highways",
     sector: "Roads",
