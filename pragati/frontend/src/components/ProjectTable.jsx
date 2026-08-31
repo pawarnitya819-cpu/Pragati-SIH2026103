@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import RiskBadge from "./RiskBadge";
 import { MapPin } from "lucide-react";
 import { useCountUp } from "../utils/useCountUp";
-import { useInView } from "../utils/useInView";
-import ProjectLocationMap from "./ProjectLocationMap";
 
 function ProgressBar({ pct, start }) {
   const [width, setWidth] = useState(0);
@@ -34,11 +32,16 @@ function AnimatedBudget({ value, start }) {
 }
 
 export default function ProjectTable({ projects }) {
-  const [tableRef, inView] = useInView({ threshold: 0.1 });
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [start, setStart] = useState(false);
+
+  useEffect(() => {
+    if (projects.length === 0) return;
+    const id = requestAnimationFrame(() => setStart(true));
+    return () => cancelAnimationFrame(id);
+  }, [projects.length]);
 
   return (
-    <div ref={tableRef} className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
         <div>
           <p className="font-display font-bold text-navy-900">Project Tracking Register</p>
@@ -64,27 +67,21 @@ export default function ProjectTable({ projects }) {
                 <td className="px-5 py-3.5 font-semibold text-navy-900 max-w-[220px]">
                   {p.name}
                 </td>
-                                <td className="px-5 py-3.5 text-slate-600">
+                <td className="px-5 py-3.5 text-slate-600">
+                  <p>{p.ministry}</p>
+                  <p className="text-xs text-navy-700 font-medium mt-0.5">{p.sector}</p>
+                </td>
+                <td className="px-5 py-3.5 text-slate-600">
                   <span className="inline-flex items-center gap-1 whitespace-nowrap">
                     <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                     {p.state}
                   </span>
                 </td>
-                <td className="px-5 py-3.5 text-slate-600">
-                  <button
-                    onClick={() => setSelectedProject(p)}
-                    title="View on map"
-                    className="inline-flex items-center gap-1 hover:text-navy-900 hover:underline decoration-dotted underline-offset-2 transition-colors"
-                  >
-                    <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                    {p.state}
-                  </button>
-                </td>
                 <td className="px-5 py-3.5 font-mono text-navy-900">
-                  <AnimatedBudget value={Number(p.budget_cr)} start={inView} />
+                  <AnimatedBudget value={Number(p.budget_cr)} start={start} />
                 </td>
                 <td className="px-5 py-3.5">
-                  <ProgressBar pct={Math.round(p.physical_progress_pct)} start={inView} />
+                  <ProgressBar pct={Math.round(p.physical_progress_pct)} start={start} />
                 </td>
                 <td className="px-5 py-3.5">
                   <RiskBadge status={p.risk_status} score={p.risk_score} />
@@ -101,8 +98,6 @@ export default function ProjectTable({ projects }) {
           </tbody>
         </table>
       </div>
-
-      <ProjectLocationMap project={selectedProject} onClose={() => setSelectedProject(null)} />
     </div>
   );
 }
