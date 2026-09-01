@@ -6,13 +6,13 @@ import AdminDashboard from "./components/AdminDashboard";
 import CursorFollower from "./components/CursorFollower";
 import AiCopilotWidget from "./components/AiCopilotWidget";
 import { SEED_PROJECTS } from "./data/sampleProjects";
-import { scoreProjects } from "./utils/riskEngine";
+import { scoreProjects, dedupeProjects } from "./utils/riskEngine";
 import { fetchProjects } from "./api";
 import { WifiOff } from "lucide-react";
 
 export default function App() {
   const [page, setPage] = useState("landing");
-  const [projects, setProjects] = useState(() => scoreProjects(SEED_PROJECTS));
+  const [projects, setProjects] = useState(() => scoreProjects(dedupeProjects(SEED_PROJECTS)));
   const [backendOnline, setBackendOnline] = useState(true);
 
   // Site photos / inspection media live at the same level as the project
@@ -24,7 +24,7 @@ export default function App() {
   useEffect(() => {
     fetchProjects()
       .then((data) => {
-        setProjects(scoreProjects(data));
+        setProjects(scoreProjects(dedupeProjects(data)));
         setBackendOnline(true);
       })
       .catch(() => setBackendOnline(false));
@@ -33,7 +33,7 @@ export default function App() {
   const handleDatasetSynced = (updater) => {
     setProjects((prev) => {
       const next = typeof updater === "function" ? updater(prev) : updater;
-      return scoreProjects(next);
+      return scoreProjects(dedupeProjects(next));
     });
   };
 

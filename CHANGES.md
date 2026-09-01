@@ -1,3 +1,91 @@
+# PRAGATI — fix pass (1 Sep 2026)
+
+Six issues: bot widget not reaching the live site, duplicate register rows, a
+Ministry/Sector column overflow, the missing State Emblem, the Data Ingestion
+UX, and mobile chart clipping. `npm` / `git` were unavailable on the machine
+these edits were made on — **`npm install` + `npm run build` still need one
+clean run before deploy**, and nothing here has been committed.
+
+## 1. Bot widget not updating on the live site
+
+**Cause:** the repo contained a committed second copy of the whole project at
+`pragati/` (plus `pragati-source-fixed.zip`). That nested tree was byte-identical
+to the root **except** `AiCopilotWidget.jsx`, which held a newer bot design.
+Vercel builds the root (`vercel.json` → `frontend/dist`), so edits made in the
+nested copy never shipped.
+
+- Ported the newer bot (larger head, navy `#071a33` button, eyebrows, blush,
+  glowing lens eyes) into the live file
+  `frontend/src/components/AiCopilotWidget.jsx`, keeping the green "online" dot.
+- Deleted the nested `pragati/` directory and `pragati-source-fixed.zip`. Run
+  `git add -A` to stage the removals.
+
+## 2. Project register had ~99 duplicate rows (218 → ~119)
+
+Rows accumulate from three sources and repeated uploads of overlapping datasets
+were never de-duplicated. Two projects are the same when **name + ministry +
+state** match, case- and whitespace-insensitively; first occurrence wins.
+
+- **Frontend** — `utils/riskEngine.js` gains `dedupeProjects()`; `App.jsx`
+  applies it to the seed, the `/projects` response, and every synced dataset.
+- **Backend** — `_dedupe_projects()` in `main.py`; applied in
+  `_load_projects_from_db()` and after `/api/upload`. New **`POST /api/dedupe`**
+  physically rewrites the table without the duplicates and returns
+  `records_before` / `records_after` so the live count can be confirmed after
+  the backend redeploys.
+
+## 3. Ministry / Sector column overflowing into Location
+
+The `<td>` had `max-w-[…]` but the table was auto-layout, so long ministry
+names still set the column width and collided with the next cell.
+
+**File:** `frontend/src/components/ProjectTable.jsx`
+
+- Table is now `table-fixed` with a `<colgroup>` (23/25/15/12/15/10 %) and
+  `min-w-[920px]` inside the existing `overflow-x-auto` wrapper — it scrolls on
+  narrow screens instead of squishing.
+- Sector, ministry, project name and location all `truncate` with the full
+  value in a `title` tooltip.
+
+## 4. State Emblem of India added to the header
+
+**File:** `frontend/src/components/Header.jsx`
+
+`<img src="/assets/national-emblem.svg">` at `h-9 sm:h-10`, `w-auto`, in the
+top-left ahead of the saffron logo mark and the PRAGATI title block, with a
+hairline divider (desktop only). **Swap
+`frontend/public/assets/national-emblem.svg` for the official raster asset when
+supplied** — sizing keys off height so aspect ratio is preserved automatically.
+
+## 5. Data Ingestion tab — UX pass
+
+**Files:** `frontend/src/components/UploadPage.jsx`, `frontend/src/api.js`
+
+- Real transfer bar (0–100 %) via axios `onUploadProgress`, then an
+  indeterminate "Analysing…" pulse for the server-side parse.
+- 10 MB size guard with a specific message; empty-parse guard on the
+  client-side fallback (which now also de-dupes).
+- Remove-file (✕) affordance; the action button becomes "Upload another" and
+  resets after a successful sync; dropzone is disabled/dimmed while processing.
+- Empty-state helper line; expected columns rendered as chips; result banner
+  aligned to the card system (`rounded-xl` + `ring-1`). No new colours/fonts.
+
+## 6. Mobile responsiveness
+
+- **Charts** (`ChartsSection.jsx`) — new `ScrollableChart` wrapper: each chart
+  keeps a readable `min-width` on mobile (bar = `max(320, sectors × 64)`,
+  pie = 280) inside `overflow-x-auto`, so it scrolls rather than clipping.
+  Desktop unchanged (`min-width: 100%`).
+- **KPI cards** — `min-w-0` + `break-words`, value `text-xl sm:text-3xl`,
+  `p-4 sm:p-5` so wide `₹` figures don't overflow at 375 px.
+- **Search / filter bar** — selects `flex-1 min-w-0` and wrap on mobile.
+- **Header** — left cluster `min-w-0`, subtitle truncates, emblem/logo shrink
+  a step on mobile.
+- **Map modal** (`ProjectLocationMap.jsx`) — title/ministry truncate, close
+  button `shrink-0`.
+
+---
+
 # PRAGATI — fix pass (31 Aug 2026)
 
 Handoff notes for five issues: a broken table column, missing budget numbers,

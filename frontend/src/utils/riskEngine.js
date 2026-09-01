@@ -39,6 +39,47 @@ export function scoreProjects(projects) {
   return projects.map(scoreProject);
 }
 
+// The live register accumulates rows from three sources (seed, FastAPI, the
+// client-side CSV fallback) and repeated uploads of overlapping datasets left
+// it with ~99 duplicate rows out of 218. A project is considered the same
+// physical project when its name, nodal ministry and location (state) match,
+// case- and whitespace-insensitively. First occurrence wins so the earliest
+// id / risk score is kept stable across reloads.
+const DEDUPE_ALIASES = {
+  name: ["name", "project_name", "Project Name"],
+  ministry: ["ministry", "ministry_name", "Ministry", "nodal_ministry"],
+  location: ["state", "location", "State", "Location"],
+};
+
+function pick(project, field) {
+  for (const key of DEDUPE_ALIASES[field]) {
+    const value = project?.[key];
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      return String(value);
+    }
+  }
+  return "";
+}
+
+function dedupeKey(project) {
+  return ["name", "ministry", "location"]
+    .map((field) => pick(project, field).trim().toLowerCase().replace(/\s+/g, " "))
+    .join(" || ");
+}
+
+export function dedupeProjects(projects) {
+  if (!Array.isArray(projects)) return [];
+  const seen = new Set();
+  const unique = [];
+  for (const project of projects) {
+    const key = dedupeKey(project);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(project);
+  }
+  return unique;
+}
+
 export function computeKpis(projects) {
   const totalProjects = projects.length;
   const totalBudget = projects.reduce((sum, p) => sum + Number(p.budget_cr || 0), 0);

@@ -95,7 +95,15 @@ export default function ProjectTable({ projects }) {
       </div>
 
       <div className="overflow-x-auto scrollbar-thin">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[920px] table-fixed text-sm">
+          <colgroup>
+            <col className="w-[23%]" />
+            <col className="w-[25%]" />
+            <col className="w-[15%]" />
+            <col className="w-[12%]" />
+            <col className="w-[15%]" />
+            <col className="w-[10%]" />
+          </colgroup>
           <thead>
             <tr className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
               <th className="px-5 py-3 font-semibold">Project Name</th>
@@ -115,14 +123,21 @@ export default function ProjectTable({ projects }) {
 
               return (
                 <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="px-5 py-3.5 font-semibold text-navy-900 max-w-[220px]">
-                    {p.name}
+                  <td className="px-5 py-3.5 font-semibold text-navy-900">
+                    <span className="block truncate" title={p.name}>
+                      {p.name}
+                    </span>
                   </td>
-                  <td className="px-5 py-3.5 text-slate-600 max-w-[230px]">
-                    <span className="inline-flex items-start gap-1.5">
+                  <td className="px-5 py-3.5 text-slate-600">
+                    <span className="flex items-start gap-1.5">
                       <Landmark className="h-3.5 w-3.5 text-slate-400 shrink-0 mt-0.5" />
                       <span className="min-w-0">
-                        <span className="block font-medium text-navy-900">{sector}</span>
+                        <span
+                          className="block font-medium text-navy-900 truncate"
+                          title={sector}
+                        >
+                          {sector}
+                        </span>
                         {ministry && (
                           <span className="block text-xs text-slate-500 truncate" title={ministry}>
                             {ministry}
@@ -134,11 +149,11 @@ export default function ProjectTable({ projects }) {
                   <td className="px-5 py-3.5 text-slate-600">
                     <button
                       onClick={() => setSelectedProject(p)}
-                      title="View on map"
-                      className="inline-flex items-center gap-1 hover:text-navy-900 hover:underline decoration-dotted underline-offset-2 transition-colors"
+                      title={`${p.state} — view on map`}
+                      className="flex max-w-full items-center gap-1 hover:text-navy-900 hover:underline decoration-dotted underline-offset-2 transition-colors"
                     >
-                      <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                      {p.state}
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                      <span className="min-w-0 truncate">{p.state}</span>
                     </button>
                   </td>
                   <td className="px-5 py-3.5 font-mono text-navy-900">

@@ -31,12 +31,18 @@ export default function ProjectLocationMap({ project, onClose }) {
         onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
       >
-        <div className="bg-navy-900 text-white px-5 py-4 flex items-start justify-between">
-          <div>
-            <p className="text-sm font-bold">{project.name}</p>
-            <p className="text-xs text-slate-400 mt-0.5">{project.ministry}</p>
+        <div className="bg-navy-900 text-white px-5 py-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-bold truncate" title={project.name}>{project.name}</p>
+            <p className="text-xs text-slate-400 mt-0.5 truncate" title={project.ministry}>
+              {project.ministry}
+            </p>
           </div>
-          <button onClick={onClose} className="text-white/80 hover:text-white">
+          <button
+            onClick={onClose}
+            aria-label="Close map"
+            className="shrink-0 text-white/80 hover:text-white"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>

@@ -4,10 +4,10 @@ import { useCountUp } from "../utils/useCountUp";
 function KPICard({ icon: Icon, label, value, format, sub, accent }) {
   const animated = useCountUp(value);
   return (
-    <div className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 p-5 flex items-start justify-between animate-fade-up">
-      <div>
+    <div className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 p-4 sm:p-5 flex items-start justify-between gap-3 animate-fade-up">
+      <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-        <p className="mt-2 text-2xl sm:text-3xl font-display font-black text-navy-900 tabular-nums">
+        <p className="mt-2 text-xl sm:text-3xl font-display font-black text-navy-900 tabular-nums break-words">
           {format(animated)}
         </p>
         {sub && <p className="mt-1 text-xs text-slate-500">{sub}</p>}

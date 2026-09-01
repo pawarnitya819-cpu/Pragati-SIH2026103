@@ -1,11 +1,35 @@
 import { useCallback, useRef, useState } from "react";
-import { UploadCloud, FileSpreadsheet, CheckCircle2, XCircle, Loader2, Download, Lock } from "lucide-react";
+import {
+  UploadCloud,
+  FileSpreadsheet,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  Download,
+  Lock,
+  X,
+} from "lucide-react";
 import { uploadDataset, parseCsvClientSide } from "../api";
-import { scoreProjects } from "../utils/riskEngine";
+import { scoreProjects, dedupeProjects } from "../utils/riskEngine";
 import SiteMediaUpload from "./SiteMediaUpload";
 
 const ACCEPTED_EXT = [".csv", ".xlsx", ".xls"];
+const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
 const TEMP_UPLOAD_PASSWORD = "SIH@2026";
+
+const EXPECTED_COLUMNS = [
+  "name",
+  "ministry",
+  "sector",
+  "state",
+  "budget_cr",
+  "budget_utilized_cr",
+  "physical_progress_pct",
+  "schedule_progress_pct",
+  "delay_months",
+  "milestones_total",
+  "milestones_completed",
+];
 
 export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMediaChange }) {
   const [authorized, setAuthorized] = useState(false);
@@ -16,21 +40,42 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("idle"); // idle | processing | success | error
+  const [phase, setPhase] = useState("uploading"); // uploading | analyzing  (while status === processing)
+  const [uploadPct, setUploadPct] = useState(0);
   const [message, setMessage] = useState("");
   const inputRef = useRef(null);
 
-  const isValidFile = (f) =>
+  const isValidType = (f) =>
     f && ACCEPTED_EXT.some((ext) => f.name.toLowerCase().endsWith(ext));
 
   const handleFile = (f) => {
-    if (!isValidFile(f)) {
+    if (!f) return;
+    if (!isValidType(f)) {
+      setFile(null);
       setStatus("error");
       setMessage("Unsupported file type. Please upload a .csv, .xlsx, or .xls file.");
       return;
     }
+    if (f.size > MAX_FILE_BYTES) {
+      setFile(null);
+      setStatus("error");
+      setMessage(
+        `“${f.name}” is ${(f.size / (1024 * 1024)).toFixed(1)} MB — the limit is 10 MB. Split the dataset and upload in parts.`
+      );
+      return;
+    }
     setFile(f);
     setStatus("idle");
+    setUploadPct(0);
     setMessage("");
+  };
+
+  const clearFile = () => {
+    setFile(null);
+    setStatus("idle");
+    setUploadPct(0);
+    setMessage("");
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   // IMPORTANT: all hooks (useCallback included) must be called before any
@@ -111,13 +156,21 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
   }
 
   const processAndSync = async () => {
-    if (!file) return;
+    if (!file || status === "processing") return;
     setStatus("processing");
-    setMessage("Parsing dataset and computing AI overrun risk...");
+    setPhase("uploading");
+    setUploadPct(0);
+    setMessage("Uploading dataset…");
 
     try {
       // Preferred path: FastAPI backend parses with pandas + computes risk.
-      const result = await uploadDataset(file);
+      const result = await uploadDataset(file, (pct) => {
+        setUploadPct(pct);
+        if (pct >= 100) {
+          setPhase("analyzing");
+          setMessage("Parsing rows and computing AI overrun risk…");
+        }
+      });
       onDatasetSynced(result.projects);
       setStatus("success");
       setMessage(result.message || `Synced ${result.added?.length ?? 0} project record(s).`);
@@ -126,9 +179,16 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
       // FastAPI server isn't running (e.g. judges only launched the frontend).
       if (file.name.toLowerCase().endsWith(".csv")) {
         try {
+          setPhase("analyzing");
+          setMessage("Backend unreachable — parsing client-side…");
           const text = await file.text();
           const rows = parseCsvClientSide(text);
-          const scored = scoreProjects(rows);
+          if (!rows.length) {
+            setStatus("error");
+            setMessage("No data rows found in the file. Check that it has a header row plus at least one record.");
+            return;
+          }
+          const scored = scoreProjects(dedupeProjects(rows));
           onDatasetSynced((prev) => [...prev, ...scored]);
           setStatus("success");
           setMessage(
@@ -147,6 +207,8 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
     }
   };
 
+  const processing = status === "processing";
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
@@ -160,13 +222,23 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
       <div
         onDragOver={(e) => {
           e.preventDefault();
-          setDragActive(true);
+          if (!processing) setDragActive(true);
         }}
         onDragLeave={() => setDragActive(false)}
-        onDrop={onDrop}
-        onClick={() => inputRef.current?.click()}
-        className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-colors bg-white ${
-          dragActive ? "border-saffron-600 bg-saffron-100/40" : "border-slate-300 hover:border-navy-700"
+        onDrop={(e) => {
+          if (processing) {
+            e.preventDefault();
+            return;
+          }
+          onDrop(e);
+        }}
+        onClick={() => !processing && inputRef.current?.click()}
+        className={`rounded-2xl border-2 border-dashed p-8 sm:p-10 text-center transition-colors bg-white ${
+          processing
+            ? "cursor-not-allowed border-slate-200 opacity-60"
+            : dragActive
+            ? "cursor-pointer border-saffron-600 bg-saffron-100/40"
+            : "cursor-pointer border-slate-300 hover:border-navy-700"
         }`}
       >
         <input
@@ -181,50 +253,100 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
             <UploadCloud className="h-7 w-7 text-navy-700" strokeWidth={2} />
           </div>
           <p className="font-semibold text-navy-900">
-            Drag & drop your CSV / Excel dataset here
+            Drag &amp; drop your CSV / Excel dataset here
           </p>
-          <p className="text-sm text-slate-500">or click to browse — .csv, .xlsx, .xls supported</p>
+          <p className="text-sm text-slate-500">
+            or click to browse — .csv, .xlsx, .xls · up to 10 MB
+          </p>
         </div>
       </div>
 
+      {!file && status === "idle" && (
+        <p className="text-xs text-slate-400 text-center -mt-2">
+          No dataset selected yet. Your upload is validated against the expected columns before it syncs.
+        </p>
+      )}
+
       {file && (
-        <div className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <FileSpreadsheet className="h-6 w-6 text-navy-700" />
-            <div>
-              <p className="font-semibold text-navy-900 text-sm">{file.name}</p>
-              <p className="text-xs text-slate-500">{(file.size / 1024).toFixed(1)} KB</p>
+        <div className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 p-4 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <FileSpreadsheet className="h-6 w-6 text-navy-700 shrink-0" />
+              <div className="min-w-0">
+                <p className="font-semibold text-navy-900 text-sm truncate" title={file.name}>
+                  {file.name}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {(file.size / 1024).toFixed(1)} KB
+                  {status === "success" && " · synced"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {!processing && status !== "success" && (
+                <button
+                  onClick={clearFile}
+                  aria-label="Remove selected file"
+                  title="Remove selected file"
+                  className="h-8 w-8 rounded-lg text-slate-400 hover:text-alert-600 hover:bg-alert-600/10 flex items-center justify-center transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+              <button
+                onClick={status === "success" ? clearFile : processAndSync}
+                disabled={processing}
+                className="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-800 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+              >
+                {processing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <UploadCloud className="h-4 w-4" />
+                )}
+                {processing
+                  ? phase === "uploading"
+                    ? `Uploading… ${uploadPct}%`
+                    : "Analysing…"
+                  : status === "success"
+                  ? "Upload another"
+                  : "Process & Sync Dataset"}
+              </button>
             </div>
           </div>
-          <button
-            onClick={processAndSync}
-            disabled={status === "processing"}
-            className="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-800 disabled:opacity-60 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
-          >
-            {status === "processing" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <UploadCloud className="h-4 w-4" />
-            )}
-            Process & Sync Dataset
-          </button>
+
+          {processing && (
+            <div>
+              <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className={`h-full rounded-full bg-navy-700 transition-[width] duration-300 ease-out ${
+                    phase === "analyzing" ? "animate-pulse" : ""
+                  }`}
+                  style={{ width: phase === "analyzing" ? "100%" : `${uploadPct}%` }}
+                />
+              </div>
+              <p className="mt-1.5 text-xs text-slate-500">
+                {phase === "uploading"
+                  ? `Transferring file — ${uploadPct}%`
+                  : "File received. Parsing rows and scoring overrun risk on the server…"}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
-      {status !== "idle" && message && (
+      {status !== "idle" && message && !processing && (
         <div
-          className={`rounded-lg p-4 flex items-start gap-3 text-sm ${
+          className={`rounded-xl p-4 flex items-start gap-3 text-sm ${
             status === "success"
-              ? "bg-success-500/10 text-success-600"
+              ? "bg-success-500/10 text-success-600 ring-1 ring-success-500/20"
               : status === "error"
-              ? "bg-alert-600/10 text-alert-600"
+              ? "bg-alert-600/10 text-alert-600 ring-1 ring-alert-600/20"
               : "bg-navy-900/5 text-navy-800"
           }`}
         >
           {status === "success" && <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />}
           {status === "error" && <XCircle className="h-4 w-4 mt-0.5 shrink-0" />}
-          {status === "processing" && <Loader2 className="h-4 w-4 mt-0.5 shrink-0 animate-spin" />}
-          <p>{message}</p>
+          <p className="min-w-0">{message}</p>
         </div>
       )}
 
@@ -232,11 +354,16 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
           Expected columns
         </p>
-        <code className="block text-xs text-slate-600 overflow-x-auto whitespace-pre">
-          name, ministry, sector, state, budget_cr, budget_utilized_cr,{"\n"}
-          physical_progress_pct, schedule_progress_pct, delay_months,{"\n"}
-          milestones_total, milestones_completed
-        </code>
+        <div className="flex flex-wrap gap-1.5">
+          {EXPECTED_COLUMNS.map((col) => (
+            <code
+              key={col}
+              className="rounded-md bg-white border border-slate-200 px-2 py-0.5 text-[11px] font-mono text-slate-600"
+            >
+              {col}
+            </code>
+          ))}
+        </div>
         <a
           href="/sample_upload.csv"
           download

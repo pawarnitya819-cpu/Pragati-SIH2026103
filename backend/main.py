@@ -87,6 +87,28 @@ REQUIRED_COLUMNS = {
 }
 
 
+def _dedupe_key(name: str, ministry: str, state: str) -> str:
+    """Two rows describe the same physical project when name + nodal ministry +
+    location (state) match, ignoring case and surrounding / repeated whitespace.
+    Repeated uploads of overlapping datasets had grown the register to 218 rows
+    of which ~99 were duplicates."""
+    return " || ".join(
+        " ".join(str(part).split()).lower() for part in (name, ministry, state)
+    )
+
+
+def _dedupe_projects(projects: List[Project]) -> List[Project]:
+    seen = set()
+    unique = []
+    for project in projects:
+        key = _dedupe_key(project.name, project.ministry, project.state)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(project)
+    return unique
+
+
 def _build_seed() -> List[Project]:
     raw = [
         dict(name="National Highway Expansion (NH-44)", ministry="Ministry of Road Transport & Highways",
@@ -215,7 +237,9 @@ def _row_to_project(row: dict) -> Project:
 
 def _load_projects_from_db() -> List[Project]:
     df = pd.read_sql_table(DB_TABLE, engine)
-    return [_row_to_project(row) for row in df.to_dict(orient="records")]
+    return _dedupe_projects(
+        [_row_to_project(row) for row in df.to_dict(orient="records")]
+    )
 
 
 def _save_new_rows_to_db(df: pd.DataFrame) -> None:
@@ -360,10 +384,37 @@ async def upload_dataset(file: UploadFile = File(...)):
         DB = _load_projects_from_db()
     else:
         DB.extend(new_projects)
+        DB = _dedupe_projects(DB)
 
     return {
         "message": f"Processed and synced {len(new_projects)} project record(s).",
         "added": new_projects,
+        "projects": DB,
+        "kpis": _compute_kpis(DB),
+    }
+
+
+@app.post("/api/dedupe")
+def dedupe_dataset():
+    """Physically collapse duplicate rows (same name + ministry + state) in the
+    store, keeping the first occurrence. Returns how many rows were removed so a
+    one-off cleanup of the live register can be confirmed."""
+    global DB
+    before = len(DB)
+    DB = _dedupe_projects(DB)
+    removed = before - len(DB)
+
+    if USE_DATABASE and removed:
+        # Rewrite the table from the de-duplicated set.
+        clean_df = pd.DataFrame([p.model_dump() for p in DB])
+        clean_df = clean_df.drop(columns=["id", "risk_score", "risk_status"])
+        clean_df.to_sql(DB_TABLE, engine, if_exists="replace", index=False)
+        DB = _load_projects_from_db()
+
+    return {
+        "message": f"Removed {removed} duplicate record(s).",
+        "records_before": before,
+        "records_after": len(DB),
         "projects": DB,
         "kpis": _compute_kpis(DB),
     }

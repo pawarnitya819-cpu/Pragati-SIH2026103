@@ -12,7 +12,7 @@ export default function SearchFilterBar({
 }) {
   return (
     <div className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 p-4 flex flex-col sm:flex-row gap-3">
-      <div className="relative flex-1">
+      <div className="relative flex-1 min-w-0">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
         <input
           value={query}
@@ -22,12 +22,12 @@ export default function SearchFilterBar({
         />
       </div>
 
-      <div className="flex items-center gap-2">
-        <SlidersHorizontal className="h-4 w-4 text-slate-400 hidden sm:block" />
+      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+        <SlidersHorizontal className="h-4 w-4 text-slate-400 hidden sm:block shrink-0" />
         <select
           value={sector}
           onChange={(e) => setSector(e.target.value)}
-          className="py-2.5 pl-3 pr-8 rounded-lg border border-slate-200 text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700/40 bg-white"
+          className="flex-1 min-w-0 sm:flex-none py-2.5 pl-3 pr-8 rounded-lg border border-slate-200 text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700/40 bg-white"
         >
           <option value="All">All Sectors</option>
           {sectors.map((s) => (
@@ -40,7 +40,7 @@ export default function SearchFilterBar({
         <select
           value={state}
           onChange={(e) => setState(e.target.value)}
-          className="py-2.5 pl-3 pr-8 rounded-lg border border-slate-200 text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700/40 bg-white"
+          className="flex-1 min-w-0 sm:flex-none py-2.5 pl-3 pr-8 rounded-lg border border-slate-200 text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700/40 bg-white"
         >
           <option value="All">All States</option>
           {states.map((s) => (
