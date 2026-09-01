@@ -121,7 +121,7 @@ export default function AiCopilotWidget() {
           onClick={() => setIsOpen((o) => !o)}
           title="PRAGATI AI Copilot Preview"
           aria-label="PRAGATI AI Copilot"
-          className="relative h-16 w-16 rounded-full bg-[#071a33] shadow-xl hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border-2 border-slate-700 flex items-center justify-center p-0"
+          className="relative h-16 w-16 rounded-full bg-gradient-to-br from-[#8CF5C9] via-[#3FD9C7] to-[#06B6D4] shadow-xl hover:scale-105 active:scale-95 transition-transform duration-200 overflow-hidden border-2 border-white/40 flex items-center justify-center p-0"
         >
           <svg
             viewBox="0 0 100 100"
@@ -132,76 +132,57 @@ export default function AiCopilotWidget() {
             }}
           >
             <defs>
-              {/* Metallic Head Gradients */}
-              <radialGradient id="headShade" cx="40%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#ffffff" />
-                <stop offset="50%" stopColor="#cbd5e1" />
-                <stop offset="100%" stopColor="#64748b" />
-              </radialGradient>
-
-              {/* 3D Visor Gradient */}
-              <linearGradient id="visorShade" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#0f172a" />
-                <stop offset="100%" stopColor="#1e293b" />
-              </linearGradient>
-
               {/* Glowing Antenna Tip */}
               <radialGradient id="glowTip" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#fbbf24" />
-                <stop offset="100%" stopColor="#d97706" />
+                <stop offset="0%" stopColor="#eafff5" />
+                <stop offset="100%" stopColor="#7CF5C4" />
               </radialGradient>
 
-              {/* Glowing Eye Glass */}
-              <radialGradient id="eyeLens" cx="35%" cy="35%" r="60%">
-                <stop offset="0%" stopColor="#38bdf8" />
-                <stop offset="70%" stopColor="#0284c7" />
-                <stop offset="100%" stopColor="#0369a1" />
-              </radialGradient>
+              {/* Black Visor Gradient */}
+              <linearGradient id="visorShade" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#0b1220" />
+                <stop offset="100%" stopColor="#1c2733" />
+              </linearGradient>
             </defs>
 
-            {/* Antenna Pole & Tip */}
-            <rect x="47.5" y="6" width="5" height="14" rx="2" fill="#94a3b8" />
-            <circle cx="50" cy="6" r="5.5" fill="url(#glowTip)" />
+            {/* Antenna Pole & Glowing Tip */}
+            <rect x="46" y="4" width="4" height="14" rx="2" fill="#bff5e3" />
+            <circle cx="48" cy="6" r="5" fill="url(#glowTip)" />
 
-            {/* Centered Head Base */}
-            <rect x="18" y="20" width="64" height="58" rx="16" fill="url(#headShade)" filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.4))" />
+            {/* Little side ear flaps, like the reference mascot */}
+            <ellipse cx="12" cy="52" rx="6" ry="10" fill="#bff5e3" opacity="0.85" />
+            <ellipse cx="88" cy="52" rx="6" ry="10" fill="#bff5e3" opacity="0.85" />
 
-            {/* Inner Visor Frame */}
-            <rect x="24" y="27" width="52" height="42" rx="12" fill="url(#visorShade)" />
+            {/* Black Visor / Face Mask */}
+            <rect x="20" y="30" width="60" height="40" rx="20" fill="url(#visorShade)" />
 
             {/* Dynamic Interactive Happy Eyes */}
             {!isBlinking ? (
               <g>
-                {/* Joyful Eyebrows */}
-                <path d="M 31 37 Q 38 33 45 37" stroke="#38bdf8" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                <path d="M 55 37 Q 62 33 69 37" stroke="#38bdf8" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                {/* Left Eye */}
+                <circle cx={38 + pupilPos.x} cy={48 + pupilPos.y} r="7" fill="#ffffff" />
+                <circle cx={38 + pupilPos.x * 1.3} cy={48 + pupilPos.y * 1.3} r="3" fill="#0b1220" />
 
-                {/* Left Eye Base */}
-                <circle cx="38" cy="46" r="8" fill="#ffffff" />
-                {/* Left Pupil (Tracked) */}
-                <circle cx={38 + pupilPos.x} cy={46 + pupilPos.y} r="4" fill="url(#eyeLens)" />
-                <circle cx={36 + pupilPos.x} cy={44 + pupilPos.y} r="1.5" fill="#ffffff" />
-
-                {/* Right Eye Base */}
-                <circle cx="62" cy="46" r="8" fill="#ffffff" />
-                {/* Right Pupil (Tracked) */}
-                <circle cx={62 + pupilPos.x} cy={46 + pupilPos.y} r="4" fill="url(#eyeLens)" />
-                <circle cx={60 + pupilPos.x} cy={44 + pupilPos.y} r="1.5" fill="#ffffff" />
+                {/* Right Eye */}
+                <circle cx={62 + pupilPos.x} cy={48 + pupilPos.y} r="7" fill="#ffffff" />
+                <circle cx={62 + pupilPos.x * 1.3} cy={48 + pupilPos.y * 1.3} r="3" fill="#0b1220" />
               </g>
             ) : (
               /* Happy Blinking Arc Eyes */
-              <g stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" fill="none">
-                <path d="M 31 46 Q 38 40 45 46" />
-                <path d="M 55 46 Q 62 40 69 46" />
+              <g stroke="#ffffff" strokeWidth="3" strokeLinecap="round" fill="none">
+                <path d="M 32 48 Q 38 44 44 48" />
+                <path d="M 56 48 Q 62 44 68 48" />
               </g>
             )}
 
-            {/* Happy Blush Cheeks */}
-            <circle cx="28" cy="54" r="4" fill="#f43f5e" opacity="0.6" />
-            <circle cx="72" cy="54" r="4" fill="#f43f5e" opacity="0.6" />
-
             {/* Big Happy Smile */}
-            <path d="M 40 54 Q 50 65 60 54" stroke="#38bdf8" strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path
+              d="M 38 60 Q 50 70 62 60"
+              stroke="#ffffff"
+              strokeWidth="4"
+              fill="none"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
 
