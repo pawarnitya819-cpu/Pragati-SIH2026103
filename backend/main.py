@@ -57,7 +57,7 @@ def compute_risk(
     physical_progress_pct: float,
     schedule_progress_pct: float,
     delay_months: float,
-) -> (float, str):
+) -> tuple[float, str]:
     budget_utilized_pct = (budget_utilized_cr / budget_cr * 100) if budget_cr else 0
     cost_variance = budget_utilized_pct - physical_progress_pct
     schedule_variance = schedule_progress_pct - physical_progress_pct
