@@ -125,7 +125,7 @@ export default function ParticleBackground({ className = "" }) {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-           className={`fixed inset-0 -z-10 pointer-events-none ${className}`}
+           className={`fixed inset-0 z-0 pointer-events-none ${className}`}
     />
   );
 }
