@@ -20,9 +20,15 @@ export default function GithubButton() {
         fontWeight: 600,
         textDecoration: "none",
         boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+        lineHeight: 1,
       }}
     >
-      <svg viewBox="0 0 24 24" style={{ height: "16px", width: "16px" }} fill="currentColor" aria-hidden="true">
+      <svg 
+        viewBox="0 0 24 24" 
+        style={{ height: "16px", width: "16px", flexShrink: 0 }} 
+        fill="currentColor" 
+        aria-hidden="true"
+      >
         <path
           d={
             "M12 .5C5.73.5 5.73 12c0 5.09 3.29 9.4 7.86 10.93.58.1-.79-.25.79-.56" +
@@ -37,7 +43,7 @@ export default function GithubButton() {
           }
         />
       </svg>
-      View on GitHub
+      <span>View on GitHub</span>
     </a>
   );
 }
