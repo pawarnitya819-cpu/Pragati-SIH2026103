@@ -4,9 +4,25 @@ export default function GithubButton() {
       href="https://github.com/pawarnitya819-cpu/Pragati-SIH2026103"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-8 left-5 z-50 inline-flex items-center justify-center gap-2 font-semibold px-5 py-2.5 rounded-full shadow-card ring-1 ring-white/10 transition-colors bg-[#0B1D3A] text-white hover:bg-[#152a52]"
+      style={{
+        position: "fixed",
+        bottom: "20px",
+        left: "20px",
+        zIndex: 50,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+        padding: "10px 20px",
+        borderRadius: "9999px",
+        backgroundColor: "#0B1D3A",
+        color: "#ffffff",
+        fontWeight: 600,
+        textDecoration: "none",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+      }}
     >
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+      <svg viewBox="0 0 24 24" style={{ height: "16px", width: "16px" }} fill="currentColor" aria-hidden="true">
         <path
           d={
             "M12 .5C5.73.5 5.73 12c0 5.09 3.29 9.4 7.86 10.93.58.1-.79-.25.79-.56" +
