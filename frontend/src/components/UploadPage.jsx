@@ -103,7 +103,10 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
 
   if (!authorized) {
     return (
-      <div className="max-w-sm mx-auto mt-10">
+      <div className="relative min-h-[70vh]">
+        <ParticleBackground />
+
+        <div className="relative z-10 max-w-sm mx-auto mt-10">
         <form
           onSubmit={handleAuthSubmit}
           className="bg-white rounded-2xl shadow-card ring-1 ring-slate-900/5 p-6 space-y-4"
@@ -152,6 +155,7 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
             Unlock Upload
           </button>
         </form>
+        </div>
       </div>
     );
   }
