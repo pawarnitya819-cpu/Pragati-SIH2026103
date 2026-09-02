@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from database import USE_DATABASE, engine
+from sqlalchemy import inspect
 
 app = FastAPI(
     title="PRAGATI API",
@@ -249,14 +250,17 @@ def _save_new_rows_to_db(df: pd.DataFrame) -> None:
 
 def _init_db() -> List[Project]:
     if USE_DATABASE:
-        try:
-            return _load_projects_from_db()
-        except Exception:
+        table_exists = inspect(engine).has_table(DB_TABLE)
+        if not table_exists:
             seed_projects = _build_seed()
             seed_df = pd.DataFrame([p.model_dump() for p in seed_projects])
             seed_df = seed_df.drop(columns=["id", "risk_score", "risk_status"])
             seed_df.to_sql(DB_TABLE, engine, if_exists="replace", index=False)
             return seed_projects
+        try:
+            return _load_projects_from_db()
+        except Exception:
+            return _build_seed()
     return _build_seed()
 
 
