@@ -43,10 +43,10 @@ export default function App() {
       <AiCopilotWidget />
       <Header page={page} setPage={setPage} />
 
-      {!backendOnline && (
+            {!backendOnline && (
         <div className="bg-saffron-100 border-b border-saffron-600/30 text-saffron-600 text-xs font-medium px-4 py-2 flex items-center justify-center gap-2">
           <WifiOff className="h-3.5 w-3.5" />
-          FastAPI backend not detected at localhost:8000 — running on pre-loaded sample data
+          Backend is waking up or unreachable — running on pre-loaded sample data
           only. Uploads will use a client-side fallback parser.
         </div>
       )}

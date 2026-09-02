@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const API_BASE = "https://pragati-sih2026103.onrender.com/api";
 
-const client = axios.create({ baseURL: API_BASE, timeout: 8000 });
+const client = axios.create({ baseURL: API_BASE, timeout: 60000 });
 
 export async function fetchProjects() {
   const { data } = await client.get("/projects");

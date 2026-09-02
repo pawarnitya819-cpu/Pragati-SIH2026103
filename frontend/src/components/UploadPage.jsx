@@ -207,8 +207,7 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
       setStatus("error");
       setMessage(
         err?.response?.data?.detail ||
-          "Could not process file. Ensure the FastAPI backend is running on http://localhost:8000."
-      );
+          "Could not process file. The backend may still be waking up — wait a few seconds and try again."      );
     }
   };
 
