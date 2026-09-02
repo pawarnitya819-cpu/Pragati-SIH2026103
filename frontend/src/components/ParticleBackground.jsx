@@ -11,13 +11,14 @@ import { useEffect, useRef } from "react";
 //     <div className="relative z-10"> ...your real content... </div>
 //   </div>
 
-const PARTICLE_COUNT = 140;
 const MAX_SPEED = 0.3;
-const LINK_DISTANCE = 140;
-const MOUSE_RADIUS = 160;
+const LINK_DISTANCE = 150;
+const MOUSE_RADIUS = 170;
 const MOUSE_PUSH = 0.08;
 const DOT_RGB = "37, 99, 235";    // brighter blue
 const LINE_RGB = "37, 99, 235";
+// density = particles per this many square px of screen — lower = denser
+const DENSITY = 9000;
 
 export default function ParticleBackground({ className = "" }) {
   const canvasRef = useRef(null);
@@ -27,22 +28,27 @@ export default function ParticleBackground({ className = "" }) {
     const ctx = canvas.getContext("2d");
     const parent = canvas.parentElement;
 
-    let width, height, particles, rafId;
+             let width, height, particles, rafId;
     const mouse = { x: -9999, y: -9999 };
 
     const resize = () => {
-      width = canvas.width = parent.clientWidth;
-      height = canvas.height = parent.clientHeight;
+      // canvas is position:fixed, so it should match the viewport,
+      // not its parent element's box.
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
     };
 
-    const makeParticles = () =>
-      Array.from({ length: PARTICLE_COUNT }, () => ({
+    const makeParticles = () => {
+      const count = Math.min(260, Math.floor((width * height) / DENSITY));
+      return Array.from({ length: count }, () => ({
+
         x: Math.random() * width,
         y: Math.random() * height,
         vx: (Math.random() - 0.5) * MAX_SPEED,
         vy: (Math.random() - 0.5) * MAX_SPEED,
-        r: Math.random() * 1.4 + 0.8,
+        r: Math.random() * 1.6 + 1,
       }));
+    };
 
     const onMouseMove = (e) => {
       const rect = canvas.getBoundingClientRect();
