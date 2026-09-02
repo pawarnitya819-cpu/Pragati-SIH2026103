@@ -4,7 +4,6 @@ import LandingPage from "./components/LandingPage";
 import UploadPage from "./components/UploadPage";
 import AdminDashboard from "./components/AdminDashboard";
 import CursorFollower from "./components/CursorFollower";
-import ParticleBackground from "./components/ParticleBackground";
 import AiCopilotWidget from "./components/AiCopilotWidget";
 import { SEED_PROJECTS } from "./data/sampleProjects";
 import { scoreProjects, dedupeProjects } from "./utils/riskEngine";
@@ -40,7 +39,6 @@ export default function App() {
 
   return (
        <div className="min-h-screen bg-paper relative">
-      <ParticleBackground />
       <CursorFollower />
       <AiCopilotWidget />
       <Header page={page} setPage={setPage} />
