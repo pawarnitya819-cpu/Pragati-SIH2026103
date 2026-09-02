@@ -4,7 +4,7 @@ export default function GithubButton() {
       href="https://github.com/pawarnitya819-cpu/Pragati-SIH2026103"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-5 left-5 z-50 inline-flex items-center justify-center gap-2 font-semibold pl-3 pr-4 py-2.5 rounded-full shadow-card ring-1 ring-white/10 transition-colors bg-[#0B1D3A] text-white hover:bg-[#152a52]"
+      className="fixed bottom-8 left-5 z-50 inline-flex items-center justify-center gap-2 font-semibold px-5 py-2.5 rounded-full shadow-card ring-1 ring-white/10 transition-colors bg-[#0B1D3A] text-white hover:bg-[#152a52]"
     >
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
         <path
