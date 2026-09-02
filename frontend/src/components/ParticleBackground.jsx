@@ -18,7 +18,7 @@ const MOUSE_PUSH = 0.08;
 const DOT_RGB = "37, 99, 235";    // brighter blue
 const LINE_RGB = "37, 99, 235";
 // density = particles per this many square px of screen — lower = denser
-const DENSITY = 9000;
+const DENSITY = 4000;
 
 export default function ParticleBackground({ className = "" }) {
   const canvasRef = useRef(null);
@@ -39,7 +39,7 @@ export default function ParticleBackground({ className = "" }) {
     };
 
     const makeParticles = () => {
-      const count = Math.min(260, Math.floor((width * height) / DENSITY));
+      const count = Math.min(500, Math.floor((width * height) / DENSITY));
       return Array.from({ length: count }, () => ({
 
         x: Math.random() * width,
