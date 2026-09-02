@@ -210,13 +210,13 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
 
   const processing = status === "processing";
 
-  return (
-    <div className="relative max-w-3xl mx-auto">
+    return (
+    <div className="relative">
       <ParticleBackground />
 
-      <div className="relative z-10 space-y-6">
+      <div className="relative z-10 max-w-3xl mx-auto space-y-6">
       <div>
-        <h2 className="font-display font-black text-2xl text-navy-900">Data Ingestion</h2>        
+        <h2 className="font-display font-black text-2xl text-navy-900">Data Ingestion</h2>  
         <p className="text-slate-500 text-sm mt-1">
           Field engineers and nodal officials can upload progress datasets here. Records are
           parsed, scored for overrun risk, and merged into the live monitoring register.
