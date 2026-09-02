@@ -6,6 +6,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import CursorFollower from "./components/CursorFollower";
 import ParticleBackground from "./components/ParticleBackground";
 import AiCopilotWidget from "./components/AiCopilotWidget";
+import GithubButton from "./components/GithubButton";
 import { SEED_PROJECTS } from "./data/sampleProjects";
 import { scoreProjects, dedupeProjects } from "./utils/riskEngine";
 import { fetchProjects } from "./api";
@@ -43,6 +44,7 @@ export default function App() {
       <ParticleBackground />
       <CursorFollower />
       <AiCopilotWidget />
+      <GithubButton />
       <Header page={page} setPage={setPage} />
 
             {!backendOnline && (
