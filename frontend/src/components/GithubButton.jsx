@@ -12,20 +12,27 @@ export default function GithubButton() {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: "8px",
-        padding: "10px 20px",
+        gap: "10px",
+        padding: "12px 24px",
         borderRadius: "9999px",
         backgroundColor: "#0B1D3A",
         color: "#ffffff",
+        fontSize: "15px",
         fontWeight: 600,
+        lineHeight: "normal",
         textDecoration: "none",
         boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-        lineHeight: 1,
+        boxSizing: "border-box",
       }}
     >
       <svg 
         viewBox="0 0 24 24" 
-        style={{ height: "16px", width: "16px", flexShrink: 0 }} 
+        style={{ 
+          height: "20px", 
+          width: "20px", 
+          flexShrink: 0, 
+          display: "block" 
+        }} 
         fill="currentColor" 
         aria-hidden="true"
       >
