@@ -97,8 +97,8 @@ export default function HeroChakraZipper({ children }) {
             <circle cx="100" cy="100" r="98" fill="url(#chakraDisc)" />
             <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(11,31,58,0.15)" strokeWidth="2" />
             <circle cx="100" cy="100" r="90" fill="none" stroke="#0B1F3A" strokeWidth="3.5" />
-            {Array.from({ length: 16 }).map((_, i) => {
-              const angle = (i * 360) / 16;
+            {Array.from({ length: 24 }).map((_, i) => {
+              const angle = (i * 360) / 24;
               return (
                 <line
                   key={i}
@@ -107,7 +107,7 @@ export default function HeroChakraZipper({ children }) {
                   x2="100"
                   y2="18"
                   stroke="#0B1F3A"
-                  strokeWidth="3.5"
+                  strokeWidth="3"
                   strokeLinecap="round"
                   transform={`rotate(${angle} 100 100)`}
                 />
