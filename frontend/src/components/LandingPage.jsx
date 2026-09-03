@@ -44,6 +44,35 @@ export default function LandingPage({ projects }) {
             backgroundSize: "22px 22px",
           }}
         />
+
+        {/* Ashoka Chakra motif — fills the empty space to the right of the
+            hero copy on wide screens. Purely decorative, so it's hidden
+            below the breakpoint where it would otherwise crowd the text. */}
+        <svg
+          viewBox="0 0 200 200"
+          aria-hidden="true"
+          className="hidden lg:block absolute top-1/2 right-8 -translate-y-1/2 h-40 w-40 xl:h-48 xl:w-48 opacity-[0.14] animate-[spin_24s_linear_infinite]"
+        >
+          <circle cx="100" cy="100" r="92" fill="none" stroke="white" strokeWidth="4" />
+          {Array.from({ length: 24 }).map((_, i) => {
+            const angle = (i * 360) / 24;
+            return (
+              <line
+                key={i}
+                x1="100"
+                y1="100"
+                x2="100"
+                y2="14"
+                stroke="white"
+                strokeWidth="3"
+                strokeLinecap="round"
+                transform={`rotate(${angle} 100 100)`}
+              />
+            );
+          })}
+          <circle cx="100" cy="100" r="10" fill="white" />
+        </svg>
+
         <div className="relative">
           <p className="text-saffron-500 font-mono text-xs uppercase tracking-widest mb-2">
             Ministry of Statistics and Programme Implementation
