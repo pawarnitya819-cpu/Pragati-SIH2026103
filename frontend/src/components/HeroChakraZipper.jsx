@@ -84,7 +84,7 @@ export default function HeroChakraZipper({ children }) {
           <svg
             viewBox="0 0 200 200"
             aria-hidden="true"
-            className="h-full w-full animate-[spin_0.9s_linear_infinite]"
+            className="h-full w-full animate-[spin_30s_linear_infinite]"
             style={{ animationDelay: "0ms", willChange: "transform" }}
           >
             <defs>
