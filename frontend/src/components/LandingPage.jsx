@@ -45,33 +45,37 @@ export default function LandingPage({ projects }) {
           }}
         />
 
-        {/* Ashoka Chakra motif — fills the empty space to the right of the
-            hero copy on wide screens. Purely decorative, so it's hidden
-            below the breakpoint where it would otherwise crowd the text. */}
-        <svg
-          viewBox="0 0 200 200"
-          aria-hidden="true"
-          className="hidden lg:block absolute top-1/2 right-8 -translate-y-1/2 h-40 w-40 xl:h-48 xl:w-48 opacity-[0.14] animate-[spin_24s_linear_infinite]"
-        >
-          <circle cx="100" cy="100" r="92" fill="none" stroke="white" strokeWidth="4" />
-          {Array.from({ length: 24 }).map((_, i) => {
-            const angle = (i * 360) / 24;
-            return (
-              <line
-                key={i}
-                x1="100"
-                y1="100"
-                x2="100"
-                y2="14"
-                stroke="white"
-                strokeWidth="3"
-                strokeLinecap="round"
-                transform={`rotate(${angle} 100 100)`}
-              />
-            );
-          })}
-          <circle cx="100" cy="100" r="10" fill="white" />
-        </svg>
+        {/* Ashoka Chakra badge — fixed in the empty space of the hero
+            banner, continuously rotating in place. Rendered in the flag's
+            real colors (navy spokes on a white disc) so it reads clearly
+            against the dark background instead of blending into it. */}
+        <div className="hidden md:block absolute top-1/2 right-6 sm:right-8 -translate-y-1/2 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40">
+          <svg
+            viewBox="0 0 200 200"
+            aria-hidden="true"
+            className="h-full w-full drop-shadow-lg animate-[spin_18s_linear_infinite]"
+          >
+            <circle cx="100" cy="100" r="98" fill="white" />
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#0B1F3A" strokeWidth="4" />
+            {Array.from({ length: 24 }).map((_, i) => {
+              const angle = (i * 360) / 24;
+              return (
+                <line
+                  key={i}
+                  x1="100"
+                  y1="100"
+                  x2="100"
+                  y2="16"
+                  stroke="#0B1F3A"
+                  strokeWidth="4.5"
+                  strokeLinecap="round"
+                  transform={`rotate(${angle} 100 100)`}
+                />
+              );
+            })}
+            <circle cx="100" cy="100" r="12" fill="#0B1F3A" />
+          </svg>
+        </div>
 
         <div className="relative">
           <p className="text-saffron-500 font-mono text-xs uppercase tracking-widest mb-2">
