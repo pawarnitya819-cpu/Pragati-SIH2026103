@@ -85,7 +85,7 @@ export default function HeroChakraZipper({ children }) {
             viewBox="0 0 200 200"
             aria-hidden="true"
             className="h-full w-full animate-[spin_36s_linear_infinite]"
-            style={{ animationDelay: `${TOTAL_MS}ms`, willChange: "transform" }}
+            style={{ animationDelay: `${DROP_MS}ms`, willChange: "transform" }}
           >
             <defs>
               <radialGradient id="chakraDisc" cx="42%" cy="38%" r="70%">
