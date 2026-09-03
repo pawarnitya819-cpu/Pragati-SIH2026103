@@ -9,14 +9,13 @@ import {
   Lock,
   X,
 } from "lucide-react";
-import { uploadDataset, parseCsvClientSide } from "../api";
+import { uploadDataset, parseCsvClientSide, verifyAccess } from "../api";
 import { scoreProjects, dedupeProjects } from "../utils/riskEngine";
 import SiteMediaUpload from "./SiteMediaUpload";
 import ParticleBackground from "./ParticleBackground";
 
 const ACCEPTED_EXT = [".csv", ".xlsx", ".xls"];
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
-const TEMP_UPLOAD_PASSWORD = "SIH@2026";
 
 const EXPECTED_COLUMNS = [
   "name",
@@ -34,6 +33,8 @@ const EXPECTED_COLUMNS = [
 
 export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMediaChange }) {
   const [authorized, setAuthorized] = useState(false);
+  const [authToken, setAuthToken] = useState(null);
+  const [authLoading, setAuthLoading] = useState(false);
   const [projectId, setProjectId] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
@@ -87,18 +88,27 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
     handleFile(e.dataTransfer.files?.[0]);
   }, []);
 
-  const handleAuthSubmit = (e) => {
+  const handleAuthSubmit = async (e) => {
     e.preventDefault();
     if (!projectId.trim()) {
       setAuthError("Please enter a Project ID.");
       return;
     }
-    if (password !== TEMP_UPLOAD_PASSWORD) {
-      setAuthError("Incorrect password. Please try again.");
-      return;
-    }
     setAuthError("");
-    setAuthorized(true);
+    setAuthLoading(true);
+    try {
+      const { token } = await verifyAccess(projectId.trim(), password);
+      setAuthToken(token);
+      setAuthorized(true);
+    } catch (err) {
+      setAuthError(
+        err?.response?.status === 401
+          ? "Incorrect password. Please try again."
+          : "Could not verify access right now. Please try again in a moment."
+      );
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   if (!authorized) {
@@ -147,12 +157,12 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
           {authError && (
             <p className="text-xs text-alert-600 font-medium">{authError}</p>
           )}
-
           <button
             type="submit"
-            className="w-full bg-navy-900 hover:bg-navy-800 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+            disabled={authLoading}
+            className="w-full bg-navy-900 hover:bg-navy-800 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
           >
-            Unlock Upload
+            {authLoading ? "Verifying…" : "Unlock Upload"}
           </button>
         </form>
         </div>
@@ -169,7 +179,7 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
 
     try {
       // Preferred path: FastAPI backend parses with pandas + computes risk.
-      const result = await uploadDataset(file, (pct) => {
+      const result = await uploadDataset(file, authToken, (pct) => {
         setUploadPct(pct);
         if (pct >= 100) {
           setPhase("analyzing");

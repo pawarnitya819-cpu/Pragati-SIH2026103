@@ -14,19 +14,42 @@ export async function fetchKpis() {
   return data;
 }
 
-// Uploads a File object to the FastAPI backend, which parses it with pandas,
-// runs the risk engine, and returns the newly added rows plus the full
-// updated dataset and KPI summary. `onProgress` receives 0-100 for the upload
-// leg so the UI can show a real transfer bar before the server-side parse.
-export async function uploadDataset(file, onProgress) {
+export async function verifyAccess(projectId, password) {
+  const { data } = await client.post("/auth/verify", {
+    project_id: projectId,
+    password,
+  });
+  return data; // { token, expires_in }
+}
+
+export async function uploadDataset(file, token, onProgress) {
   const formData = new FormData();
   formData.append("file", file);
   const { data } = await client.post("/upload", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`,
+    },
     onUploadProgress: (evt) => {
       if (!onProgress || !evt.total) return;
       onProgress(Math.round((evt.loaded / evt.total) * 100));
     },
+  });
+  return data;
+}
+
+export async function dedupeDataset(token) {
+  const { data } = await client.post(
+    "/dedupe",
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return data;
+}
+
+export async function resetDataset(token) {
+  const { data } = await client.delete("/reset", {
+    headers: { Authorization: `Bearer ${token}` },
   });
   return data;
 }

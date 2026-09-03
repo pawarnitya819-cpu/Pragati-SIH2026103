@@ -6,13 +6,15 @@ Run:
     pip install -r requirements.txt
     uvicorn main:app --reload --port 8000
 """
-
 import io
+import os
+import secrets
+import time
 import uuid
 from typing import List, Optional
 
 import pandas as pd
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -25,13 +27,53 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# --- CORS -------------------------------------------------------------
+_default_origins = "http://localhost:5173,http://localhost:3000"
+ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get("FRONTEND_ORIGINS", _default_origins).split(",")
+    if o.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"],
 )
+
+# --- Auth ---------------------------------------------------------------
+UPLOAD_ACCESS_PASSWORD = os.environ.get("UPLOAD_ACCESS_PASSWORD", "change-me-in-render-env")
+TOKEN_TTL_SECONDS = 4 * 60 * 60  # 4 hours
+
+_ACTIVE_TOKENS: dict[str, float] = {}
+
+
+def _issue_token() -> str:
+    token = secrets.token_urlsafe(32)
+    _ACTIVE_TOKENS[token] = time.time() + TOKEN_TTL_SECONDS
+    return token
+
+
+def require_upload_auth(authorization: Optional[str] = Header(None)) -> None:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or malformed Authorization header.")
+    token = authorization.removeprefix("Bearer ").strip()
+    expiry = _ACTIVE_TOKENS.get(token)
+    if expiry is None or expiry < time.time():
+        _ACTIVE_TOKENS.pop(token, None)
+        raise HTTPException(status_code=401, detail="Session expired or invalid. Please verify access again.")
+
+
+class AuthRequest(BaseModel):
+    project_id: str
+    password: str
+
+
+class AuthResponse(BaseModel):
+    token: str
+    expires_in: int
 
 
 class Project(BaseModel):
@@ -346,6 +388,16 @@ def health():
     return {"status": "ok", "service": "PRAGATI API"}
 
 
+@app.post("/api/auth/verify", response_model=AuthResponse)
+def verify_access(payload: AuthRequest):
+    if not payload.project_id.strip():
+        raise HTTPException(status_code=400, detail="Project ID is required.")
+    if not secrets.compare_digest(payload.password, UPLOAD_ACCESS_PASSWORD):
+        raise HTTPException(status_code=401, detail="Incorrect password.")
+    token = _issue_token()
+    return AuthResponse(token=token, expires_in=TOKEN_TTL_SECONDS)
+
+
 @app.get("/api/projects", response_model=List[Project])
 def get_projects(sector: Optional[str] = None, state: Optional[str] = None):
     results = DB
@@ -361,10 +413,19 @@ def get_kpis():
     return _compute_kpis(DB)
 
 
-@app.post("/api/upload")
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
+
+
+@app.post("/api/upload", dependencies=[Depends(require_upload_auth)])
 async def upload_dataset(file: UploadFile = File(...)):
     filename = file.filename or ""
     content = await file.read()
+
+    if len(content) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File is {len(content) / (1024*1024):.1f} MB — the limit is 10 MB.",
+        )
 
     try:
         if filename.lower().endswith(".csv"):
@@ -375,9 +436,9 @@ async def upload_dataset(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="Only .csv, .xlsx, or .xls files are supported.")
     except HTTPException:
         raise
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail=f"Could not parse file: {exc}")
-
+    except Exception:
+        print(f"[upload] failed to parse '{filename}'")
+        raise HTTPException(status_code=400, detail="Could not parse file. Check that it's a valid CSV/Excel file with the expected columns.")
     new_projects = _dataframe_to_projects(df)
     if not new_projects:
         raise HTTPException(status_code=400, detail="No valid project rows found in the uploaded file.")
@@ -398,7 +459,7 @@ async def upload_dataset(file: UploadFile = File(...)):
     }
 
 
-@app.post("/api/dedupe")
+@app.post("/api/dedupe", dependencies=[Depends(require_upload_auth)])
 def dedupe_dataset():
     """Physically collapse duplicate rows (same name + ministry + state) in the
     store, keeping the first occurrence. Returns how many rows were removed so a
@@ -423,8 +484,7 @@ def dedupe_dataset():
         "kpis": _compute_kpis(DB),
     }
 
-
-@app.delete("/api/reset")
+@app.delete("/api/reset", dependencies=[Depends(require_upload_auth)])
 def reset_dataset():
     """Reset the store back to the original seed dataset (demo convenience)."""
     global DB
