@@ -145,10 +145,10 @@ export default function HeroChakraZipper({ children }) {
             <svg
               key={i}
               viewBox="0 0 24 32"
-              className="absolute top-0 w-5 h-7 sm:w-6 sm:h-8 lg:w-7 lg:h-9"
+              className="absolute bottom-full w-5 h-7 sm:w-6 sm:h-8 lg:w-7 lg:h-9 mb-2 sm:mb-3"
               style={{
                 left: flame.left,
-                transform: "translate(-50%, -85%)",
+                transform: "translateX(-50%)",
                 opacity: 0,
                 animation: "flameBurst 1400ms ease-out forwards",
                 animationDelay: `${TOTAL_MS + flame.delay}ms`,
