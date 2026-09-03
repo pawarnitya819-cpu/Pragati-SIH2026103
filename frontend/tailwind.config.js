@@ -35,26 +35,23 @@ export default {
         card: "0 1px 2px rgba(10, 25, 47, 0.06), 0 1px 3px rgba(10, 25, 47, 0.08)",
       },
       keyframes: {
-        chakraDrop: {
-          "0%":   { transform: "translateY(-160%) scale(0.7)", opacity: "0" },
-          "55%":  { transform: "translateY(6%) scale(1.03)",   opacity: "1" },
-          "72%":  { transform: "translateY(-3%) scale(0.99)" },
-          "86%":  { transform: "translateY(1.5%) scale(1.005)" },
-          "100%": { transform: "translateY(0) scale(1)" },
+        chakraJourney: {
+          "0%":   { transform: "translate(var(--p1x), calc(var(--p1y) - 220px)) scale(0.65)", opacity: "0" },
+          "14%":  { opacity: "1" },
+          "22%":  { transform: "translate(var(--p1x), calc(var(--p1y) + 8px)) scale(1.05)" },
+          "26%":  { transform: "translate(var(--p1x), var(--p1y)) scale(1)" },
+          "78%":  { transform: "translate(var(--p2x), var(--p2y)) scale(1)" },
+          "90%":  { transform: "translate(6px, -4px) scale(1.04)" },
+          "100%": { transform: "translate(0, 0) scale(1)" },
         },
         zipFlap: {
           "0%":   { clipPath: "inset(0 0 0 0%)" },
           "100%": { clipPath: "inset(0 0 0 100%)" },
         },
-        zipTab: {
-          "0%":   { left: "0%" },
-          "100%": { left: "96%" },
-        },
       },
       animation: {
-        "chakra-drop": "chakraDrop 1.1s cubic-bezier(.32,1.6,.5,1) both",
+        "chakra-journey": "chakraJourney both",
         "zip-flap": "zipFlap linear both",
-        "zip-tab": "zipTab linear both",
       },
     },
   },

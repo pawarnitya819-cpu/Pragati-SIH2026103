@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import ZipperReveal from "./ZipperReveal";
+import HeroChakraZipper from "./HeroChakraZipper";
 import KPICards from "./KPICards";
 import ChartsSection from "./ChartsSection";
 import SearchFilterBar from "./SearchFilterBar";
@@ -46,53 +46,7 @@ export default function LandingPage({ projects }) {
           }}
         />
 
-        <div className="hidden md:block absolute top-1/2 right-6 sm:right-8 -translate-y-1/2 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40">
-          <div
-            className="h-full w-full rounded-full animate-chakra-drop"
-            style={{
-              boxShadow:
-                "inset 0 6px 18px rgba(0,0,0,0.45), inset 0 -3px 10px rgba(255,255,255,0.08), 0 0 0 6px rgba(0,0,0,0.2), 0 2px 10px rgba(0,0,0,0.3)",
-            }}
-          >
-            <svg
-              viewBox="0 0 200 200"
-              aria-hidden="true"
-              className="h-full w-full animate-[spin_30s_linear_infinite]"
-              style={{ willChange: "transform" }}
-            >
-              <defs>
-                <radialGradient id="chakraDisc" cx="42%" cy="38%" r="70%">
-                  <stop offset="0%" stopColor="#ffffff" />
-                  <stop offset="70%" stopColor="#f1f3f6" />
-                  <stop offset="100%" stopColor="#c9d0d9" />
-                </radialGradient>
-              </defs>
-              <circle cx="100" cy="100" r="98" fill="url(#chakraDisc)" />
-              <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(11,31,58,0.15)" strokeWidth="2" />
-              <circle cx="100" cy="100" r="90" fill="none" stroke="#0B1F3A" strokeWidth="3.5" />
-              {Array.from({ length: 16 }).map((_, i) => {
-                const angle = (i * 360) / 16;
-                return (
-                  <line
-                    key={i}
-                    x1="100"
-                    y1="100"
-                    x2="100"
-                    y2="18"
-                    stroke="#0B1F3A"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    transform={`rotate(${angle} 100 100)`}
-                  />
-                );
-              })}
-              <circle cx="100" cy="100" r="14" fill="#0B1F3A" />
-              <circle cx="100" cy="100" r="14" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
-            </svg>
-          </div>
-        </div>
-
-        <ZipperReveal>
+        <HeroChakraZipper>
           <div className="relative">
             <p className="text-saffron-500 font-mono text-xs uppercase tracking-widest mb-2">
               Ministry of Statistics and Programme Implementation
@@ -106,7 +60,7 @@ export default function LandingPage({ projects }) {
               urban infrastructure, and waterways projects nationwide.
             </p>
           </div>
-        </ZipperReveal>
+        </HeroChakraZipper>
       </section>
 
       <section className="bg-white rounded-2xl p-6 ring-1 ring-slate-900/5 shadow-card">
