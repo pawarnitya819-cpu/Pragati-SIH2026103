@@ -171,6 +171,50 @@ export default function HeroChakraZipper({ children }) {
             );
           })}
         </svg>
+
+        {/* Flame burst — fires the instant the unzip drag finishes, flickers
+            briefly, then fades out and stays gone. Three flames staggered
+            along the seam for a "burst" feel rather than all popping at once. */}
+        <style>{`
+          @keyframes flameBurst {
+            0%   { opacity: 0; transform: translateY(4px) scale(0.5); }
+            20%  { opacity: 1; transform: translateY(-2px) scale(1); }
+            55%  { opacity: 1; transform: translateY(-6px) scale(1.08); }
+            100% { opacity: 0; transform: translateY(-16px) scale(0.6); }
+          }
+        `}</style>
+        <div className="absolute inset-0 z-35 pointer-events-none" aria-hidden="true">
+          {[
+            { left: "28%", delay: 0 },
+            { left: "50%", delay: 120 },
+            { left: "72%", delay: 240 },
+          ].map((flame, i) => (
+            <svg
+              key={i}
+              viewBox="0 0 24 32"
+              className="absolute top-1/2 w-6 h-8 sm:w-8 sm:h-10"
+              style={{
+                left: flame.left,
+                transform: "translate(-50%, -100%)",
+                opacity: 0,
+                animation: "flameBurst 1400ms ease-out forwards",
+                animationDelay: `${DROP_MS + DRAG_MS + flame.delay}ms`,
+              }}
+            >
+              <defs>
+                <linearGradient id={`flameGrad${i}`} x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0%" stopColor="#ff5a1f" />
+                  <stop offset="55%" stopColor="#ff9d2e" />
+                  <stop offset="100%" stopColor="#ffe27a" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M12 2C9 8 4 11 4 18a8 8 0 0 0 16 0c0-4-2-6-3-9 0 3-1.5 4.5-3 4.5C11.5 13.5 13 8 12 2Z"
+                fill={`url(#flameGrad${i})`}
+              />
+            </svg>
+          ))}
+        </div>
       </div>
     </>
   );
