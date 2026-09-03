@@ -34,6 +34,18 @@ export default {
       boxShadow: {
         card: "0 1px 2px rgba(10, 25, 47, 0.06), 0 1px 3px rgba(10, 25, 47, 0.08)",
       },
+      keyframes: {
+        chakraDrop: {
+          "0%":   { transform: "translateY(-160%) scale(0.7)", opacity: "0" },
+          "55%":  { transform: "translateY(6%) scale(1.03)",   opacity: "1" },
+          "72%":  { transform: "translateY(-3%) scale(0.99)" },
+          "86%":  { transform: "translateY(1.5%) scale(1.005)" },
+          "100%": { transform: "translateY(0) scale(1)" },
+        },
+      },
+      animation: {
+        "chakra-drop": "chakraDrop 1.1s cubic-bezier(.32,1.6,.5,1) both",
+      },
     },
   },
   plugins: [],

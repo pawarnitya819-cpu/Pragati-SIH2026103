@@ -45,53 +45,55 @@ export default function LandingPage({ projects }) {
           }}
         />
 
-        {/* Ashoka Chakra badge — fixed in the empty space of the hero
-            banner, continuously rotating in place. Rendered in the flag's
-            real colors (navy spokes on a white disc) so it reads clearly
-            against the dark background. The wrapper's inset shadow makes it
-            read as a recessed "porthole" cut into the panel rather than a
-            flat sticker sitting on top of it. */}
-        <div
-          className="hidden md:block absolute top-1/2 right-6 sm:right-8 -translate-y-1/2 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 rounded-full"
-          style={{
-            boxShadow:
-              "inset 0 6px 20px rgba(0,0,0,0.55), inset 0 -3px 10px rgba(255,255,255,0.08), 0 0 0 6px rgba(0,0,0,0.22), 0 2px 10px rgba(0,0,0,0.35)",
-          }}
-        >
-          <svg
-            viewBox="0 0 200 200"
-            aria-hidden="true"
-            className="h-full w-full animate-[spin_18s_linear_infinite]"
+              {/* Ashoka Chakra badge — sits in a recessed "porthole" in the hero
+            banner. On mount it drops in with a bounce and settles into
+            place (chakra-drop, runs once); once settled the disc itself
+            spins continuously and calmly (30s, fewer/thinner spokes than
+            before so it doesn't strobe at close viewing distance). */}
+        <div className="hidden md:block absolute top-1/2 right-6 sm:right-8 -translate-y-1/2 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40">
+          <div
+            className="h-full w-full rounded-full animate-chakra-drop"
+            style={{
+              boxShadow:
+                "inset 0 6px 18px rgba(0,0,0,0.45), inset 0 -3px 10px rgba(255,255,255,0.08), 0 0 0 6px rgba(0,0,0,0.2), 0 2px 10px rgba(0,0,0,0.3)",
+            }}
           >
-            <defs>
-              <radialGradient id="chakraDisc" cx="42%" cy="38%" r="70%">
-                <stop offset="0%" stopColor="#ffffff" />
-                <stop offset="70%" stopColor="#f1f3f6" />
-                <stop offset="100%" stopColor="#c9d0d9" />
-              </radialGradient>
-            </defs>
-            <circle cx="100" cy="100" r="98" fill="url(#chakraDisc)" />
-            <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(11,31,58,0.15)" strokeWidth="2" />
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#0B1F3A" strokeWidth="4" />
-            {Array.from({ length: 24 }).map((_, i) => {
-              const angle = (i * 360) / 24;
-              return (
-                <line
-                  key={i}
-                  x1="100"
-                  y1="100"
-                  x2="100"
-                  y2="16"
-                  stroke="#0B1F3A"
-                  strokeWidth="4.5"
-                  strokeLinecap="round"
-                  transform={`rotate(${angle} 100 100)`}
-                />
-              );
-            })}
-            <circle cx="100" cy="100" r="14" fill="#0B1F3A" />
-            <circle cx="100" cy="100" r="14" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
-          </svg>
+            <svg
+              viewBox="0 0 200 200"
+              aria-hidden="true"
+              className="h-full w-full animate-[spin_30s_linear_infinite]"
+              style={{ willChange: "transform" }}
+            >
+              <defs>
+                <radialGradient id="chakraDisc" cx="42%" cy="38%" r="70%">
+                  <stop offset="0%" stopColor="#ffffff" />
+                  <stop offset="70%" stopColor="#f1f3f6" />
+                  <stop offset="100%" stopColor="#c9d0d9" />
+                </radialGradient>
+              </defs>
+              <circle cx="100" cy="100" r="98" fill="url(#chakraDisc)" />
+              <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(11,31,58,0.15)" strokeWidth="2" />
+              <circle cx="100" cy="100" r="90" fill="none" stroke="#0B1F3A" strokeWidth="3.5" />
+              {Array.from({ length: 16 }).map((_, i) => {
+                const angle = (i * 360) / 16;
+                return (
+                  <line
+                    key={i}
+                    x1="100"
+                    y1="100"
+                    x2="100"
+                    y2="18"
+                    stroke="#0B1F3A"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    transform={`rotate(${angle} 100 100)`}
+                  />
+                );
+              })}
+              <circle cx="100" cy="100" r="14" fill="#0B1F3A" />
+              <circle cx="100" cy="100" r="14" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+            </svg>
+          </div>
         </div>
 
         <div className="relative">
