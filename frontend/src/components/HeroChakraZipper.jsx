@@ -84,8 +84,11 @@ export default function HeroChakraZipper({ children }) {
           <svg
             viewBox="0 0 200 200"
             aria-hidden="true"
-            className="h-full w-full animate-[spin_30s_linear_infinite]"
-            style={{ animationDelay: "0ms", willChange: "transform" }}
+            style={{
+              willChange: "transform",
+              animation: `spin 10s linear ${(DRAG_MS / 10000).toFixed(4)} both, spin 30s linear infinite`,
+              animationDelay: `${DROP_MS}ms, ${DROP_MS + DRAG_MS}ms`,
+            }}
           >
             <defs>
               <radialGradient id="chakraDisc" cx="42%" cy="38%" r="70%">
