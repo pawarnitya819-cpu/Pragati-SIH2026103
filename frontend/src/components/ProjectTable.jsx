@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import RiskBadge from "./RiskBadge";
+import RiskDetailModal from "./RiskDetailModal";
 import { Landmark, MapPin } from "lucide-react";
 import { useCountUp } from "../utils/useCountUp";
 import ProjectLocationMap from "./ProjectLocationMap";
@@ -84,6 +85,7 @@ function AnimatedBudget({ value }) {
 
 export default function ProjectTable({ projects }) {
   const [selectedProject, setSelectedProject] = useState(null);
+  const [riskProject, setRiskProject] = useState(null);
 
   return (
     <div className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 overflow-hidden">
@@ -165,7 +167,13 @@ export default function ProjectTable({ projects }) {
                     <ProgressBar pct={progress} delay={Math.min(index, 12) * 45} />
                   </td>
                   <td className="px-5 py-3.5">
-                    <RiskBadge status={p.risk_status} score={p.risk_score} />
+                    <button
+                      onClick={() => setRiskProject(p)}
+                      title="Click to see why this project got this rating"
+                      className="rounded-full transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-700/40"
+                    >
+                      <RiskBadge status={p.risk_status} score={p.risk_score} />
+                    </button>
                   </td>
                 </tr>
               );
@@ -182,6 +190,7 @@ export default function ProjectTable({ projects }) {
       </div>
 
       <ProjectLocationMap project={selectedProject} onClose={() => setSelectedProject(null)} />
+      <RiskDetailModal project={riskProject} onClose={() => setRiskProject(null)} />
     </div>
   );
 }
