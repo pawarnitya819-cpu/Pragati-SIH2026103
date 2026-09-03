@@ -42,9 +42,19 @@ export default {
           "86%":  { transform: "translateY(1.5%) scale(1.005)" },
           "100%": { transform: "translateY(0) scale(1)" },
         },
+        zipFlap: {
+          "0%":   { clipPath: "inset(0 0 0 0%)" },
+          "100%": { clipPath: "inset(0 0 0 100%)" },
+        },
+        zipTab: {
+          "0%":   { left: "0%" },
+          "100%": { left: "96%" },
+        },
       },
       animation: {
         "chakra-drop": "chakraDrop 1.1s cubic-bezier(.32,1.6,.5,1) both",
+        "zip-flap": "zipFlap linear both",
+        "zip-tab": "zipTab linear both",
       },
     },
   },

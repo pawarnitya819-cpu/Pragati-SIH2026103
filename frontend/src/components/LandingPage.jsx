@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import ZipperReveal from "./ZipperReveal";
 import KPICards from "./KPICards";
 import ChartsSection from "./ChartsSection";
 import SearchFilterBar from "./SearchFilterBar";
@@ -45,11 +46,6 @@ export default function LandingPage({ projects }) {
           }}
         />
 
-              {/* Ashoka Chakra badge — sits in a recessed "porthole" in the hero
-            banner. On mount it drops in with a bounce and settles into
-            place (chakra-drop, runs once); once settled the disc itself
-            spins continuously and calmly (30s, fewer/thinner spokes than
-            before so it doesn't strobe at close viewing distance). */}
         <div className="hidden md:block absolute top-1/2 right-6 sm:right-8 -translate-y-1/2 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40">
           <div
             className="h-full w-full rounded-full animate-chakra-drop"
@@ -96,22 +92,24 @@ export default function LandingPage({ projects }) {
           </div>
         </div>
 
-        <div className="relative">
-          <p className="text-saffron-500 font-mono text-xs uppercase tracking-widest mb-2">
-            Ministry of Statistics and Programme Implementation
-          </p>
-          <h1 className="font-display font-black text-2xl sm:text-4xl text-white max-w-2xl leading-tight">
-            PRAGATI: Unified Infrastructure Project Monitoring
-          </h1>
-          <p className="mt-3 text-slate-300 max-w-2xl text-sm sm:text-base">
-            A single, AI-assisted view into central infrastructure execution — tracking budget
-            utilisation, physical progress, and overrun risk across roads, railways, power,
-            urban infrastructure, and waterways projects nationwide.
-          </p>
-        </div>
+        <ZipperReveal>
+          <div className="relative">
+            <p className="text-saffron-500 font-mono text-xs uppercase tracking-widest mb-2">
+              Ministry of Statistics and Programme Implementation
+            </p>
+            <h1 className="font-display font-black text-2xl sm:text-4xl text-white max-w-2xl leading-tight">
+              PRAGATI: Unified Infrastructure Project Monitoring
+            </h1>
+            <p className="mt-3 text-slate-300 max-w-2xl text-sm sm:text-base">
+              A single, AI-assisted view into central infrastructure execution — tracking budget
+              utilisation, physical progress, and overrun risk across roads, railways, power,
+              urban infrastructure, and waterways projects nationwide.
+            </p>
+          </div>
+        </ZipperReveal>
       </section>
 
-            <section className="bg-white rounded-2xl p-6 ring-1 ring-slate-900/5 shadow-card">
+      <section className="bg-white rounded-2xl p-6 ring-1 ring-slate-900/5 shadow-card">
         <h2 className="font-display font-black text-lg text-navy-900 mb-2">
           What is PRAGATI?
         </h2>
