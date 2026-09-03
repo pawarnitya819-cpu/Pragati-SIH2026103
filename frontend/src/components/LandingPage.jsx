@@ -48,14 +48,30 @@ export default function LandingPage({ projects }) {
         {/* Ashoka Chakra badge — fixed in the empty space of the hero
             banner, continuously rotating in place. Rendered in the flag's
             real colors (navy spokes on a white disc) so it reads clearly
-            against the dark background instead of blending into it. */}
-        <div className="hidden md:block absolute top-1/2 right-6 sm:right-8 -translate-y-1/2 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40">
+            against the dark background. The wrapper's inset shadow makes it
+            read as a recessed "porthole" cut into the panel rather than a
+            flat sticker sitting on top of it. */}
+        <div
+          className="hidden md:block absolute top-1/2 right-6 sm:right-8 -translate-y-1/2 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 rounded-full"
+          style={{
+            boxShadow:
+              "inset 0 6px 20px rgba(0,0,0,0.55), inset 0 -3px 10px rgba(255,255,255,0.08), 0 0 0 6px rgba(0,0,0,0.22), 0 2px 10px rgba(0,0,0,0.35)",
+          }}
+        >
           <svg
             viewBox="0 0 200 200"
             aria-hidden="true"
-            className="h-full w-full drop-shadow-lg animate-[spin_18s_linear_infinite]"
+            className="h-full w-full animate-[spin_18s_linear_infinite]"
           >
-            <circle cx="100" cy="100" r="98" fill="white" />
+            <defs>
+              <radialGradient id="chakraDisc" cx="42%" cy="38%" r="70%">
+                <stop offset="0%" stopColor="#ffffff" />
+                <stop offset="70%" stopColor="#f1f3f6" />
+                <stop offset="100%" stopColor="#c9d0d9" />
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r="98" fill="url(#chakraDisc)" />
+            <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(11,31,58,0.15)" strokeWidth="2" />
             <circle cx="100" cy="100" r="90" fill="none" stroke="#0B1F3A" strokeWidth="4" />
             {Array.from({ length: 24 }).map((_, i) => {
               const angle = (i * 360) / 24;
@@ -73,7 +89,8 @@ export default function LandingPage({ projects }) {
                 />
               );
             })}
-            <circle cx="100" cy="100" r="12" fill="#0B1F3A" />
+            <circle cx="100" cy="100" r="14" fill="#0B1F3A" />
+            <circle cx="100" cy="100" r="14" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
           </svg>
         </div>
 
