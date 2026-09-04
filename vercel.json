@@ -1,13 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": [
-    {
-      "name": "frontend",
-      "build": {
-        "command": "npm run build",
-        "outputDirectory": "frontend/dist"
-      },
-      "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-    }
-  ]
+  "frontend": {
+    "build": {
+      "command": "npm run build",
+      "outputDirectory": "frontend/dist"
+    },
+    "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  }
 }
