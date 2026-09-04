@@ -27,6 +27,7 @@
     "react-dom": "^18.3.1",
     "react-leaflet": "^4.2.1",
     "recharts": "^2.12.7",
+    "splitting": "^1.1.0",
     "three": "^0.169.0"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import HeroChakraZipper from "./HeroChakraZipper";
 import KPICards from "./KPICards";
 import ChartsSection from "./ChartsSection";
@@ -6,11 +6,35 @@ import SearchFilterBar from "./SearchFilterBar";
 import ProjectTable from "./ProjectTable";
 import SectorInformation from "./SectorInformation";
 import { computeKpis } from "../utils/riskEngine";
+import Splitting from "splitting";
+import gsap from "gsap";
+import "splitting/dist/splitting.css";
 
 export default function LandingPage({ projects }) {
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("All");
   const [state, setState] = useState("All");
+  const titleRef = useRef(null);
+
+  useEffect(() => {
+    // Split title text into characters and animate them
+    if (titleRef.current) {
+      Splitting({ target: titleRef.current, by: "chars" });
+      const chars = titleRef.current.querySelectorAll(".char");
+      gsap.fromTo(
+        chars,
+        { opacity: 0, y: 20, rotationZ: -10 },
+        {
+          opacity: 1,
+          y: 0,
+          rotationZ: 0,
+          duration: 0.6,
+          stagger: 0.03,
+          ease: "back.out",
+        }
+      );
+    }
+  }, []);
 
   const sectors = useMemo(
     () => [...new Set(projects.map((p) => p.sector))].sort(),
@@ -52,7 +76,10 @@ export default function LandingPage({ projects }) {
             <p className="text-saffron-500 font-mono text-xs uppercase tracking-widest mb-2">
               Ministry of Statistics and Programme Implementation
             </p>
-            <h1 className="font-display font-black text-2xl sm:text-4xl text-white max-w-2xl leading-tight">
+            <h1
+              ref={titleRef}
+              className="font-display font-black text-2xl sm:text-4xl text-white max-w-2xl leading-tight"
+            >
               PRAGATI: Unified Infrastructure Project Monitoring
             </h1>
             <p className="mt-3 text-slate-300 max-w-2xl text-sm sm:text-base">
