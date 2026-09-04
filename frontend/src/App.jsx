@@ -9,7 +9,6 @@ import { SEED_PROJECTS } from "./data/sampleProjects";
 import { scoreProjects, dedupeProjects } from "./utils/riskEngine";
 import { fetchProjects } from "./api";
 import { WifiOff } from "lucide-react";
-import { abstractLinePattern } from "./utils/backgroundPattern";
 
 export default function App() {
   const [page, setPage] = useState("landing");
@@ -68,11 +67,12 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen bg-paper relative"
+      className="min-h-screen relative"
       style={{
-        backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(abstractLinePattern)}")`,
-        backgroundSize: "400px 400px",
+        backgroundImage: 'url("/assets/background-pattern.jpg")',
+        backgroundSize: "cover",
         backgroundAttachment: "fixed",
+        backgroundPosition: "center",
       }}
     >
       <CursorFollower />
