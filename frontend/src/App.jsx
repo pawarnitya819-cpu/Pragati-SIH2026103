@@ -70,9 +70,9 @@ export default function App() {
       className="min-h-screen relative"
       style={{
         backgroundImage: 'url("/assets/background-pattern.jpg")',
-        backgroundSize: "cover",
+        backgroundSize: "repeat",
+        backgroundRepeat: "repeat",
         backgroundAttachment: "fixed",
-        backgroundPosition: "center",
       }}
     >
       <CursorFollower />
