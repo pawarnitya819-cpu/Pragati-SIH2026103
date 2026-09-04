@@ -1,10 +1,9 @@
-import { LandmarkIcon, UploadCloud, LayoutDashboard, Globe2, Layers3 } from "lucide-react";
+import { LandmarkIcon, UploadCloud, LayoutDashboard, Globe2 } from "lucide-react";
 
 const NAV_ITEMS = [
   { key: "landing", label: "Public Overview", icon: Globe2 },
   { key: "upload", label: "Data Ingestion", icon: UploadCloud },
   { key: "admin", label: "Government Dashboard", icon: LayoutDashboard },
-  { key: "overview", label: "Project Overview", icon: Layers3 },
 ];
 
 export default function Header({ page, setPage }) {
@@ -24,9 +23,6 @@ export default function Header({ page, setPage }) {
               draggable={false}
             />
             <span className="hidden sm:block h-8 w-px bg-white/15 shrink-0" aria-hidden="true" />
-            <div className="flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-md bg-saffron-600/90 shrink-0">
-              <LandmarkIcon className="h-5 w-5 text-white" strokeWidth={2.25} />
-            </div>
             <div className="min-w-0 leading-tight">
               <p className="font-display font-black tracking-tight text-white text-lg sm:text-xl">
                 PRAGATI
@@ -37,14 +33,14 @@ export default function Header({ page, setPage }) {
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1 bg-navy-800/60 rounded-lg p-1">
+          <nav className="hidden md:flex flex-1 items-center gap-1 bg-navy-800/60 rounded-lg p-1">
             {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
               const active = page === key;
               return (
                 <button
                   key={key}
                   onClick={() => setPage(key)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-md text-sm font-semibold transition-colors ${
+                  className={`flex-1 flex items-center gap-2 px-3.5 py-2 rounded-md text-sm font-semibold transition-colors text-center ${
                     active
                       ? "bg-saffron-600 text-white shadow-sm"
                       : "text-slate-300 hover:text-white hover:bg-navy-700/70"
