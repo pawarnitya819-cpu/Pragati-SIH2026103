@@ -9,6 +9,7 @@ import { SEED_PROJECTS } from "./data/sampleProjects";
 import { scoreProjects, dedupeProjects } from "./utils/riskEngine";
 import { fetchProjects } from "./api";
 import { WifiOff } from "lucide-react";
+import { generateSkyBackground } from "./utils/skyBackground";
 
 export default function App() {
   const [page, setPage] = useState("landing");
@@ -69,10 +70,10 @@ export default function App() {
     <div
       className="min-h-screen relative"
       style={{
-        backgroundImage: 'url("/assets/background-pattern.jpg")',
-        backgroundSize: "repeat",
-        backgroundRepeat: "repeat",
+        backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(generateSkyBackground())}")`,
+        backgroundSize: "cover",
         backgroundAttachment: "fixed",
+        backgroundPosition: "center",
       }}
     >
       <CursorFollower />
