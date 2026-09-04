@@ -9,6 +9,7 @@ import { SEED_PROJECTS } from "./data/sampleProjects";
 import { scoreProjects, dedupeProjects } from "./utils/riskEngine";
 import { fetchProjects } from "./api";
 import { WifiOff } from "lucide-react";
+import Lenis from "lenis";
 
 export default function App() {
   const [page, setPage] = useState("landing");
@@ -21,6 +22,32 @@ export default function App() {
   // switch and can be read by any view that needs evidence alongside a
   // project's sector and budget figures.
   const [siteMedia, setSiteMedia] = useState([]);
+
+  useEffect(() => {
+    // Initialize Lenis for smooth scrolling
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: "vertical",
+      gestureDirection: "vertical",
+      smooth: true,
+      mouseMultiplier: 1,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

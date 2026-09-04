@@ -1,6 +1,7 @@
 import { FolderKanban, IndianRupee, ShieldAlert, CheckSquare } from "lucide-react";
 import { useCountUp } from "../utils/useCountUp";
 import { useState, useEffect, useRef } from "react";
+import { motion } from "motion/react";
 
 function KPICard({ icon: Icon, label, value, format, sub, accent, index }) {
   const animated = useCountUp(value);
@@ -26,16 +27,12 @@ function KPICard({ icon: Icon, label, value, format, sub, accent, index }) {
   }, [index]);
 
   return (
-    <div
+    <motion.div
       ref={ref}
-      className={`bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 p-4 sm:p-5 flex items-start justify-between gap-3 transition-all duration-700 ${
-        isVisible
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-4"
-      }`}
-      style={{
-        transitionDelay: isVisible ? `${index * 50}ms` : "0ms",
-      }}
+      initial={{ opacity: 0, y: 16 }}
+      animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+      transition={{ duration: 0.6, delay: index * 0.08, ease: "easeOut" }}
+      className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 p-4 sm:p-5 flex items-start justify-between gap-3"
     >
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
@@ -44,13 +41,15 @@ function KPICard({ icon: Icon, label, value, format, sub, accent, index }) {
         </p>
         {sub && <p className="mt-1 text-xs text-slate-500">{sub}</p>}
       </div>
-      <div
-        className="flex items-center justify-center h-11 w-11 rounded-lg shrink-0 transition-transform duration-500 hover:scale-110"
+      <motion.div
+        className="flex items-center justify-center h-11 w-11 rounded-lg shrink-0"
         style={{ backgroundColor: `${accent}1A` }}
+        whileHover={{ scale: 1.1 }}
+        transition={{ type: "spring", stiffness: 400, damping: 10 }}
       >
         <Icon className="h-5 w-5" style={{ color: accent }} strokeWidth={2.25} />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

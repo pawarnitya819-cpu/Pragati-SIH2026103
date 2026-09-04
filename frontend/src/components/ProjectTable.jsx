@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import RiskBadge from "./RiskBadge";
 import RiskDetailModal from "./RiskDetailModal";
 import { Landmark, MapPin } from "lucide-react";
 import { useCountUp } from "../utils/useCountUp";
 import ProjectLocationMap from "./ProjectLocationMap";
+import gsap from "gsap";
 
 // Rows reach this table from three places — the seed dataset, the FastAPI
 // response, and the client-side CSV fallback parser — and a header typo or a
@@ -86,6 +87,25 @@ function AnimatedBudget({ value }) {
 export default function ProjectTable({ projects }) {
   const [selectedProject, setSelectedProject] = useState(null);
   const [riskProject, setRiskProject] = useState(null);
+  const tbodyRef = useRef(null);
+
+  useEffect(() => {
+    // Animate table rows on mount with GSAP
+    if (tbodyRef.current) {
+      const rows = tbodyRef.current.querySelectorAll("tr");
+      gsap.fromTo(
+        rows,
+        { opacity: 0, y: 10 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.05,
+          ease: "power2.out",
+        }
+      );
+    }
+  }, [projects]);
 
   return (
     <div className="bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 overflow-hidden">
@@ -116,7 +136,7 @@ export default function ProjectTable({ projects }) {
               <th className="px-5 py-3 font-semibold">AI Overrun Risk</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody ref={tbodyRef} className="divide-y divide-slate-100">
             {projects.map((p, index) => {
               const sector = resolve(p, "sector") ?? "Unclassified";
               const ministry = resolve(p, "ministry");
