@@ -12,14 +12,19 @@ import secrets
 import time
 import uuid
 from typing import List, Optional
+import string
+import random
 
 import pandas as pd
+import bcrypt
 from fastapi import Depends, FastAPI, Header, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from database import USE_DATABASE, engine
-from sqlalchemy import inspect
+from sqlalchemy import inspect, Column, String, DateTime, Boolean, create_engine, text
+from sqlalchemy.orm import declarative_base, sessionmaker
+from datetime import datetime, timedelta
 
 app = FastAPI(
     title="PRAGATI API",
@@ -43,6 +48,38 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"],
 )
 
+# --- User Database Setup (SQLAlchemy ORM) -----
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+
+    email = Column(String, primary_key=True, index=True)
+    password_hash = Column(String)
+    project_id = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    is_verified = Column(Boolean, default=False)
+
+class PasswordReset(Base):
+    __tablename__ = "password_resets"
+
+    id = Column(String, primary_key=True, index=True)
+    email = Column(String, index=True)
+    token = Column(String, unique=True, index=True)
+    expires_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+# Create tables if using database
+if USE_DATABASE:
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"[DB] Could not create user tables: {e}")
+
+# In-memory fallback for users (when no database)
+_USERS_MEMORY = {}  # {email: {password_hash, project_id, is_verified}}
+_PASSWORD_RESETS = {}  # {token: {email, expires_at}}
+
 # --- Auth ---------------------------------------------------------------
 UPLOAD_ACCESS_PASSWORD = os.environ.get("UPLOAD_ACCESS_PASSWORD", "change-me-in-render-env")
 TOKEN_TTL_SECONDS = 4 * 60 * 60  # 4 hours
@@ -54,6 +91,133 @@ def _issue_token() -> str:
     token = secrets.token_urlsafe(32)
     _ACTIVE_TOKENS[token] = time.time() + TOKEN_TTL_SECONDS
     return token
+
+
+def _hash_password(password: str) -> str:
+    """Hash a password using bcrypt."""
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode(), salt).decode()
+
+
+def _verify_password(password: str, password_hash: str) -> bool:
+    """Verify a password against its hash."""
+    return bcrypt.checkpw(password.encode(), password_hash.encode())
+
+
+def _generate_reset_token() -> str:
+    """Generate a secure password reset token."""
+    return secrets.token_urlsafe(32)
+
+
+def _get_user(email: str) -> Optional[dict]:
+    """Get user from database or memory."""
+    if USE_DATABASE:
+        try:
+            SessionLocal = sessionmaker(bind=engine)
+            session = SessionLocal()
+            user = session.query(User).filter(User.email == email).first()
+            session.close()
+            if user:
+                return {
+                    "email": user.email,
+                    "password_hash": user.password_hash,
+                    "project_id": user.project_id,
+                    "is_verified": user.is_verified,
+                }
+        except Exception as e:
+            print(f"[DB] Error fetching user: {e}")
+    return _USERS_MEMORY.get(email)
+
+
+def _create_user(email: str, password_hash: str, project_id: str) -> None:
+    """Create a new user in database or memory."""
+    if USE_DATABASE:
+        try:
+            SessionLocal = sessionmaker(bind=engine)
+            session = SessionLocal()
+            user = User(email=email, password_hash=password_hash, project_id=project_id, is_verified=True)
+            session.add(user)
+            session.commit()
+            session.close()
+        except Exception as e:
+            print(f"[DB] Error creating user: {e}")
+    _USERS_MEMORY[email] = {"password_hash": password_hash, "project_id": project_id, "is_verified": True}
+
+
+def _update_password(email: str, new_password_hash: str) -> None:
+    """Update user password in database or memory."""
+    if USE_DATABASE:
+        try:
+            SessionLocal = sessionmaker(bind=engine)
+            session = SessionLocal()
+            user = session.query(User).filter(User.email == email).first()
+            if user:
+                user.password_hash = new_password_hash
+                session.commit()
+            session.close()
+        except Exception as e:
+            print(f"[DB] Error updating password: {e}")
+    if email in _USERS_MEMORY:
+        _USERS_MEMORY[email]["password_hash"] = new_password_hash
+
+
+def _create_password_reset(email: str) -> str:
+    """Create a password reset token valid for 30 minutes."""
+    reset_token = _generate_reset_token()
+    expires_at = datetime.utcnow() + timedelta(minutes=30)
+
+    if USE_DATABASE:
+        try:
+            SessionLocal = sessionmaker(bind=engine)
+            session = SessionLocal()
+            reset = PasswordReset(
+                id=str(uuid.uuid4()),
+                email=email,
+                token=reset_token,
+                expires_at=expires_at,
+            )
+            session.add(reset)
+            session.commit()
+            session.close()
+        except Exception as e:
+            print(f"[DB] Error creating password reset: {e}")
+
+    _PASSWORD_RESETS[reset_token] = {"email": email, "expires_at": expires_at}
+    return reset_token
+
+
+def _verify_reset_token(reset_token: str) -> Optional[str]:
+    """Verify a password reset token and return email if valid."""
+    if USE_DATABASE:
+        try:
+            SessionLocal = sessionmaker(bind=engine)
+            session = SessionLocal()
+            reset = session.query(PasswordReset).filter(PasswordReset.token == reset_token).first()
+            session.close()
+            if reset and reset.expires_at > datetime.utcnow():
+                return reset.email
+        except Exception as e:
+            print(f"[DB] Error verifying reset token: {e}")
+        return None
+
+    reset = _PASSWORD_RESETS.get(reset_token)
+    if reset and reset["expires_at"] > datetime.utcnow():
+        return reset["email"]
+    return None
+
+
+def _consume_reset_token(reset_token: str) -> None:
+    """Delete a password reset token after use."""
+    if USE_DATABASE:
+        try:
+            SessionLocal = sessionmaker(bind=engine)
+            session = SessionLocal()
+            session.query(PasswordReset).filter(PasswordReset.token == reset_token).delete()
+            session.commit()
+            session.close()
+        except Exception as e:
+            print(f"[DB] Error consuming reset token: {e}")
+    _PASSWORD_RESETS.pop(reset_token, None)
 
 
 def require_upload_auth(authorization: Optional[str] = Header(None)) -> None:
@@ -72,6 +236,37 @@ class AuthRequest(BaseModel):
 
 
 class AuthResponse(BaseModel):
+    token: str
+    expires_in: int
+
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+    project_id: str
+
+
+class RegisterResponse(BaseModel):
+    message: str
+    email: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+    reset_token: str
+
+
+class ResetPasswordRequest(BaseModel):
+    reset_token: str
+    new_password: str
+
+
+class ResetPasswordResponse(BaseModel):
+    message: str
     token: str
     expires_in: int
 
@@ -388,12 +583,105 @@ def health():
     return {"status": "ok", "service": "PRAGATI API"}
 
 
+@app.post("/api/auth/register", response_model=RegisterResponse)
+def register_user(payload: RegisterRequest):
+    """Register a new user for data uploads."""
+    email = payload.email.strip().lower()
+    password = payload.password.strip()
+    project_id = payload.project_id.strip()
+
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Please enter a valid email address.")
+    if not password or len(password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+    if not project_id:
+        raise HTTPException(status_code=400, detail="Project ID is required.")
+
+    # Check if user already exists
+    if _get_user(email):
+        raise HTTPException(status_code=409, detail="An account with this email already exists.")
+
+    # Hash password and create user
+    password_hash = _hash_password(password)
+    _create_user(email, password_hash, project_id)
+
+    return RegisterResponse(message="Account created successfully. You can now log in.", email=email)
+
+
+@app.post("/api/auth/forgot-password", response_model=ForgotPasswordResponse)
+def forgot_password(payload: ForgotPasswordRequest):
+    """Initiate password reset flow."""
+    email = payload.email.strip().lower()
+
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Please enter a valid email address.")
+
+    # Check if user exists
+    user = _get_user(email)
+    if not user:
+        # For security, don't reveal if email exists, but return a generic success
+        return ForgotPasswordResponse(
+            message="If an account exists with that email, a password reset link has been sent.",
+            reset_token=""
+        )
+
+    # Create reset token
+    reset_token = _create_password_reset(email)
+
+    return ForgotPasswordResponse(
+        message="Password reset link has been sent to your email. Token is valid for 30 minutes.",
+        reset_token=reset_token  # In production, send this via email instead
+    )
+
+
+@app.post("/api/auth/reset-password", response_model=ResetPasswordResponse)
+def reset_password(payload: ResetPasswordRequest):
+    """Reset password using a valid reset token."""
+    reset_token = payload.reset_token.strip()
+    new_password = payload.new_password.strip()
+
+    if not new_password or len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+
+    # Verify reset token
+    email = _verify_reset_token(reset_token)
+    if not email:
+        raise HTTPException(status_code=401, detail="Reset token is invalid or expired.")
+
+    # Update password
+    new_password_hash = _hash_password(new_password)
+    _update_password(email, new_password_hash)
+
+    # Consume the reset token
+    _consume_reset_token(reset_token)
+
+    # Issue auth token for immediate login
+    token = _issue_token()
+    return ResetPasswordResponse(
+        message="Password reset successful. You are now logged in.",
+        token=token,
+        expires_in=TOKEN_TTL_SECONDS
+    )
+
+
 @app.post("/api/auth/verify", response_model=AuthResponse)
 def verify_access(payload: AuthRequest):
-    if not payload.project_id.strip():
-        raise HTTPException(status_code=400, detail="Project ID is required.")
-    if not secrets.compare_digest(payload.password, UPLOAD_ACCESS_PASSWORD):
-        raise HTTPException(status_code=401, detail="Incorrect password.")
+    """Login with email and password (updated to support both old and new auth)."""
+    project_id = payload.project_id.strip()
+    password = payload.password.strip()
+
+    # Check if this is an email (new auth) or legacy project_id (old auth)
+    if "@" in project_id:
+        # New email-based login
+        email = project_id.lower()
+        user = _get_user(email)
+        if not user or not _verify_password(password, user["password_hash"]):
+            raise HTTPException(status_code=401, detail="Incorrect email or password.")
+    else:
+        # Legacy password-based login (backward compatibility)
+        if not secrets.compare_digest(password, UPLOAD_ACCESS_PASSWORD):
+            raise HTTPException(status_code=401, detail="Incorrect password.")
+
     token = _issue_token()
     return AuthResponse(token=token, expires_in=TOKEN_TTL_SECONDS)
 

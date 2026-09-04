@@ -22,6 +22,30 @@ export async function verifyAccess(projectId, password) {
   return data; // { token, expires_in }
 }
 
+export async function registerUser(email, password, projectId) {
+  const { data } = await client.post("/auth/register", {
+    email,
+    password,
+    project_id: projectId,
+  });
+  return data; // { message, email }
+}
+
+export async function forgotPassword(email) {
+  const { data } = await client.post("/auth/forgot-password", {
+    email,
+  });
+  return data; // { message, reset_token }
+}
+
+export async function resetPassword(resetToken, newPassword) {
+  const { data } = await client.post("/auth/reset-password", {
+    reset_token: resetToken,
+    new_password: newPassword,
+  });
+  return data; // { message, token, expires_in }
+}
+
 export async function uploadDataset(file, token, onProgress) {
   const formData = new FormData();
   formData.append("file", file);
