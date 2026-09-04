@@ -4,6 +4,7 @@ import KPICards from "./KPICards";
 import ChartsSection from "./ChartsSection";
 import SearchFilterBar from "./SearchFilterBar";
 import ProjectTable from "./ProjectTable";
+import SectorInformation from "./SectorInformation";
 import { computeKpis } from "../utils/riskEngine";
 
 export default function LandingPage({ projects }) {
@@ -92,6 +93,8 @@ export default function LandingPage({ projects }) {
       <ChartsSection kpis={kpis} />
 
       <ProjectTable projects={filtered} />
+
+      <SectorInformation />
     </div>
   );
 }
