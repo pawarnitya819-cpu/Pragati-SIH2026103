@@ -1,4 +1,4 @@
-import { Building2, Zap, Waves, Train, Waypoints } from "lucide-react";
+import { Building2, Zap, Waves, Train, Waypoints, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 const SECTOR_INFO = {
@@ -74,39 +74,11 @@ const SECTOR_INFO = {
   },
 };
 
-function SectorCard({ sector, data, index }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => setIsVisible(true), index * 100);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, [index]);
-
+function SectorCard({ sector, data }) {
   const Icon = data.icon;
 
   return (
-    <div
-      ref={ref}
-      className={`bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 overflow-hidden transition-all duration-700 hover:shadow-lg hover:ring-slate-900/10 ${
-        isVisible
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-6"
-      }`}
-    >
+    <div className="flex-shrink-0 w-80 bg-white rounded-xl shadow-card ring-1 ring-slate-900/5 overflow-hidden hover:shadow-lg hover:ring-slate-900/10 transition-all duration-300">
       <div
         className="h-1.5"
         style={{ backgroundColor: data.color }}
@@ -130,7 +102,7 @@ function SectorCard({ sector, data, index }) {
           </div>
         </div>
 
-        <p className="text-sm text-slate-600 leading-relaxed">
+        <p className="text-sm text-slate-600 leading-relaxed line-clamp-3">
           {data.description}
         </p>
 
@@ -155,7 +127,7 @@ function SectorCard({ sector, data, index }) {
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
               Reach
             </p>
-            <p className="text-sm font-display font-bold text-navy-900 mt-1 line-clamp-2">
+            <p className="text-sm font-display font-bold text-navy-900 mt-1 line-clamp-2 text-xs">
               {data.beneficiaries}
             </p>
           </div>
@@ -182,6 +154,44 @@ function SectorCard({ sector, data, index }) {
 }
 
 export default function SectorInformation() {
+  const scrollContainerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    setCanScrollLeft(container.scrollLeft > 0);
+    setCanScrollRight(
+      container.scrollLeft < container.scrollWidth - container.clientWidth - 10
+    );
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
+  }, []);
+
+  const scroll = (direction) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const scrollAmount = 400;
+    const newScroll =
+      direction === "left"
+        ? container.scrollLeft - scrollAmount
+        : container.scrollLeft + scrollAmount;
+
+    container.scrollTo({
+      left: newScroll,
+      behavior: "smooth",
+    });
+
+    setTimeout(checkScroll, 500);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -193,15 +203,43 @@ export default function SectorInformation() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Object.entries(SECTOR_INFO).map(([sector, data], idx) => (
-          <SectorCard
-            key={sector}
-            sector={sector}
-            data={data}
-            index={idx}
-          />
-        ))}
+      <div className="relative">
+        {/* Left scroll button */}
+        {canScrollLeft && (
+          <button
+            onClick={() => scroll("left")}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white hover:bg-slate-50 rounded-full p-2 shadow-lg ring-1 ring-slate-900/10 transition-all duration-200"
+          >
+            <ChevronLeft className="h-5 w-5 text-navy-900" />
+          </button>
+        )}
+
+        {/* Right scroll button */}
+        {canScrollRight && (
+          <button
+            onClick={() => scroll("right")}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white hover:bg-slate-50 rounded-full p-2 shadow-lg ring-1 ring-slate-900/10 transition-all duration-200"
+          >
+            <ChevronRight className="h-5 w-5 text-navy-900" />
+          </button>
+        )}
+
+        {/* Scrollable container */}
+        <div
+          ref={scrollContainerRef}
+          onScroll={checkScroll}
+          className="overflow-x-auto scrollbar-thin scroll-smooth"
+        >
+          <div className="flex gap-4 pb-2 px-1">
+            {Object.entries(SECTOR_INFO).map(([sector, data]) => (
+              <SectorCard
+                key={sector}
+                sector={sector}
+                data={data}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="bg-gradient-to-r from-navy-900/5 to-saffron-600/5 rounded-xl p-6 border border-slate-200">
@@ -212,3 +250,4 @@ export default function SectorInformation() {
     </div>
   );
 }
+
