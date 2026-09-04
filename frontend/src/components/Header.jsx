@@ -13,10 +13,10 @@ export default function Header({ page, setPage }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-3 h-[68px]">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            {/* Custom emblem/logo - replace with your custom image */}
+            {/* State Emblem of India (Lion Capital of Ashoka) */}
             <img
-              src="/assets/images/2.png"
-              alt="Custom Emblem"
+              src="/assets/images/65a371107aff41be39ad6333757cb50c.jpg"
+              alt="State Emblem of India — Satyameva Jayate"
               className="h-9 sm:h-10 w-auto shrink-0 select-none"
               draggable={false}
             />
