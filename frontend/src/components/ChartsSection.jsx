@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { useInView } from "../utils/useInView";
 import { useIsMobile } from "../utils/useIsMobile";
+import { useChartAnimation } from "../utils/useChartAnimation";
 
 function ChartCard({ title, subtitle, children }) {
   return (
