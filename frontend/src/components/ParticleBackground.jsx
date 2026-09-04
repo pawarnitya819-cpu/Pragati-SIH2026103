@@ -15,8 +15,8 @@ const MAX_SPEED = 0.3;
 const LINK_DISTANCE = 150;
 const MOUSE_RADIUS = 170;
 const MOUSE_PUSH = 0.08;
-const DOT_RGB = "37, 99, 235";    // brighter blue
-const LINE_RGB = "37, 99, 235";
+const DOT_RGB = "0, 0, 0";         // pure black
+const LINE_RGB = "0, 0, 0";        // pure black
 // density = particles per this many square px of screen — lower = denser
 const DENSITY = 4000;
 
@@ -46,7 +46,7 @@ export default function ParticleBackground({ className = "" }) {
         y: Math.random() * height,
         vx: (Math.random() - 0.5) * MAX_SPEED,
         vy: (Math.random() - 0.5) * MAX_SPEED,
-        r: Math.random() * 1.6 + 1,
+        r: Math.random() * 2.5 + 1.5,  // thicker particles
       }));
     };
 
@@ -95,7 +95,7 @@ export default function ParticleBackground({ className = "" }) {
           if (dist < LINK_DISTANCE) {
             ctx.beginPath();
             ctx.strokeStyle = `rgba(${LINE_RGB}, ${(1 - dist / LINK_DISTANCE) * 0.35})`;
-            ctx.lineWidth = 0.6;
+            ctx.lineWidth = 1.4;  // thicker lines
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
             ctx.stroke();
