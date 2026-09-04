@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import LandingPage from "./components/LandingPage";
 import UploadPage from "./components/UploadPage";
 import AdminDashboard from "./components/AdminDashboard";
+import ProjectOverview from "./components/ProjectOverview";
 import CursorFollower from "./components/CursorFollower";
 import AiCopilotWidget from "./components/AiCopilotWidget";
 import { SEED_PROJECTS } from "./data/sampleProjects";
@@ -131,6 +132,7 @@ export default function App() {
           />
         )}
         {page === "admin" && <AdminDashboard projects={projects} />}
+        {page === "overview" && <ProjectOverview projects={projects} />}
       </main>
 
       <footer className="border-t border-slate-200 mt-10">
