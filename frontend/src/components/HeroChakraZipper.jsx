@@ -20,7 +20,7 @@ export default function HeroChakraZipper({ children }) {
   const [burstId, setBurstId] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [introFinished, setIntroFinished] = useState(false);
-  const [hiddenByHeader, setHiddenByHeader] = useState(false);   // ← new line
+  const [hiddenByHeader, setHiddenByHeader] = useState(false);
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -61,7 +61,11 @@ export default function HeroChakraZipper({ children }) {
     };
   }, []);
 
-    useEffect(() => {
+  // The header is `sticky top-0` at 72px tall (68px nav + 4px tricolor
+  // strip). Rather than let the sticky header slice through the wheel
+  // mid-scroll (a jarring half-circle), fade the wheel out just before it
+  // would reach that band, and back in once it's clear again.
+  useEffect(() => {
     const el = chakraRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
 
@@ -111,15 +115,15 @@ export default function HeroChakraZipper({ children }) {
       `}</style>
 
       {/* Ashoka Chakra Container */}
-     <div
+      <div
         ref={chakraRef}
         className="hidden md:block absolute top-6 right-6 sm:top-8 sm:right-8 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 z-10"
         style={{
-          opacity: hiddenByHeader ? 0 : 1,
+          opacity: introFinished && hiddenByHeader ? 0 : 1,
           transition: "opacity 250ms ease",
-          pointerEvents: hiddenByHeader ? "none" : "auto",
+          pointerEvents: introFinished && hiddenByHeader ? "none" : "auto",
         }}
-> 
+      >
         <div
           className="h-full w-full rounded-full animate-chakra-journey relative"
           style={{
