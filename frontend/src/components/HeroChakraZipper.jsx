@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-const [hiddenByHeader, setHiddenByHeader] = useState(false);
 
 // Combined Component:
 // 1. Initial Load: The Ashoka Chakra drops down, zips across the text to reveal it,
