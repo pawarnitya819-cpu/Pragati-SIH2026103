@@ -1,9 +1,10 @@
-import { LandmarkIcon, UploadCloud, LayoutDashboard, Globe2 } from "lucide-react";
+import { LandmarkIcon, UploadCloud, LayoutDashboard, Globe2, Building2 } from "lucide-react";
 
 const NAV_ITEMS = [
   { key: "landing", label: "Public Overview", icon: Globe2 },
   { key: "upload", label: "Data Ingestion", icon: UploadCloud },
   { key: "admin", label: "Government Dashboard", icon: LayoutDashboard },
+  { key: "overview", label: "National Infrastructure", icon: Building2 },
 ];
 
 export default function Header({ page, setPage }) {

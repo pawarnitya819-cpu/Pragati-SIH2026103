@@ -177,7 +177,7 @@ export default function SectorIllustration({ sector }) {
                 <rect x="110" y="105" width="20" height="20" fill={config.colors.trainWindow} />
 
                 {/* Train Wheels */}
-                <motion.circle
+                <motion.circleg
                   cx={[{ cx: 40 }, { cx: 140 }, { cx: 40 }]}
                   cy="140"
                   r="8"

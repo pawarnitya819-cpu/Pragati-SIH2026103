@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Building2, Train, Zap, Waves, Waypoints } from "lucide-react";
 import SectorIllustration from "./SectorIllustration";
@@ -75,14 +75,19 @@ export default function MinistrySectorSpotlight({ projects }) {
       : ministryStats[0]?.ministry || "Ministry of Road Transport & Highways"
   );
 
-  // Update selected item when view mode changes
-  const updateSelectedItem = () => {
-    if (viewMode === "sector" && sectorStats.length > 0) {
-      setSelectedItem(sectorStats[0].sector);
-    } else if (ministryStats.length > 0) {
+  // Re-sync the selected item whenever the view mode actually changes, so we
+  // never end up with e.g. viewMode="sector" but selectedItem still holding
+  // a ministry name (which made the stat card silently show zeros).
+  useEffect(() => {
+    if (viewMode === "sector") {
+      if (sectorStats.length > 0 && !sectorStats.some((s) => s.sector === selectedItem)) {
+        setSelectedItem(sectorStats[0].sector);
+      }
+    } else if (ministryStats.length > 0 && !ministryStats.some((m) => m.ministry === selectedItem)) {
       setSelectedItem(ministryStats[0].ministry);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode]);
 
   // Get current stats based on view mode and selected item
   const currentStats = useMemo(() => {
@@ -119,10 +124,7 @@ export default function MinistrySectorSpotlight({ projects }) {
       {/* Toggle Pills */}
       <div className="flex flex-wrap gap-2">
         <button
-          onClick={() => {
-            setViewMode("sector");
-            updateSelectedItem();
-          }}
+          onClick={() => setViewMode("sector")}
           className={`px-4 py-2 rounded-lg text-sm font-medium ${
             viewMode === "sector"
               ? "bg-saffron-500 text-white"
@@ -132,10 +134,7 @@ export default function MinistrySectorSpotlight({ projects }) {
           Sector-Wise
         </button>
         <button
-          onClick={() => {
-            setViewMode("ministry");
-            updateSelectedItem();
-          }}
+          onClick={() => setViewMode("ministry")}
           className={`px-4 py-2 rounded-lg text-sm font-medium ${
             viewMode === "ministry"
               ? "bg-saffron-500 text-white"
