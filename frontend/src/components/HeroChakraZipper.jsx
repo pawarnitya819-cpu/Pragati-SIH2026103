@@ -117,7 +117,7 @@ export default function HeroChakraZipper({ children }) {
       {/* Ashoka Chakra Container */}
       <div
         ref={chakraRef}
-        className="hidden md:block absolute top-6 right-6 sm:top-8 sm:right-8 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 z-[35]"
+        className="hidden md:block absolute top-10 right-6 sm:top-12 sm:right-8 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 z-[35]"
         style={{
           opacity: introFinished && hiddenByHeader ? 0 : 1,
           transition: "opacity 250ms ease",
