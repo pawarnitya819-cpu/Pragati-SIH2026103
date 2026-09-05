@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows, Html, RoundedBox } from "@react-three/drei";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import gsap from "gsap";
 import {
@@ -1055,16 +1054,6 @@ export default function ProjectOverview() {
                 dampingFactor={0.05}
                 maxPolarAngle={Math.PI / 2.2} // Locked to clean isometric perspective
               />
-
-              {/* Subtle Post-processing Bloom for glowing indicator lights */}
-              <EffectComposer>
-                <Bloom
-                  luminanceThreshold={0.7}
-                  luminanceSmoothing={0.9}
-                  height={300}
-                  intensity={0.6}
-                />
-              </EffectComposer>
             </Canvas>
           </div>
 
