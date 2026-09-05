@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+const [hiddenByHeader, setHiddenByHeader] = useState(false);
 
 // Combined Component:
 // 1. Initial Load: The Ashoka Chakra drops down, zips across the text to reveal it,
@@ -20,6 +21,7 @@ export default function HeroChakraZipper({ children }) {
   const [burstId, setBurstId] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [introFinished, setIntroFinished] = useState(false);
+  const [hiddenByHeader, setHiddenByHeader] = useState(false);   // ← new line
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -60,6 +62,20 @@ export default function HeroChakraZipper({ children }) {
     };
   }, []);
 
+    useEffect(() => {
+    const el = chakraRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+
+    const HEADER_HEIGHT = 72; // 68px nav + 4px tricolor strip
+    const observer = new IntersectionObserver(
+      ([entry]) => setHiddenByHeader(!entry.isIntersecting),
+      { rootMargin: `-${HEADER_HEIGHT}px 0px 0px 0px`, threshold: 0 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   function handleClick() {
     setBurstId((id) => id + 1);
     setSpinning(true);
@@ -96,10 +112,15 @@ export default function HeroChakraZipper({ children }) {
       `}</style>
 
       {/* Ashoka Chakra Container */}
-      <div
-           ref={chakraRef}
-           className="hidden md:block absolute top-6 right-6 sm:top-8 sm:right-8 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 z-40"
-        >
+     <div
+        ref={chakraRef}
+        className="hidden md:block absolute top-6 right-6 sm:top-8 sm:right-8 h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 z-10"
+        style={{
+          opacity: hiddenByHeader ? 0 : 1,
+          transition: "opacity 250ms ease",
+          pointerEvents: hiddenByHeader ? "none" : "auto",
+        }}
+> 
         <div
           className="h-full w-full rounded-full animate-chakra-journey relative"
           style={{
