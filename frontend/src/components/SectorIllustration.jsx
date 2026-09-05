@@ -156,11 +156,12 @@ export default function SectorIllustration({ sector }) {
 
                 {/* Train Body */}
                 <motion.rect
-                  x={[{ x: 20 }, { x: 120 }, { x: 20 }]}
+                  x="20"
                   y="100"
                   width="80"
                   height="30"
                   fill={config.colors.trainBody}
+                  animate={{ x: [20, 120, 20] }}
                   transition={{
                     x: {
                       duration: config.animation.duration,
@@ -177,11 +178,12 @@ export default function SectorIllustration({ sector }) {
                 <rect x="110" y="105" width="20" height="20" fill={config.colors.trainWindow} />
 
                 {/* Train Wheels */}
-                <motion.circleg
-                  cx={[{ cx: 40 }, { cx: 140 }, { cx: 40 }]}
+                <motion.circle
+                  cx="40"
                   cy="140"
                   r="8"
                   fill={config.colors.trainWheel}
+                  animate={{ cx: [40, 140, 40] }}
                   transition={{
                     cx: {
                       duration: config.animation.duration,
@@ -192,10 +194,11 @@ export default function SectorIllustration({ sector }) {
                   }}
                 />
                 <motion.circle
-                  cx={[{ cx: 100 }, { cx: 200 }, { cx: 100 }]}
+                  cx="100"
                   cy="140"
                   r="8"
                   fill={config.colors.trainWheel}
+                  animate={{ cx: [100, 200, 100] }}
                   transition={{
                     cx: {
                       duration: config.animation.duration,
@@ -229,14 +232,8 @@ export default function SectorIllustration({ sector }) {
 
                 {/* Blades */}
                 <motion.g
-                  transform-origin="100 50"
-                  style={{
-                    rotate: [
-                      { rotate: 0 },
-                      { rotate: 360 },
-                      { rotate: 360 }
-                    ]
-                  }}
+                  style={{ transformOrigin: "100px 50px" }}
+                  animate={{ rotate: [0, 360] }}
                   transition={{
                     rotate: {
                       duration: config.animation.duration,
@@ -313,7 +310,7 @@ export default function SectorIllustration({ sector }) {
 
                 {/* Boat */}
                 <motion.g
-                  y={[{ y: 0 }, { y: -10 }, { y: 0 }]}
+                  animate={{ y: [0, -10, 0] }}
                   transition={{
                     y: {
                       duration: config.animation.duration,
@@ -370,17 +367,19 @@ export default function SectorIllustration({ sector }) {
                   stroke={config.colors.divider}
                   strokeWidth="2"
                   strokeDasharray="10,5"
+                  animate={{ strokeDashoffset: [0, 15, 0] }}
                   transition={{
-                    strokeDashoffset: [0, 15, 0],
-                    duration: config.animation.duration,
-                    ease: "linear",
-                    repeat: Infinity,
+                    strokeDashoffset: {
+                      duration: config.animation.duration,
+                      ease: "linear",
+                      repeat: Infinity,
+                    },
                   }}
                 />
 
                 {/* Vehicle */}
                 <motion.g
-                  x={[{ x: -20 }, { x: 220 }, { x: -20 }]}
+                  animate={{ x: [-20, 220, -20] }}
                   transition={{
                     x: {
                       duration: config.animation.duration,
@@ -414,7 +413,7 @@ export default function SectorIllustration({ sector }) {
 
                 {/* Buildings */}
                 <motion.g
-                  x={[{ x: 0 }, { x: 200 }, { x: 0 }]}
+                  animate={{ x: [0, 4, 0] }}
                   transition={{
                     x: {
                       duration: config.animation.duration,
@@ -448,7 +447,7 @@ export default function SectorIllustration({ sector }) {
 
                 {/* Vehicle */}
                 <motion.g
-                  x={[{ x: -20 }, { x: 220 }, { x: -20 }]}
+                  animate={{ x: [-20, 220, -20] }}
                   transition={{
                     x: {
                       duration: config.animation.duration,
@@ -486,15 +485,19 @@ export default function SectorIllustration({ sector }) {
                   fill="none"
                   stroke={config.colors.canal}
                   strokeWidth="8"
-                  transition={{
+                  animate={{
                     d: [
                       "M0,130 Q50,110 100,130 T200,130",
                       "M0,130 Q50,150 100,130 T200,130",
                       "M0,130 Q50,110 100,130 T200,130"
                     ],
-                    duration: config.animation.duration,
-                    ease: "easeInOut",
-                    repeat: Infinity,
+                  }}
+                  transition={{
+                    d: {
+                      duration: config.animation.duration,
+                      ease: "easeInOut",
+                      repeat: Infinity,
+                    },
                   }}
                 />
 
@@ -505,21 +508,25 @@ export default function SectorIllustration({ sector }) {
                   stroke={config.colors.water}
                   strokeWidth="4"
                   opacity="0.7"
-                  transition={{
+                  animate={{
                     d: [
                       "M0,130 Q50,110 100,130 T200,130",
                       "M0,130 Q50,150 100,130 T200,130",
                       "M0,130 Q50,110 100,130 T200,130"
                     ],
-                    duration: config.animation.duration,
-                    ease: "easeInOut",
-                    repeat: Infinity,
+                  }}
+                  transition={{
+                    d: {
+                      duration: config.animation.duration,
+                      ease: "easeInOut",
+                      repeat: Infinity,
+                    },
                   }}
                 />
 
                 {/* Crops */}
                 <motion.g
-                  y={[{ y: 0 }, { y: -5 }, { y: 0 }]}
+                  animate={{ y: [0, -5, 0] }}
                   transition={{
                     y: {
                       duration: config.animation.duration,

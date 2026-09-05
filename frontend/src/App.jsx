@@ -4,6 +4,7 @@ import LandingPage from "./components/LandingPage";
 import UploadPage from "./components/UploadPage";
 import AdminDashboard from "./components/AdminDashboard";
 import ProjectOverview from "./components/ProjectOverview";
+import ErrorBoundary from "./components/ErrorBoundary";
 import CursorFollower from "./components/CursorFollower";
 import AiCopilotWidget from "./components/AiCopilotWidget";
 import { SEED_PROJECTS } from "./data/sampleProjects";
@@ -123,16 +124,30 @@ export default function App() {
       )}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {page === "landing" && <LandingPage projects={projects} />}
-        {page === "upload" && (
-          <UploadPage
-            onDatasetSynced={handleDatasetSynced}
-            siteMedia={siteMedia}
-            onSiteMediaChange={setSiteMedia}
-          />
+        {page === "landing" && (
+          <ErrorBoundary label="Public Overview">
+            <LandingPage projects={projects} />
+          </ErrorBoundary>
         )}
-        {page === "admin" && <AdminDashboard projects={projects} />}
-        {page === "overview" && <ProjectOverview projects={projects} />}
+        {page === "upload" && (
+          <ErrorBoundary label="Data Ingestion">
+            <UploadPage
+              onDatasetSynced={handleDatasetSynced}
+              siteMedia={siteMedia}
+              onSiteMediaChange={setSiteMedia}
+            />
+          </ErrorBoundary>
+        )}
+        {page === "admin" && (
+          <ErrorBoundary label="Government Dashboard">
+            <AdminDashboard projects={projects} />
+          </ErrorBoundary>
+        )}
+        {page === "overview" && (
+          <ErrorBoundary label="National Infrastructure">
+            <ProjectOverview projects={projects} />
+          </ErrorBoundary>
+        )}
       </main>
 
       <footer className="border-t border-slate-200 mt-10">
