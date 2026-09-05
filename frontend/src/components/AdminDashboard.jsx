@@ -3,6 +3,7 @@ import SearchFilterBar from "./SearchFilterBar";
 import ProjectTable from "./ProjectTable";
 import InsightsPanel from "./InsightsPanel";
 import KPICards from "./KPICards";
+import MinistrySectorSpotlight from "./MinistrySectorSpotlight";
 import { computeKpis } from "../utils/riskEngine";
 import { ShieldCheck } from "lucide-react";
 
@@ -55,6 +56,9 @@ export default function AdminDashboard({ projects }) {
         sectors={sectors}
         states={states}
       />
+
+      {/* Ministry-Wise / Sector-Wise Spotlight Panel */}
+      <MinistrySectorSpotlight projects={projects} />
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2">
