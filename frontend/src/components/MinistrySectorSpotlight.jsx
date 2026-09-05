@@ -158,6 +158,7 @@ export default function MinistrySectorSpotlight({ projects }) {
                 Power: Zap,
                 "Urban Infrastructure": Building2,
                 Waterways: Waves,
+                Irrigation: Zap, // Using Zap as placeholder icon for Irrigation
               }).map(([sector, Icon]) => {
                 const isActive = selectedItem === sector;
                 return (
@@ -172,6 +173,7 @@ export default function MinistrySectorSpotlight({ projects }) {
                       Power: Zap,
                       "Urban Infrastructure": Building2,
                       Waterways: Waves,
+                      Irrigation: Zap,
                     }).findIndex(([s]) => s === sector) * 0.05 }}
                     className={`flex items-center gap-3 p-3 rounded-lg ${
                       isActive
