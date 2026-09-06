@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, ContactShadows, Html, RoundedBox } from "@react-three/drei";
+import { OrbitControls, ContactShadows, Html, RoundedBox } from "@react-three/drei";
 import { EffectComposer, Bloom, SMAA, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import gsap from "gsap";
+import ErrorBoundary from "./ErrorBoundary";
 import {
   FolderKanban,
   Coins,
@@ -994,6 +995,7 @@ export default function ProjectOverview({ projects = [] }) {
 
           {/* R3F 3D Canvas Engine */}
           <div className="w-full h-full">
+            <ErrorBoundary label="3D Viewport">
             <Canvas
               shadows="soft"
               dpr={[1, 2]}
@@ -1049,9 +1051,6 @@ export default function ProjectOverview({ projects = [] }) {
                   categoryKey={activeCategory}
                 />
 
-                {/* Studio-style environment reflections for realistic metal/glass materials */}
-                <Environment preset="city" background={false} />
-
                 {/* Realistic Contact Shadows onto Invisible Ground */}
                 <ContactShadows
                   position={[0, -0.6, 0]}
@@ -1091,6 +1090,7 @@ export default function ProjectOverview({ projects = [] }) {
                 <Vignette eskil={false} offset={0.15} darkness={0.5} />
               </EffectComposer>
             </Canvas>
+            </ErrorBoundary>
           </div>
 
           {/* Viewport Floating Footer Controls Notice */}
