@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, ContactShadows, Html, RoundedBox } from "@react-three/drei";
+import { OrbitControls, Environment, ContactShadows, Html, RoundedBox } from "@react-three/drei";
+import { EffectComposer, Bloom, SMAA, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import gsap from "gsap";
-import MinistrySectorSpotlight from "./MinistrySectorSpotlight";
-import ErrorBoundary from "./ErrorBoundary";
 import {
   FolderKanban,
   Coins,
@@ -993,11 +992,8 @@ export default function ProjectOverview({ projects = [] }) {
             </span>
           </div>
 
-          {/* R3F 3D Canvas Engine — isolated in its own ErrorBoundary so a
-              WebGL/Three.js failure only takes out this panel, never the
-              rest of the National Infrastructure page. */}
+          {/* R3F 3D Canvas Engine */}
           <div className="w-full h-full">
-            <ErrorBoundary label="3D Viewport">
             <Canvas
               shadows="soft"
               dpr={[1, 2]}
@@ -1008,14 +1004,6 @@ export default function ProjectOverview({ projects = [] }) {
                 powerPreference: "high-performance",
                 toneMapping: THREE.ACESFilmicToneMapping,
                 toneMappingExposure: 1.1,
-              }}
-              onCreated={({ gl }) => {
-                // Recover gracefully instead of leaving a dead black canvas
-                // if the GPU/browser drops the WebGL context mid-session.
-                gl.domElement.addEventListener("webglcontextlost", (e) => {
-                  e.preventDefault();
-                  console.warn("WebGL context lost in 3D viewport — attempting recovery.");
-                });
               }}
             >
               {/* Scene Lighting Setup — soft key + fill + rim for a premium studio look */}
@@ -1043,18 +1031,8 @@ export default function ProjectOverview({ projects = [] }) {
                 color="#FFF7ED"
               />
 
-              {/* NOTE: previously used <Environment preset="city" /> here, which
-                  fetches an HDR image from an external CDN at runtime. When that
-                  fetch fails or is slow (flaky network, ad-blocker, CDN outage),
-                  drei's internal texture processing throws "Cannot read
-                  properties of undefined (reading 'map')" and crashes the whole
-                  Canvas. Replaced with fully local lights so there is nothing
-                  to fetch and nothing that can fail here. */}
-              <hemisphereLight
-                skyColor="#bfdbfe"
-                groundColor="#1e293b"
-                intensity={0.5}
-              />
+              {/* Studio-style environment reflections for realistic metal/glass materials */}
+              <Environment preset="city" background={false} />
 
               {/* Realistic Contact Shadows onto Invisible Ground */}
               <ContactShadows
@@ -1100,15 +1078,19 @@ export default function ProjectOverview({ projects = [] }) {
                 maxPolarAngle={Math.PI / 2.2} // Locked to clean isometric perspective
               />
 
-              {/* Post-processing (EffectComposer/Bloom/SMAA/Vignette) removed —
-                  @react-three/postprocessing 3.1.1 + postprocessing 6.39.4 do
-                  internal effect-array processing that was throwing "Cannot
-                  read properties of undefined (reading 'map')" in this
-                  environment. The scene renders correctly without it; this
-                  was a visual-polish layer only, not required for the model
-                  to display. */}
+              {/* Subtle post-processing polish: gentle bloom on emissives,
+                  soft vignette framing, and MSAA for crisper edges */}
+              <EffectComposer multisampling={0}>
+                <SMAA />
+                <Bloom
+                  intensity={0.35}
+                  luminanceThreshold={0.65}
+                  luminanceSmoothing={0.3}
+                  mipmapBlur
+                />
+                <Vignette eskil={false} offset={0.15} darkness={0.5} />
+              </EffectComposer>
             </Canvas>
-            </ErrorBoundary>
           </div>
 
           {/* Viewport Floating Footer Controls Notice */}
@@ -1119,25 +1101,6 @@ export default function ProjectOverview({ projects = [] }) {
         </div>
       </div>
 
-      {/* -------------------------------------------------------------
-          SECTOR-WISE / MINISTRY-WISE SPOTLIGHT (relocated from the
-          Government Dashboard tab into National Infrastructure)
-         ------------------------------------------------------------- */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
-        <div className="flex items-center gap-2 mb-4">
-          <Building2 className="h-5 w-5 text-navy-700 shrink-0" />
-          <div>
-            <h2 className="font-display font-bold text-lg text-navy-900">
-              Sector-Wise &amp; Ministry-Wise Breakdown
-            </h2>
-            <p className="text-xs text-slate-500">
-              Interactive filters, live cost indicators, and per-sector illustrations for the full
-              live project register.
-            </p>
-          </div>
-        </div>
-        <MinistrySectorSpotlight projects={projects} />
-      </div>
     </div>
   );
 }
