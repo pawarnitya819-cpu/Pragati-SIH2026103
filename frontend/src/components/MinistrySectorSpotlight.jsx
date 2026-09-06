@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Building2, Train, Zap, Waves, Waypoints } from "lucide-react";
 import SectorIllustration from "./SectorIllustration";
 
-export default function MinistrySectorSpotlight({ projects }) {
+export default function MinistrySectorSpotlight({ projects = [] }) {
   // Calculate ministry stats (reuse logic from MinistryBreakdown)
   const ministryStats = useMemo(() => {
     const stats = {};
