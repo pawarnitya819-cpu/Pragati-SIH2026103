@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, ContactShadows, Html, RoundedBox } from "@react-three/drei";
-import { EffectComposer, Bloom, SMAA, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import gsap from "gsap";
 import MinistrySectorSpotlight from "./MinistrySectorSpotlight";
@@ -1101,18 +1100,13 @@ export default function ProjectOverview({ projects = [] }) {
                 maxPolarAngle={Math.PI / 2.2} // Locked to clean isometric perspective
               />
 
-              {/* Subtle post-processing polish: gentle bloom on emissives,
-                  soft vignette framing, and MSAA for crisper edges */}
-              <EffectComposer multisampling={0}>
-                <SMAA />
-                <Bloom
-                  intensity={0.35}
-                  luminanceThreshold={0.65}
-                  luminanceSmoothing={0.3}
-                  mipmapBlur
-                />
-                <Vignette eskil={false} offset={0.15} darkness={0.5} />
-              </EffectComposer>
+              {/* Post-processing (EffectComposer/Bloom/SMAA/Vignette) removed —
+                  @react-three/postprocessing 3.1.1 + postprocessing 6.39.4 do
+                  internal effect-array processing that was throwing "Cannot
+                  read properties of undefined (reading 'map')" in this
+                  environment. The scene renders correctly without it; this
+                  was a visual-polish layer only, not required for the model
+                  to display. */}
             </Canvas>
             </ErrorBoundary>
           </div>
