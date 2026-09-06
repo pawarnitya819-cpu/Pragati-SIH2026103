@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, ContactShadows, Html, RoundedBox } from "@react-three/drei";
-import { EffectComposer, Bloom, SMAA, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import gsap from "gsap";
 import ErrorBoundary from "./ErrorBoundary";
@@ -1076,19 +1075,6 @@ export default function ProjectOverview({ projects = [] }) {
                 rotateSpeed={0.6}
                 maxPolarAngle={Math.PI / 2.2} // Locked to clean isometric perspective
               />
-
-              {/* Subtle post-processing polish: gentle bloom on emissives,
-                  soft vignette framing, and MSAA for crisper edges */}
-              <EffectComposer multisampling={0}>
-                <SMAA />
-                <Bloom
-                  intensity={0.35}
-                  luminanceThreshold={0.65}
-                  luminanceSmoothing={0.3}
-                  mipmapBlur
-                />
-                <Vignette eskil={false} offset={0.15} darkness={0.5} />
-              </EffectComposer>
             </Canvas>
             </ErrorBoundary>
           </div>
