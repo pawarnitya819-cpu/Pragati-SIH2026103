@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows, Html, RoundedBox } from "@react-three/drei";
+import { EffectComposer, Bloom, SMAA, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import gsap from "gsap";
+import MinistrySectorSpotlight from "./MinistrySectorSpotlight";
 import {
   FolderKanban,
   Coins,
@@ -617,7 +619,7 @@ function CountUpMetric({ value, prefix = "", suffix = "" }) {
 // 4. MAIN PROJECT OVERVIEW COMPONENT
 // ============================================================================
 
-export default function ProjectOverview() {
+export default function ProjectOverview({ projects = [] }) {
   // Navigation State
   const [viewMode, setViewMode] = useState("Sector-Wise"); // "Ministry-Wise" | "Sector-Wise"
   const [activeCategory, setActiveCategory] = useState("Roads & Highways");
@@ -818,7 +820,7 @@ export default function ProjectOverview() {
                 </button>
               </div>
               <div className="text-xl sm:text-2xl font-black text-navy-900 font-display">
-                <CountUpMetric value={currentData.metrics.projectCount} suffix=" No." />
+                <CountUpMetric value={currentData.metrics.projectCount} />
               </div>
               {activeTooltip === "count" && (
                 <div className="absolute z-20 bottom-full left-2 mb-2 p-2 bg-slate-900 text-white text-[10px] rounded-md shadow-lg max-w-[180px]">
@@ -938,7 +940,7 @@ export default function ProjectOverview() {
                 </button>
               </div>
               <div className="text-xl sm:text-2xl font-black text-emerald-600 font-display">
-                <CountUpMetric value={currentData.metrics.completedMonth} suffix=" No." />
+                <CountUpMetric value={currentData.metrics.completedMonth} />
               </div>
               {activeTooltip === "comp" && (
                 <div className="absolute z-20 bottom-full left-2 mb-2 p-2 bg-slate-900 text-white text-[10px] rounded-md shadow-lg max-w-[180px]">
@@ -965,7 +967,7 @@ export default function ProjectOverview() {
                 </button>
               </div>
               <div className="text-xl sm:text-2xl font-black text-indigo-600 font-display">
-                <CountUpMetric value={currentData.metrics.newlyAdded} suffix=" No." />
+                <CountUpMetric value={currentData.metrics.newlyAdded} />
               </div>
               {activeTooltip === "added" && (
                 <div className="absolute z-20 bottom-full left-2 mb-2 p-2 bg-slate-900 text-white text-[10px] rounded-md shadow-lg max-w-[180px]">
@@ -994,34 +996,54 @@ export default function ProjectOverview() {
           {/* R3F 3D Canvas Engine */}
           <div className="w-full h-full">
             <Canvas
-              shadows
-              camera={{ position: [5, 4.5, 5], fov: 42 }}
-              gl={{ antialias: true, alpha: true }}
+              shadows="soft"
+              dpr={[1, 2]}
+              camera={{ position: [5, 4.5, 5], fov: 38 }}
+              gl={{
+                antialias: true,
+                alpha: true,
+                powerPreference: "high-performance",
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: 1.1,
+              }}
             >
-              {/* Scene Lighting Setup */}
-              <ambientLight intensity={0.8} />
+              {/* Scene Lighting Setup — soft key + fill + rim for a premium studio look */}
+              <ambientLight intensity={0.45} />
               <directionalLight
                 position={[8, 12, 6]}
-                intensity={1.4}
+                intensity={1.6}
                 castShadow
-                shadow-mapSize-width={1024}
-                shadow-mapSize-height={1024}
+                shadow-mapSize-width={2048}
+                shadow-mapSize-height={2048}
                 shadow-camera-near={0.5}
                 shadow-camera-far={25}
                 shadow-camera-left={-4}
                 shadow-camera-right={4}
                 shadow-camera-top={4}
                 shadow-camera-bottom={-4}
+                shadow-bias={-0.0006}
               />
-              <pointLight position={[-6, 4, -4]} intensity={0.6} color="#38BDF8" />
+              <pointLight position={[-6, 4, -4]} intensity={0.5} color="#38BDF8" />
+              <spotLight
+                position={[0, 6, -3]}
+                angle={0.5}
+                penumbra={1}
+                intensity={0.6}
+                color="#FFF7ED"
+              />
+
+              {/* Studio-style environment reflections for realistic metal/glass materials */}
+              <Environment preset="city" background={false} />
 
               {/* Realistic Contact Shadows onto Invisible Ground */}
               <ContactShadows
                 position={[0, -0.6, 0]}
-                opacity={0.55}
-                scale={7}
-                blur={1.8}
+                opacity={0.6}
+                scale={8}
+                blur={2.2}
                 far={4}
+                resolution={1024}
+                color="#0C1938"
               />
 
               {/* Dynamic Isometric Model Assembly */}
@@ -1043,17 +1065,32 @@ export default function ProjectOverview() {
                 />
               </Suspense>
 
-              {/* 360-Degree Continuous OrbitControls with Damping */}
+              {/* 360-Degree Continuous OrbitControls with Damping — slowed and
+                  more heavily damped for a calmer, premium rotation feel */}
               <OrbitControls
                 enableZoom={true}
                 minDistance={4}
                 maxDistance={14}
                 autoRotate={true}
-                autoRotateSpeed={2.5}
+                autoRotateSpeed={1.4}
                 enableDamping={true}
-                dampingFactor={0.05}
+                dampingFactor={0.08}
+                rotateSpeed={0.6}
                 maxPolarAngle={Math.PI / 2.2} // Locked to clean isometric perspective
               />
+
+              {/* Subtle post-processing polish: gentle bloom on emissives,
+                  soft vignette framing, and MSAA for crisper edges */}
+              <EffectComposer multisampling={0}>
+                <SMAA />
+                <Bloom
+                  intensity={0.35}
+                  luminanceThreshold={0.65}
+                  luminanceSmoothing={0.3}
+                  mipmapBlur
+                />
+                <Vignette eskil={false} offset={0.15} darkness={0.5} />
+              </EffectComposer>
             </Canvas>
           </div>
 
@@ -1063,6 +1100,26 @@ export default function ProjectOverview() {
             <span>Pinch / Scroll to zoom</span>
           </div>
         </div>
+      </div>
+
+      {/* -------------------------------------------------------------
+          SECTOR-WISE / MINISTRY-WISE SPOTLIGHT (relocated from the
+          Government Dashboard tab into National Infrastructure)
+         ------------------------------------------------------------- */}
+      <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+        <div className="flex items-center gap-2 mb-4">
+          <Building2 className="h-5 w-5 text-navy-700 shrink-0" />
+          <div>
+            <h2 className="font-display font-bold text-lg text-navy-900">
+              Sector-Wise &amp; Ministry-Wise Breakdown
+            </h2>
+            <p className="text-xs text-slate-500">
+              Interactive filters, live cost indicators, and per-sector illustrations for the full
+              live project register.
+            </p>
+          </div>
+        </div>
+        <MinistrySectorSpotlight projects={projects} />
       </div>
     </div>
   );

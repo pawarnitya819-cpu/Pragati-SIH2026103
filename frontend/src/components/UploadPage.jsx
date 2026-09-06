@@ -35,7 +35,7 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
   const [authorized, setAuthorized] = useState(false);
   const [authToken, setAuthToken] = useState(null);
   const [authLoading, setAuthLoading] = useState(false);
-  const [projectId, setProjectId] = useState("");
+  const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
 
@@ -90,14 +90,14 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
-    if (!projectId.trim()) {
-      setAuthError("Please enter a Project ID.");
+    if (!userId.trim()) {
+      setAuthError("Please enter a User ID.");
       return;
     }
     setAuthError("");
     setAuthLoading(true);
     try {
-      const { token } = await verifyAccess(projectId.trim(), password);
+      const { token } = await verifyAccess(userId.trim(), password);
       setAuthToken(token);
       setAuthorized(true);
     } catch (err) {
@@ -127,17 +127,17 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
             </div>
             <h2 className="font-display font-black text-lg text-navy-900">Verify Access</h2>
             <p className="text-xs text-slate-500 text-center">
-              Data uploads are restricted during evaluation. Enter your Project ID and access
+              Data uploads are restricted during evaluation. Enter your User ID and access
               password to continue.
             </p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Project ID</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">User ID</label>
             <input
               type="text"
-              value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
               placeholder="e.g. SIH26103"
               className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700/30"
             />
@@ -410,7 +410,7 @@ export default function UploadPage({ onDatasetSynced, siteMedia = [], onSiteMedi
 
       <div className="pt-2 border-t border-slate-200">
         <SiteMediaUpload
-          projectId={projectId.trim()}
+          projectId={userId.trim()}
           items={siteMedia}
           onChange={onSiteMediaChange}
         />

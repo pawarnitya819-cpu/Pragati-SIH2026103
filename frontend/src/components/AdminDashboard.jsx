@@ -3,7 +3,8 @@ import SearchFilterBar from "./SearchFilterBar";
 import ProjectTable from "./ProjectTable";
 import InsightsPanel from "./InsightsPanel";
 import KPICards from "./KPICards";
-import MinistrySectorSpotlight from "./MinistrySectorSpotlight";
+import ChartsSection from "./ChartsSection";
+import KeyInsights from "./KeyInsights";
 import { computeKpis } from "../utils/riskEngine";
 import { ShieldCheck } from "lucide-react";
 
@@ -28,6 +29,7 @@ export default function AdminDashboard({ projects }) {
   }, [projects, query, sector, state]);
 
   const kpis = useMemo(() => computeKpis(filtered), [filtered]);
+  const overallKpis = useMemo(() => computeKpis(projects), [projects]);
 
   return (
     <div className="space-y-6">
@@ -57,17 +59,23 @@ export default function AdminDashboard({ projects }) {
         states={states}
       />
 
-      {/* Ministry-Wise / Sector-Wise Spotlight Panel */}
-      <MinistrySectorSpotlight projects={projects} />
+      <ChartsSection kpis={kpis} />
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2">
-          <ProjectTable projects={filtered} />
-        </div>
-        <div className="xl:col-span-1">
-          <InsightsPanel projects={filtered.length ? filtered : projects} />
+      <div>
+        <h3 className="font-display font-bold text-lg text-navy-900 mb-3">
+          Project Tracking Register
+        </h3>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div className="xl:col-span-2">
+            <ProjectTable projects={filtered} />
+          </div>
+          <div className="xl:col-span-1">
+            <InsightsPanel projects={filtered.length ? filtered : projects} />
+          </div>
         </div>
       </div>
+
+      <KeyInsights projects={projects} kpis={overallKpis} />
     </div>
   );
 }
