@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, ContactShadows, Html, RoundedBox } from "@react-three/drei";
+import { OrbitControls, ContactShadows, Html, RoundedBox } from "@react-three/drei";
 import { EffectComposer, Bloom, SMAA, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import gsap from "gsap";
 import MinistrySectorSpotlight from "./MinistrySectorSpotlight";
+import ErrorBoundary from "./ErrorBoundary";
 import {
   FolderKanban,
   Coins,
@@ -993,8 +994,11 @@ export default function ProjectOverview({ projects = [] }) {
             </span>
           </div>
 
-          {/* R3F 3D Canvas Engine */}
+          {/* R3F 3D Canvas Engine — isolated in its own ErrorBoundary so a
+              WebGL/Three.js failure only takes out this panel, never the
+              rest of the National Infrastructure page. */}
           <div className="w-full h-full">
+            <ErrorBoundary label="3D Viewport">
             <Canvas
               shadows="soft"
               dpr={[1, 2]}
@@ -1005,6 +1009,14 @@ export default function ProjectOverview({ projects = [] }) {
                 powerPreference: "high-performance",
                 toneMapping: THREE.ACESFilmicToneMapping,
                 toneMappingExposure: 1.1,
+              }}
+              onCreated={({ gl }) => {
+                // Recover gracefully instead of leaving a dead black canvas
+                // if the GPU/browser drops the WebGL context mid-session.
+                gl.domElement.addEventListener("webglcontextlost", (e) => {
+                  e.preventDefault();
+                  console.warn("WebGL context lost in 3D viewport — attempting recovery.");
+                });
               }}
             >
               {/* Scene Lighting Setup — soft key + fill + rim for a premium studio look */}
@@ -1032,8 +1044,18 @@ export default function ProjectOverview({ projects = [] }) {
                 color="#FFF7ED"
               />
 
-              {/* Studio-style environment reflections for realistic metal/glass materials */}
-              <Environment preset="city" background={false} />
+              {/* NOTE: previously used <Environment preset="city" /> here, which
+                  fetches an HDR image from an external CDN at runtime. When that
+                  fetch fails or is slow (flaky network, ad-blocker, CDN outage),
+                  drei's internal texture processing throws "Cannot read
+                  properties of undefined (reading 'map')" and crashes the whole
+                  Canvas. Replaced with fully local lights so there is nothing
+                  to fetch and nothing that can fail here. */}
+              <hemisphereLight
+                skyColor="#bfdbfe"
+                groundColor="#1e293b"
+                intensity={0.5}
+              />
 
               {/* Realistic Contact Shadows onto Invisible Ground */}
               <ContactShadows
@@ -1092,6 +1114,7 @@ export default function ProjectOverview({ projects = [] }) {
                 <Vignette eskil={false} offset={0.15} darkness={0.5} />
               </EffectComposer>
             </Canvas>
+            </ErrorBoundary>
           </div>
 
           {/* Viewport Floating Footer Controls Notice */}
