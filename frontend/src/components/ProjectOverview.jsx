@@ -1031,20 +1031,6 @@ export default function ProjectOverview({ projects = [] }) {
                 color="#FFF7ED"
               />
 
-              {/* Studio-style environment reflections for realistic metal/glass materials */}
-              <Environment preset="city" background={false} />
-
-              {/* Realistic Contact Shadows onto Invisible Ground */}
-              <ContactShadows
-                position={[0, -0.6, 0]}
-                opacity={0.6}
-                scale={8}
-                blur={2.2}
-                far={4}
-                resolution={1024}
-                color="#0C1938"
-              />
-
               {/* Dynamic Isometric Model Assembly */}
               <Suspense
                 fallback={
@@ -1061,6 +1047,20 @@ export default function ProjectOverview({ projects = [] }) {
                 <IsometricSceneContent
                   theme={currentData.theme}
                   categoryKey={activeCategory}
+                />
+
+                {/* Studio-style environment reflections for realistic metal/glass materials */}
+                <Environment preset="city" background={false} />
+
+                {/* Realistic Contact Shadows onto Invisible Ground */}
+                <ContactShadows
+                  position={[0, -0.6, 0]}
+                  opacity={0.6}
+                  scale={8}
+                  blur={2.2}
+                  far={4}
+                  resolution={1024}
+                  color="#0C1938"
                 />
               </Suspense>
 
