@@ -56,10 +56,9 @@ export default function App() {
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // Render's free tier spins the backend down after ~15 min idle; the
-    // first request after that can take 30-60s to wake it. A single failed
-    // fetch used to permanently flip the "offline" banner even when the
-    // backend was just slow to start — retry with backoff instead of
-    // giving up after one attempt.
+    // first request after that can take 30-90s to wake it. Retry with
+    // backoff, and if it still hasn't woken up, keep polling quietly in
+    // the background instead of freezing on the 18-row sample fallback.
     const attemptFetch = async (retriesLeft, delayMs) => {
       try {
         const data = await fetchProjects();
@@ -75,18 +74,21 @@ export default function App() {
           if (!cancelled) attemptFetch(retriesLeft - 1, Math.min(delayMs * 1.5, 10000));
         } else {
           setBackendOnline(false);
-          setBackendWaking(false);
+          if (!cancelled) {
+            await sleep(10000);
+            if (!cancelled) attemptFetch(3, 8000);
+          }
         }
       }
     };
 
-    attemptFetch(5, 4000); // up to ~5 tries, growing delay, ~35s total ceiling
+    attemptFetch(8, 4000); // ~75s ceiling, then keeps retrying in background
 
     return () => {
       cancelled = true;
     };
   }, []);
-
+  
   const handleDatasetSynced = (updater) => {
     setProjects((prev) => {
       const next = typeof updater === "function" ? updater(prev) : updater;
