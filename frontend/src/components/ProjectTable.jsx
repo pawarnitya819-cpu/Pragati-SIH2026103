@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import RiskBadge from "./RiskBadge";
 import RiskDetailModal from "./RiskDetailModal";
+import ProjectDetailModal from "./ProjectDetailModal";
 import { Landmark, MapPin } from "lucide-react";
 import { useCountUp } from "../utils/useCountUp";
 import ProjectLocationMap from "./ProjectLocationMap";
@@ -87,6 +88,7 @@ function AnimatedBudget({ value }) {
 export default function ProjectTable({ projects }) {
   const [selectedProject, setSelectedProject] = useState(null);
   const [riskProject, setRiskProject] = useState(null);
+  const [detailProject, setDetailProject] = useState(null);
   const tbodyRef = useRef(null);
 
   useEffect(() => {
@@ -146,9 +148,13 @@ export default function ProjectTable({ projects }) {
               return (
                 <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="px-5 py-3.5 font-semibold text-navy-900">
-                    <span className="block truncate" title={p.name}>
+                    <button
+                      onClick={() => setDetailProject(p)}
+                      title="View project details / case study"
+                      className="block max-w-full truncate text-left hover:text-navy-700 hover:underline decoration-dotted underline-offset-2 transition-colors"
+                    >
                       {p.name}
-                    </span>
+                    </button>
                   </td>
                   <td className="px-5 py-3.5 text-slate-600">
                     <span className="flex items-start gap-1.5">
@@ -211,6 +217,7 @@ export default function ProjectTable({ projects }) {
 
       <ProjectLocationMap project={selectedProject} onClose={() => setSelectedProject(null)} />
       <RiskDetailModal project={riskProject} onClose={() => setRiskProject(null)} />
+      <ProjectDetailModal project={detailProject} onClose={() => setDetailProject(null)} />
     </div>
   );
 }
