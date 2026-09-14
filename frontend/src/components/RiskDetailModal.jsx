@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { X, TrendingUp, CalendarClock, Timer, CheckCircle2, MinusCircle } from "lucide-react";
 import RiskBadge from "./RiskBadge";
 
@@ -61,6 +62,17 @@ function FactorRow({ icon: Icon, active, title, detail, contribution }) {
 }
 
 export default function RiskDetailModal({ project, onClose }) {
+  // Lenis hijacks page scroll globally (see App.jsx); without this, scrolling
+  // inside the modal scrolled the page behind it instead.
+  useEffect(() => {
+    if (!project) return;
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = overflow;
+    };
+  }, [project]);
+
   if (!project) return null;
 
   const b = breakdownRisk(project);
@@ -94,7 +106,7 @@ export default function RiskDetailModal({ project, onClose }) {
           </button>
         </div>
 
-        <div className="p-5 space-y-5 overflow-y-auto scrollbar-thin">
+        <div className="p-5 space-y-5 overflow-y-auto scrollbar-thin" data-lenis-prevent>
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   X,
   LayoutGrid,
@@ -17,8 +17,26 @@ import {
   Paperclip,
   ShieldAlert,
 } from "lucide-react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import RiskBadge from "./RiskBadge";
 import { buildCaseStudy } from "../utils/caseStudyEngine";
+import { getStateLatLng } from "../data/stateCoordinates";
+
+// Same fix as ProjectLocationMap.jsx — Leaflet's default marker icons don't
+// resolve correctly under Vite's bundler without pointing them at the
+// bundled image URLs manually. Safe to repeat: it's a no-op if
+// ProjectLocationMap already ran it in this session.
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
 
 const TABS = [
   { id: "overview", label: "Overview & Scope", Icon: LayoutGrid },
@@ -47,6 +65,7 @@ function SectionLabel({ children }) {
 }
 
 function OverviewTab({ project, cs }) {
+  const loc = getStateLatLng(project.state);
   return (
     <div className="space-y-5">
       <div>
@@ -97,6 +116,34 @@ function OverviewTab({ project, cs }) {
             </li>
           ))}
         </ul>
+      </div>
+
+      <div>
+        <SectionLabel>Project Location</SectionLabel>
+        <div className="rounded-xl overflow-hidden ring-1 ring-slate-100 h-[220px] w-full" data-lenis-prevent>
+          <MapContainer
+            center={[project.lat ?? loc.lat, project.lng ?? loc.lng]}
+            zoom={6}
+            scrollWheelZoom={true}
+            style={{ height: "100%", width: "100%" }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[project.lat ?? loc.lat, project.lng ?? loc.lng]}>
+              <Popup>
+                <strong>{project.name}</strong>
+                <br />
+                {project.state}
+              </Popup>
+            </Marker>
+          </MapContainer>
+        </div>
+        <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
+          <MapPin className="h-3.5 w-3.5 text-navy-700 shrink-0" />
+          {project.state} — approximate state-level location on real map data (OpenStreetMap).
+        </p>
       </div>
     </div>
   );
@@ -303,6 +350,20 @@ function DetailsTab({ cs }) {
 export default function ProjectDetailModal({ project, onClose }) {
   const [tab, setTab] = useState("overview");
 
+  // Lenis (see App.jsx) hijacks wheel/touch scroll on the whole document, so
+  // without this, scrolling inside the modal was scrolling the page behind
+  // it instead. Locking body scroll + marking the inner pane with
+  // data-lenis-prevent (Lenis' own opt-out attribute) keeps the scroll
+  // gesture contained to the modal.
+  useEffect(() => {
+    if (!project) return;
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = overflow;
+    };
+  }, [project]);
+
   if (!project) return null;
   const cs = buildCaseStudy(project);
 
@@ -348,7 +409,7 @@ export default function ProjectDetailModal({ project, onClose }) {
           ))}
         </div>
 
-        <div className="p-5 overflow-y-auto scrollbar-thin flex-1">
+        <div className="p-5 overflow-y-auto scrollbar-thin flex-1" data-lenis-prevent>
           {tab === "overview" && <OverviewTab project={project} cs={cs} />}
           {tab === "health" && <HealthTab project={project} cs={cs} />}
           {tab === "rootcause" && <RootCauseTab cs={cs} />}
